@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Leaderboard from "../components/quiz/Leaderboard";
 import DailyChallenge from "../components/quiz/DailyChallenge";
+import StudyBasedQuiz from "../components/quiz/StudyBasedQuiz";
 
 export default function Quiz() {
   const [selectedLevel, setSelectedLevel] = useState(null);
@@ -212,8 +213,9 @@ export default function Quiz() {
           </div>
 
           <Tabs defaultValue="jogar" className="mt-12">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-4 mb-6">
               <TabsTrigger value="jogar">Jogar</TabsTrigger>
+              <TabsTrigger value="estudos">Estudos</TabsTrigger>
               <TabsTrigger value="desafios">Desafios</TabsTrigger>
               <TabsTrigger value="ranking">Ranking</TabsTrigger>
             </TabsList>
@@ -243,6 +245,10 @@ export default function Quiz() {
                   </CardContent>
                 </Card>
               )}
+            </TabsContent>
+
+            <TabsContent value="estudos">
+              <StudyBasedQuiz completedStudies={completedStudies} />
             </TabsContent>
 
             <TabsContent value="desafios">
