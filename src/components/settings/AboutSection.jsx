@@ -1,10 +1,18 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Info, BookOpen, Users, Heart } from "lucide-react";
+import ProjectIdentity from "./ProjectIdentity";
 
 export default function AboutSection() {
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="sobre" className="space-y-6">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="sobre">Sobre</TabsTrigger>
+        <TabsTrigger value="identidade">Identidade</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="sobre" className="space-y-6">
       {/* Sobre o App */}
       <Card className="border-2" style={{ borderColor: '#722f37' }}>
         <CardHeader>
@@ -123,6 +131,11 @@ export default function AboutSection() {
           </p>
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="identidade">
+        <ProjectIdentity />
+      </TabsContent>
+    </Tabs>
   );
 }
