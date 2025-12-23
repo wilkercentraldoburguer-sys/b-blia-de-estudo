@@ -140,11 +140,12 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="personalization" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="personalization">Personalização</TabsTrigger>
             <TabsTrigger value="reading">Leitura</TabsTrigger>
             <TabsTrigger value="storage">Armazenamento</TabsTrigger>
             <TabsTrigger value="updates">Atualizações</TabsTrigger>
+            <TabsTrigger value="about">Sobre</TabsTrigger>
           </TabsList>
 
           <TabsContent value="personalization" className="space-y-6">
@@ -383,6 +384,10 @@ export default function Settings() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="about">
+            <AboutSection />
           </TabsContent>
         </Tabs>
       </div>
