@@ -15,6 +15,8 @@ import VerseCard from "../components/bible/VerseCard";
 import AudioPlayer from "../components/bible/AudioPlayer";
 import OfflineManager from "../components/bible/OfflineManager";
 import UpdateNotificationBanner from "../components/settings/UpdateNotificationBanner";
+import CommentaryPanel from "../components/bible/CommentaryPanel";
+import AdvancedSearch from "../components/bible/AdvancedSearch";
 import { useTheme } from "../components/personalization/ThemeProvider";
 
 const ALL_BOOKS = [...OLD_TESTAMENT, ...NEW_TESTAMENT];
@@ -39,6 +41,10 @@ export default function Reader() {
   const [touchEnd, setTouchEnd] = useState(null);
   const [showVersionCompare, setShowVersionCompare] = useState(false);
   const [compareVersion, setCompareVersion] = useState("NVI");
+  const [showCommentaries, setShowCommentaries] = useState(false);
+  const [selectedVerseForCommentary, setSelectedVerseForCommentary] = useState(null);
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
+  const [userPreferences, setUserPreferences] = useState(null);
 
   const queryClient = useQueryClient();
   const { theme, fontSize } = useTheme();
@@ -210,6 +216,22 @@ SEM números, SEM comentários, APENAS texto.`,
   useEffect(() => {
     loadChapter(currentBook, currentChapter);
   }, [currentBook, currentChapter]);
+
+  useEffect(() => {
+    loadUserPreferences();
+  }, [user]);
+
+  const loadUserPreferences = async () => {
+    if (!user) return;
+    try {
+      const prefs = await base44.entities.UserPreferences.filter({ created_by: user.email });
+      if (prefs && prefs.length > 0) {
+        setUserPreferences(prefs[0]);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar preferências:", error);
+    }
+  };
 
   const handleBookSelect = (bookName, chapters) => {
     setCurrentBook(bookName);
@@ -473,37 +495,55 @@ JSON: {"text": "texto do versículo"}`,
             )}
           </div>
 
-          <div className="mt-0">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-900" />
-                <p className="text-slate-600 text-sm">Carregando capítulo...</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {verses.map((verse, index) => (
-                  <VerseCard
-                    key={index}
-                    verse={verse.text}
-                    verseNumber={index + 1}
-                    isFavorite={isFavorite(index + 1)}
-                    hasNote={!!getNote(index + 1)}
-                    notePreview={getNote(index + 1)?.note_text}
-                    highlight={getHighlight(index + 1)}
-                    showCompare={showVersionCompare}
-                    compareVersion={compareVersion}
-                    bookName={currentBook}
+          <div className="grid md:grid-cols-3 gap-6 mt-0">
+            <div className="md:col-span-2">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-900" />
+                  <p className="text-slate-600 text-sm">Carregando capítulo...</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {verses.map((verse, index) => (
+                    <VerseCard
+                      key={index}
+                      verse={verse.text}
+                      verseNumber={index + 1}
+                      isFavorite={isFavorite(index + 1)}
+                      hasNote={!!getNote(index + 1)}
+                      notePreview={getNote(index + 1)?.note_text}
+                      highlight={getHighlight(index + 1)}
+                      showCompare={showVersionCompare}
+                      compareVersion={compareVersion}
+                      bookName={currentBook}
+                      chapter={currentChapter}
+                      onToggleFavorite={() => handleToggleFavorite(index + 1, verse.text)}
+                      onAddNote={() => handleOpenNote(index + 1, verse.text)}
+                      onVerseClick={() => {
+                        handleVerseClick(index + 1, verse.text);
+                        setSelectedVerseForCommentary(index + 1);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {showCommentaries && (
+              <div className="md:col-span-1">
+                <div className="sticky top-4">
+                  <CommentaryPanel
+                    book={currentBook}
                     chapter={currentChapter}
-                    onToggleFavorite={() => handleToggleFavorite(index + 1, verse.text)}
-                    onAddNote={() => handleOpenNote(index + 1, verse.text)}
-                    onVerseClick={() => handleVerseClick(index + 1, verse.text)}
+                    verse={selectedVerseForCommentary}
+                    activeCommentators={userPreferences?.comentaristas_ativos || ["Ryrie"]}
                   />
-                ))}
+                </div>
               </div>
             )}
           </div>
-        </div>
-      </div>
+          </div>
+          </div>
 
       <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
         <DialogContent>
@@ -623,6 +663,18 @@ JSON: {"text": "texto do versículo"}`,
           />
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Busca Avançada */}
+      <AdvancedSearch
+        open={searchDialogOpen}
+        onOpenChange={setSearchDialogOpen}
+        onSelectVerse={(book, chapter, verse) => {
+          setCurrentBook(book);
+          setCurrentChapter(chapter);
+          setSelectedVerseForCommentary(verse);
+          setShowCommentaries(true);
+        }}
+      />
       </div>
       );
       }
