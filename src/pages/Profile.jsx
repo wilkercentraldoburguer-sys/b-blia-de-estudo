@@ -90,6 +90,15 @@ export default function Profile() {
     enabled: !!user,
   });
 
+  const { data: highlights = [] } = useQuery({
+    queryKey: ['highlights', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      return await base44.entities.Highlight.filter({ created_by: user.email });
+    },
+    enabled: !!user,
+  });
+
   const updatePreferencesMutation = useMutation({
     mutationFn: async (data) => {
       if (preferences?.id) {
@@ -198,9 +207,16 @@ export default function Profile() {
           </Card>
         )}
 
-        {/* Estatísticas Espirituais */}
+        {/* Estatísticas Espirituais Aprimoradas */}
         <div className="mb-6">
-          <SpiritualStats studies={biblicalStudies} quizProgress={quizProgress} />
+          <SpiritualStats 
+            studies={biblicalStudies} 
+            quizProgress={quizProgress}
+            notes={notes}
+            favorites={favorites}
+            highlights={highlights}
+            user={user}
+          />
         </div>
 
         {/* Histórico de Estudos */}
