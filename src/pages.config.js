@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Community from './pages/Community';
 import Settings from './pages/Settings';
 import Quiz from './pages/Quiz';
+import BibliaLeitura from './pages/BibliaLeitura';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "Community": Community,
     "Settings": Settings,
     "Quiz": Quiz,
+    "BibliaLeitura": BibliaLeitura,
 }
 
 export const pagesConfig = {

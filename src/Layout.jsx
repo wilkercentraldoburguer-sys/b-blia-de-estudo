@@ -7,8 +7,8 @@ import { ThemeProvider } from "./components/personalization/ThemeProvider";
 export default function Layout({ children, currentPageName }) {
   const menuItems = [
     { name: "Home", label: "Início", icon: Home },
-    { name: "Bible", label: "Bíblia", icon: BookOpen },
-    { name: "Study", label: "Estudo", icon: BookMarked },
+    { name: "BibliaLeitura", label: "Leitura", icon: BookOpen },
+    { name: "Bible", label: "Estudo", icon: BookMarked },
     { name: "Quiz", label: "Quiz", icon: Brain },
     { name: "Community", label: "Comunidade", icon: Users },
     { name: "Sermons", label: "Ministrações", icon: Video },
