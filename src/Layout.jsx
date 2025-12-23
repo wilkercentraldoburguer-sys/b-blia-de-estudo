@@ -29,14 +29,16 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={item.name}
                 to={createPageUrl(item.name)}
-                className={`flex flex-col items-center gap-1 px-2 py-2 rounded-xl transition-all ${
+                className={`flex flex-col items-center gap-1 px-2 py-2 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? "text-blue-600 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg scale-105"
-                    : "text-slate-500 hover:text-blue-600 hover:bg-slate-50"
+                    ? "text-white shadow-lg scale-105"
+                    : "text-slate-500 hover:text-white hover:bg-stone-700"
                 }`}
+                style={isActive ? { backgroundColor: '#722f37' } : {}}
               >
-                <Icon className={`w-5 h-5 ${isActive ? "stroke-2" : ""}`} />
+                <Icon className={`w-5 h-5 transition-transform ${isActive ? "stroke-2 scale-110" : ""}`} />
                 <span className="text-xs font-semibold">{item.label}</span>
+                {isActive && <div className="w-1 h-1 rounded-full bg-white animate-pulse"></div>}
               </Link>
             );
           })}
