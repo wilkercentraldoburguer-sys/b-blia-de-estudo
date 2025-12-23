@@ -10,6 +10,8 @@ import { BookMarked, Menu, Loader2, MapPin, Clock, Key, AlertCircle, Link2, User
 import BookSelector from "../components/bible/BookSelector";
 import ChapterNavigation from "../components/bible/ChapterNavigation";
 import DevotionalSection from "../components/study/DevotionalSection";
+import StudyGenerator from "../components/study/StudyGenerator";
+import StudyViewer from "../components/study/StudyViewer";
 
 export default function Study() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -28,6 +30,9 @@ export default function Study() {
   const [comparisonData, setComparisonData] = useState([]);
   const [isLoadingComparison, setIsLoadingComparison] = useState(false);
   const [activeTab, setActiveTab] = useState("estudo");
+  const [studyGeneratorOpen, setStudyGeneratorOpen] = useState(false);
+  const [currentStudy, setCurrentStudy] = useState(null);
+  const [myStudies, setMyStudies] = useState([]);
 
   const BIBLE_VERSIONS = [
     { sigla: "ARA", nome: "Almeida Revista e Atualizada" },
@@ -43,7 +48,29 @@ export default function Study() {
 
   useEffect(() => {
     loadUser();
+    loadStudies();
+    checkUrlParams();
   }, []);
+
+  const checkUrlParams = async () => {
+    const params = new URLSearchParams(window.location.search);
+    const studyId = params.get('study');
+    if (studyId) {
+      const study = await base44.entities.BiblicalStudy.filter({ id: studyId });
+      if (study && study.length > 0) {
+        setCurrentStudy(study[0]);
+      }
+    }
+  };
+
+  const loadStudies = async () => {
+    try {
+      const studies = await base44.entities.BiblicalStudy.list('-created_date', 50);
+      setMyStudies(studies);
+    } catch (error) {
+      console.error("Erro ao carregar estudos:", error);
+    }
+  };
 
   const loadUser = async () => {
     try {
@@ -374,6 +401,18 @@ Retorne apenas um JSON:
         {/* Conteúdo baseado na aba ativa */}
         {activeTab === "devocionais" ? (
           <DevotionalSection user={user} />
+        ) : currentStudy ? (
+          <StudyViewer
+            study={currentStudy}
+            onUpdateProgress={async (progress) => {
+              await base44.entities.BiblicalStudy.update(currentStudy.id, { progresso: progress });
+              loadStudies();
+            }}
+            onComplete={async () => {
+              await base44.entities.BiblicalStudy.update(currentStudy.id, { concluido: true, progresso: 100 });
+              loadStudies();
+            }}
+          />
         ) : (
           <>
         {/* Navegação */}
@@ -597,15 +636,74 @@ Retorne apenas um JSON:
               </CardContent>
             </Card>
           </div>
-        ) : (
+        ) : myStudies.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
               <BookMarked className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500 text-lg">
-                Selecione uma passagem para estudar
+              <p className="text-slate-500 text-lg mb-4">
+                Nenhum estudo gerado ainda
               </p>
+              <Button
+                onClick={() => setStudyGeneratorOpen(true)}
+                className="text-white"
+                style={{ backgroundColor: '#722f37' }}
+              >
+                Gerar Primeiro Estudo
+              </Button>
             </CardContent>
           </Card>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {myStudies.map((study) => (
+              <Card 
+                key={study.id}
+                className="cursor-pointer hover:shadow-lg transition-all"
+                onClick={() => setCurrentStudy(study)}
+              >
+                <CardHeader>
+                  <CardTitle className="text-lg" style={{ color: '#722f37' }}>
+                    {study.referencia}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Badge style={{ backgroundColor: '#722f37' }} className="text-white text-xs">
+                        {study.versao}
+                      </Badge>
+                      <Badge variant="outline" className="capitalize text-xs">
+                        {study.profundidade}
+                      </Badge>
+                    </div>
+                    <div>
+                      <div className="text-xs text-stone-600 mb-1">
+                        Progresso: {study.progresso}%
+                      </div>
+                      <Progress value={study.progresso} className="h-1" />
+                    </div>
+                    {study.concluido && (
+                      <Badge className="bg-green-600 text-xs">
+                        Concluído
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all border-2 border-dashed"
+              style={{ borderColor: '#722f37' }}
+              onClick={() => setStudyGeneratorOpen(true)}
+            >
+              <CardContent className="py-16 text-center">
+                <BookMarked className="w-12 h-12 mx-auto mb-3" style={{ color: '#722f37' }} />
+                <p className="text-stone-600 font-semibold">
+                  Gerar Novo Estudo
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Dialog de Anotação */}
@@ -705,6 +803,19 @@ Retorne apenas um JSON:
         </Dialog>
           </>
         )}
+
+        {/* Gerador de Estudos */}
+        <StudyGenerator
+          open={studyGeneratorOpen}
+          onClose={() => setStudyGeneratorOpen(false)}
+          initialBook={currentBook}
+          initialChapter={currentChapter}
+          initialVerse={selectedVerse}
+          onStudyGenerated={(study) => {
+            setCurrentStudy(study);
+            loadStudies();
+          }}
+        />
       </div>
     </div>
   );

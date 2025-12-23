@@ -8,6 +8,8 @@ import VerseActions from "../components/reader/VerseActions";
 import ImmersiveMode from "../components/reader/ImmersiveMode";
 import ShareCard from "../components/reader/ShareCard";
 import ReadingSettings from "../components/reader/ReadingSettings";
+import StudyGenerator from "../components/study/StudyGenerator";
+import { useNavigate } from "react-router-dom";
 
 export default function BibliaLeitura() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -23,6 +25,9 @@ export default function BibliaLeitura() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState("ARA");
   const [touchTimer, setTouchTimer] = useState(null);
+  const [studyGeneratorOpen, setStudyGeneratorOpen] = useState(false);
+  
+  const navigate = useNavigate();
   
   // Configurações de leitura
   const [fontSize, setFontSize] = useState("medium");
@@ -299,6 +304,15 @@ SEM números, SEM comentários, APENAS texto.`,
             </h1>
             <div className="flex gap-2">
               <Button
+                onClick={() => setStudyGeneratorOpen(true)}
+                size="sm"
+                className="text-white"
+                style={{ backgroundColor: '#722f37' }}
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Estudo do Texto
+              </Button>
+              <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setImmersiveMode(true)}
@@ -463,6 +477,18 @@ SEM números, SEM comentários, APENAS texto.`,
             onClose={() => setSettingsOpen(false)}
           />
         )}
+
+        {/* Gerador de Estudos */}
+        <StudyGenerator
+          open={studyGeneratorOpen}
+          onClose={() => setStudyGeneratorOpen(false)}
+          initialBook={currentBook}
+          initialChapter={currentChapter}
+          initialVerse={1}
+          onStudyGenerated={(study) => {
+            navigate(`/Study?study=${study.id}`);
+          }}
+        />
       </div>
     </div>
   );
