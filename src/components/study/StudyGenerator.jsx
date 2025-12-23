@@ -59,12 +59,42 @@ export default function StudyGenerator({
       const prompt = `Gere um estudo bíblico completo para ${referencia} na versão ${versao}.
 Nível de profundidade: ${profundidade} (${nivelDescricao[profundidade]})
 
-ESTRUTURA OBRIGATÓRIA (JSON):
+═══════════════════════════════════════════
+DIRETRIZES EDITORIAIS OBRIGATÓRIAS
+═══════════════════════════════════════════
+
+TOM DA ESCRITA:
+- Linguagem clara, reverente e bíblica
+- Sem jargões excessivos ou motivacional vazio
+- Sem frases clichê ou promessas irreais
+- Tom maduro, respeitoso e fundamentado
+
+POSTURA TEOLÓGICA:
+- Cristocêntrica (toda Escritura aponta para Cristo)
+- Baseada rigorosamente no texto bíblico
+- Humilde (não dogmática fora do que o texto diz)
+- Respeitosa às diferentes tradições cristãs históricas
+
+LIMITES ESPIRITUAIS:
+- NÃO gerar profecias pessoais
+- NÃO usar linguagem imperativa ("Deus está dizendo…")
+- NÃO substituir o papel do pastor ou Espírito Santo
+- SEMPRE incentivar confrontação com a igreja local
+
+ESTRUTURA OBRIGATÓRIA:
+- Começar sempre no texto bíblico
+- Explicar antes de aplicar
+- Aplicar sem distorcer o texto
+- Concluir apontando para Deus, não para o usuário
+
+═══════════════════════════════════════════
+JSON DE RESPOSTA:
+═══════════════════════════════════════════
 {
-  "contexto": "Contexto histórico, literário e teológico. Quem escreveu, quando, para quem, por quê.",
-  "explicacao": "Explicação detalhada verso a verso ou por blocos lógicos. Significado literal e teológico.",
-  "aplicacao_pratica": "Aplicação nos dias de hoje com 3-5 exemplos reais e concretos de como viver isso hoje.",
-  "comparacao_visoes": "Contraste entre a visão bíblica apresentada no texto e a visão cultural/secular atual.",
+  "contexto": "Contexto histórico, literário e teológico BASEADO NO TEXTO. Quem escreveu, quando, para quem, contexto da época.",
+  "explicacao": "Explicação detalhada verso a verso ou por blocos. O QUE O TEXTO DIZ, não o que você acha que ele significa.",
+  "aplicacao_pratica": "Aplicação nos dias de hoje com 3-5 exemplos REAIS e ATUAIS. Como viver este texto hoje SEM distorcê-lo.",
+  "comparacao_visoes": "Contraste honesto entre a visão bíblica do texto e a visão cultural/secular atual. Sem arrogância.",
   "comparacao_versoes": [
     {"versao": "ARA", "diferenca_chave": "ênfase ou palavra única desta versão"},
     {"versao": "NVI", "diferenca_chave": "diferença principal"},
@@ -82,17 +112,24 @@ ESTRUTURA OBRIGATÓRIA (JSON):
       "explicacao": "Por que esta é a resposta correta"
     }
   ],
-  "reflexao": "Reflexão pessoal guiada. Perguntas para aplicação individual. Como este texto desafia ou encoraja?",
-  "oracao": "Oração guiada baseada no texto. Modelo de oração que o leitor pode fazer."
+  "reflexao": "Reflexão pessoal guiada com PERGUNTAS PRÁTICAS. Como este texto me desafia? O que Deus está ensinando através dele?",
+  "oracao": "Oração DEPENDENTE de Deus, baseada no texto. Sem declarações de posse. Centrada na vontade do Senhor."
 }
 
-IMPORTANTE:
-- Mínimo 5 perguntas no quiz
-- Aplicação prática DEVE ter exemplos reais e concretos
-- Reflexão DEVE incluir perguntas para aplicação pessoal
-- Não impor interpretações, apresentar a verdade bíblica
-- Sempre apontar para Cristo
-- Incentivar leitura da Bíblia e vida em comunidade`;
+REGRAS FINAIS:
+✓ Mínimo 5 perguntas no quiz
+✓ Aplicação prática DEVE ter exemplos reais e concretos
+✓ Reflexão DEVE incluir perguntas práticas para vida
+✓ Não impor interpretações além do texto
+✓ Sempre apontar para Cristo
+✓ Incentivar leitura bíblica e comunhão na igreja local
+✓ Linguagem clara, sem triunfalismo vazio
+
+NUNCA FAÇA:
+✗ Profecias pessoais
+✗ "Deus está mandando você..."
+✗ Aconselhamento direto para decisões críticas
+✗ Substituir o papel do Espírito Santo ou pastor`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,

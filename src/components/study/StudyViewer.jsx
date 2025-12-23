@@ -8,6 +8,7 @@ import {
   BookOpen, Lightbulb, Calendar, GitCompare, Link2, 
   Brain, Heart, MessageCircle, CheckCircle2, Share2 
 } from "lucide-react";
+import SpiritualDisclaimer from "../common/SpiritualDisclaimer";
 
 export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
   const [activeTab, setActiveTab] = useState("contexto");
@@ -48,6 +49,9 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
 
   return (
     <div className="space-y-6">
+      {/* Disclaimer Espiritual */}
+      <SpiritualDisclaimer context="estudo" />
+
       {/* Header do Estudo */}
       <Card className="border-2" style={{ borderColor: '#722f37' }}>
         <CardContent className="pt-6">

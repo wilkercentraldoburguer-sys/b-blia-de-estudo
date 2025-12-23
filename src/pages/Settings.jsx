@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import ThemeCustomizer from "../components/personalization/ThemeCustomizer";
 import ReadingPlanGenerator from "../components/personalization/ReadingPlanGenerator";
 import PredefinedPlansLibrary from "../components/reading/PredefinedPlansLibrary";
+import AboutSection from "../components/settings/AboutSection";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
