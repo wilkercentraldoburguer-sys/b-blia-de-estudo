@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Settings, Maximize2, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Maximize2, Share2, BookOpen } from "lucide-react";
 import VerseSelector from "../components/reader/VerseSelector";
 import VerseActions from "../components/reader/VerseActions";
 import ImmersiveMode from "../components/reader/ImmersiveMode";
@@ -10,6 +10,7 @@ import ShareCard from "../components/reader/ShareCard";
 import ReadingSettings from "../components/reader/ReadingSettings";
 import StudyGenerator from "../components/study/StudyGenerator";
 import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "../utils";
 
 export default function BibliaLeitura() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -486,7 +487,7 @@ SEM números, SEM comentários, APENAS texto.`,
           initialChapter={currentChapter}
           initialVerse={1}
           onStudyGenerated={(study) => {
-            navigate(`/Study?study=${study.id}`);
+            window.location.href = `${createPageUrl('Study')}?study=${study.id}`;
           }}
         />
       </div>

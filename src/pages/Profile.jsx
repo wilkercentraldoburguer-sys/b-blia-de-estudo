@@ -72,6 +72,24 @@ export default function Profile() {
     enabled: !!user,
   });
 
+  const { data: biblicalStudies = [] } = useQuery({
+    queryKey: ['biblicalStudies', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      return await base44.entities.BiblicalStudy.filter({ created_by: user.email });
+    },
+    enabled: !!user,
+  });
+
+  const { data: quizProgress = [] } = useQuery({
+    queryKey: ['quizProgress', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      return await base44.entities.QuizProgress.filter({ created_by: user.email });
+    },
+    enabled: !!user,
+  });
+
   const updatePreferencesMutation = useMutation({
     mutationFn: async (data) => {
       if (preferences?.id) {
@@ -151,26 +169,27 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-slate-50">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         <div className="flex items-center gap-3 mb-8">
-          <User className="w-10 h-10 text-amber-600" />
-          <h1 className="text-4xl font-bold text-slate-800">Perfil</h1>
+          <User className="w-10 h-10" style={{ color: '#722f37' }} />
+          <h1 className="text-4xl font-bold text-stone-800">Meu Perfil</h1>
         </div>
 
         {/* Informações do Usuário */}
         {user && (
-          <Card className="mb-6">
+          <Card className="mb-6 border-2" style={{ borderColor: '#722f37' }}>
             <CardHeader>
-              <CardTitle>Informações</CardTitle>
+              <CardTitle style={{ color: '#722f37' }}>Informações</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-700"><strong>Nome:</strong> {user.full_name || "Não informado"}</p>
-              <p className="text-slate-700 mt-2"><strong>Email:</strong> {user.email}</p>
+              <p className="text-stone-700"><strong>Nome:</strong> {user.full_name || "Não informado"}</p>
+              <p className="text-stone-700 mt-2"><strong>Email:</strong> {user.email}</p>
               <Button 
                 onClick={handleLogout} 
                 variant="outline" 
                 className="mt-4"
+                style={{ borderColor: '#722f37', color: '#722f37' }}
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sair
@@ -178,6 +197,16 @@ export default function Profile() {
             </CardContent>
           </Card>
         )}
+
+        {/* Estatísticas Espirituais */}
+        <div className="mb-6">
+          <SpiritualStats studies={biblicalStudies} quizProgress={quizProgress} />
+        </div>
+
+        {/* Histórico de Estudos */}
+        <div className="mb-6">
+          <StudyHistory studies={biblicalStudies} />
+        </div>
 
         {/* Versão Padrão */}
         <Card className="mb-6">
