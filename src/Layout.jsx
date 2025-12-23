@@ -48,11 +48,11 @@ export default function Layout({ children, currentPageName }) {
       {/* Desktop Sidebar */}
       <aside className="hidden md:block fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-white via-blue-50/30 to-purple-50/30 border-r border-slate-200/50 shadow-2xl backdrop-blur-sm">
         <div className="p-6 h-full flex flex-col">
-          <div className="flex items-center gap-3 mb-10 p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg">
+          <div className="flex items-center gap-3 mb-10 p-4 rounded-2xl shadow-lg" style={{ background: 'linear-gradient(to right, #722f37, #8b3a42)' }}>
             <BookOpen className="w-10 h-10 text-white" />
             <div>
               <h1 className="text-xl font-bold text-white">Bíblia App</h1>
-              <p className="text-xs text-blue-100">Sua jornada espiritual</p>
+              <p className="text-xs text-amber-100">Sua jornada espiritual</p>
             </div>
           </div>
 

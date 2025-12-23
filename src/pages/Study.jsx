@@ -408,8 +408,11 @@ Retorne apenas um JSON:
         {isLoading ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-20 gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-              <p className="text-slate-600">Preparando estudo...</p>
+              <div className="w-12 h-12 rounded-full border-4 border-stone-200 animate-spin" style={{ borderTopColor: '#722f37' }}></div>
+              <div className="text-center">
+                <p className="text-stone-700 font-medium">Gerando estudo bíblico...</p>
+                <p className="text-stone-500 text-sm mt-1">{currentBook} {currentChapter}:{selectedVerse}</p>
+              </div>
             </CardContent>
           </Card>
         ) : studyData ? (

@@ -102,6 +102,17 @@ export default function BibliaLeitura() {
     loadChapter(currentBook, currentChapter, selectedVersion);
   }, [currentBook, currentChapter, selectedVersion]);
 
+  useEffect(() => {
+    // Salvar progresso de leitura
+    if (currentBook && currentChapter) {
+      localStorage.setItem('last_reading', JSON.stringify({
+        book: currentBook,
+        chapter: currentChapter,
+        timestamp: new Date().toISOString()
+      }));
+    }
+  }, [currentBook, currentChapter]);
+
   const loadChapter = async (book, chapter, version) => {
     setIsLoading(true);
     try {
@@ -351,8 +362,12 @@ SEM números, SEM comentários, APENAS texto.`,
         {/* Versículos */}
         <div className={`space-y-4 ${fontSizeClasses[fontSize]} ${lineSpacingClasses[lineSpacing]}`}>
           {isLoading ? (
-            <div className="text-center py-12">
-              <p className="text-stone-600">Carregando capítulo...</p>
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <div className="w-10 h-10 animate-spin rounded-full border-4 border-stone-200" style={{ borderTopColor: '#722f37' }}></div>
+              <div className="text-center">
+                <p className="text-stone-700 font-medium">Preparando a leitura...</p>
+                <p className="text-stone-500 text-sm mt-1">{currentBook} {currentChapter}</p>
+              </div>
             </div>
           ) : (
             verses.map((verse, index) => {
