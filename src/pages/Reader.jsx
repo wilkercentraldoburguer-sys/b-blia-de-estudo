@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, Loader2, Download } from "lucide-react";
+import { Menu, Loader2, Download, BookOpenCheck, StickyNote } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -217,9 +217,24 @@ SEM números, SEM comentários, APENAS texto.`,
     loadChapter(currentBook, currentChapter);
   }, [currentBook, currentChapter]);
 
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
   useEffect(() => {
     loadUserPreferences();
   }, [user]);
+
+  const loadUser = async () => {
+    try {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    } catch (error) {
+      console.error("Erro ao carregar usuário:", error);
+    }
+  };
 
   const loadUserPreferences = async () => {
     if (!user) return;
@@ -403,7 +418,23 @@ JSON: {"text": "texto do versículo"}`,
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-blue-900">Bíblia de Estudo</h1>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setSearchDialogOpen(true)}
+            >
+              <BookOpenCheck className="w-4 h-4" />
+              <span className="hidden sm:inline">Buscar</span>
+            </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setShowCommentaries(!showCommentaries)}
+            >
+              <StickyNote className="w-4 h-4" />
+              <span className="hidden sm:inline">Comentários</span>
+            </Button>
             <Button
               variant="outline"
               className="gap-2"
