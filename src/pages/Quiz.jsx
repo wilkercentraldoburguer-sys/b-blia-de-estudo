@@ -128,11 +128,14 @@ export default function Quiz() {
       setShowAnswer(false);
     } else {
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      const finalScore = showAnswer && isCorrect ? score + 10 : score;
+      const finalCorrect = showAnswer && isCorrect ? correctAnswers + 1 : correctAnswers;
+      
       saveProgressMutation.mutate({
         nivel: selectedLevel,
-        pontuacao: score,
+        pontuacao: finalScore,
         total_perguntas: currentQuestions.length,
-        acertos: correctAnswers,
+        acertos: finalCorrect,
         tempo_gasto: timeSpent
       });
       setIsQuizComplete(true);
@@ -152,14 +155,17 @@ export default function Quiz() {
 
   if (!selectedLevel) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 px-4 py-8 pb-24">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50 px-4 py-8 pb-24">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-blue-900 mb-4">
+          <div className="text-center mb-12 pt-4">
+            <div className="inline-block p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl shadow-2xl mb-6">
+              <Brain className="w-16 h-16 text-white" />
+            </div>
+            <h1 className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               Quiz Bíblico
             </h1>
-            <p className="text-lg text-slate-600">
-              Teste seu conhecimento com 200 perguntas em 4 níveis de dificuldade
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Teste e aprimore seu conhecimento com perguntas em 4 níveis de dificuldade
             </p>
           </div>
 
@@ -170,27 +176,30 @@ export default function Quiz() {
               return (
                 <Card 
                   key={level.id} 
-                  className={`${level.bgColor} border-2 hover:shadow-xl transition-all cursor-pointer`}
+                  className="hover:shadow-2xl hover:scale-105 transition-all cursor-pointer border-2 group overflow-hidden relative"
                   onClick={() => startQuiz(level.id)}
                 >
-                  <CardHeader>
+                  <div className={`absolute inset-0 bg-gradient-to-br ${level.color} opacity-0 group-hover:opacity-10 transition-opacity`}></div>
+                  <CardHeader className="relative">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className={`text-2xl ${level.textColor}`}>
+                      <div className="flex-1">
+                        <CardTitle className={`text-2xl sm:text-3xl ${level.textColor} mb-2`}>
                           {level.name}
                         </CardTitle>
-                        <p className="text-sm text-slate-600 mt-2">{level.description}</p>
+                        <p className="text-sm text-slate-600">{level.description}</p>
                       </div>
-                      <Icon className={`w-12 h-12 ${level.textColor}`} />
+                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${level.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                        <Icon className="w-8 h-8 text-white" />
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="relative">
                     <div className="flex items-center justify-between">
-                      <Badge variant="outline" className={level.textColor}>
+                      <Badge variant="outline" className={`${level.textColor} font-semibold px-3 py-1`}>
                         {levelQuestions.length} perguntas
                       </Badge>
-                      <Button className={`bg-gradient-to-r ${level.color} text-white`}>
-                        Começar
+                      <Button className={`bg-gradient-to-r ${level.color} text-white shadow-lg hover:shadow-xl transition-all group-hover:scale-105`}>
+                        Começar Agora
                       </Button>
                     </div>
                   </CardContent>
@@ -231,38 +240,69 @@ export default function Quiz() {
   if (isQuizComplete) {
     const percentage = Math.round((correctAnswers / currentQuestions.length) * 100);
     const currentLevel = levels.find(l => l.id === selectedLevel);
+    const timeMinutes = Math.floor((Date.now() - startTime) / 60000);
+    const timeSeconds = Math.floor(((Date.now() - startTime) % 60000) / 1000);
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 px-4 py-8 pb-24">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50 px-4 py-8 pb-24">
         <div className="max-w-2xl mx-auto">
-          <Card className="text-center">
-            <CardHeader>
-              <Trophy className="w-20 h-20 mx-auto text-yellow-500 mb-4" />
+          <Card className="text-center shadow-2xl border-2">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+              <Trophy className="w-20 h-20 mx-auto mb-4 animate-bounce" />
               <CardTitle className="text-3xl">Quiz Completo!</CardTitle>
+              <p className="text-blue-100 mt-2">Nível: {currentLevel.name}</p>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <p className="text-5xl font-bold text-blue-900 mb-2">{score} pontos</p>
-                <p className="text-lg text-slate-600">
-                  {correctAnswers} de {currentQuestions.length} corretas ({percentage}%)
+            <CardContent className="space-y-6 pt-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                  <p className="text-4xl font-bold text-blue-900 mb-1">{score}</p>
+                  <p className="text-sm text-blue-700 font-semibold">Pontos</p>
+                </div>
+                <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                  <p className="text-4xl font-bold text-green-900 mb-1">{percentage}%</p>
+                  <p className="text-sm text-green-700 font-semibold">Acertos</p>
+                </div>
+              </div>
+
+              <div className="text-left">
+                <p className="text-sm text-slate-600 mb-2">Desempenho</p>
+                <Progress value={percentage} className="h-3" />
+                <p className="text-xs text-slate-500 mt-1">
+                  {correctAnswers} de {currentQuestions.length} corretas
                 </p>
               </div>
 
-              <Progress value={percentage} className="h-4" />
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="p-3 bg-slate-50 rounded-lg">
+                  <p className="text-slate-600">Tempo gasto</p>
+                  <p className="font-bold text-slate-800">{timeMinutes}:{timeSeconds.toString().padStart(2, '0')}</p>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-lg">
+                  <p className="text-slate-600">Média por questão</p>
+                  <p className="font-bold text-slate-800">
+                    {Math.round((Date.now() - startTime) / currentQuestions.length / 1000)}s
+                  </p>
+                </div>
+              </div>
 
-              <div className={`p-4 rounded-lg ${currentLevel.bgColor}`}>
-                <p className="text-lg font-semibold">
-                  {percentage >= 80 ? "Excelente! 🎉" : 
-                   percentage >= 60 ? "Muito bom! 👏" : 
-                   percentage >= 40 ? "Bom trabalho! 👍" : "Continue estudando! 📖"}
+              <div className={`p-4 rounded-xl bg-gradient-to-r ${currentLevel.color} text-white`}>
+                <p className="text-xl font-bold">
+                  {percentage >= 80 ? "🎉 Excelente!" : 
+                   percentage >= 60 ? "👏 Muito bom!" : 
+                   percentage >= 40 ? "👍 Bom trabalho!" : "📖 Continue estudando!"}
+                </p>
+                <p className="text-sm mt-1 text-white/90">
+                  {percentage >= 80 ? "Você domina este nível!" : 
+                   percentage >= 60 ? "Bom conhecimento bíblico!" : 
+                   percentage >= 40 ? "Continue praticando!" : "A prática leva à perfeição!"}
                 </p>
               </div>
 
               <div className="flex gap-3">
-                <Button onClick={() => startQuiz(selectedLevel)} className="flex-1">
+                <Button onClick={() => startQuiz(selectedLevel)} className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg">
                   Jogar Novamente
                 </Button>
-                <Button onClick={resetQuiz} variant="outline" className="flex-1">
+                <Button onClick={resetQuiz} variant="outline" className="flex-1 hover:bg-slate-100">
                   Escolher Nível
                 </Button>
               </div>

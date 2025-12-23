@@ -29,7 +29,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 90,
       icon: BookOpen,
       color: 'from-blue-400 to-blue-600',
-      recomendado: 'Iniciantes ou foco no Novo Testamento'
+      recomendado: 'Iniciantes ou foco no Novo Testamento',
+      categoria: 'popular'
     },
     {
       id: 'biblia_1_ano',
@@ -38,7 +39,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 365,
       icon: Calendar,
       color: 'from-green-400 to-green-600',
-      recomendado: 'Visão geral completa com tempo para meditação'
+      recomendado: 'Visão geral completa com tempo para meditação',
+      categoria: 'popular'
     },
     {
       id: 'biblia_misto_1_ano',
@@ -47,7 +49,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 365,
       icon: Target,
       color: 'from-purple-400 to-purple-600',
-      recomendado: 'Leitura dinâmica e variada'
+      recomendado: 'Leitura dinâmica e variada',
+      categoria: 'popular'
     },
     {
       id: 'biblia_180_dias',
@@ -56,7 +59,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 180,
       icon: Zap,
       color: 'from-orange-400 to-orange-600',
-      recomendado: 'Quem deseja imersão mais rápida'
+      recomendado: 'Quem deseja imersão mais rápida',
+      categoria: 'intensivo'
     },
     {
       id: 'biblia_90_dias',
@@ -65,7 +69,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 90,
       icon: Zap,
       color: 'from-red-400 to-red-600',
-      recomendado: 'Desafio para quem tem mais tempo disponível'
+      recomendado: 'Desafio para quem tem mais tempo disponível',
+      categoria: 'intensivo'
     },
     {
       id: 'novo_testamento_60',
@@ -74,7 +79,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 60,
       icon: BookOpen,
       color: 'from-cyan-400 to-cyan-600',
-      recomendado: 'Estudo focado nos Evangelhos e Epístolas'
+      recomendado: 'Estudo focado nos Evangelhos e Epístolas',
+      categoria: 'tematico'
     },
     {
       id: 'evangelhos_15',
@@ -83,7 +89,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 15,
       icon: BookOpen,
       color: 'from-amber-400 to-amber-600',
-      recomendado: 'Iniciantes ou foco em Jesus'
+      recomendado: 'Iniciantes ou foco em Jesus',
+      categoria: 'tematico'
     },
     {
       id: 'proverbios_31',
@@ -92,7 +99,48 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       duracao: 31,
       icon: Target,
       color: 'from-indigo-400 to-indigo-600',
-      recomendado: 'Reflexões práticas e sabedoria'
+      recomendado: 'Reflexões práticas e sabedoria',
+      categoria: 'tematico'
+    },
+    {
+      id: 'salmos_30',
+      nome: 'Salmos em 30 Dias',
+      descricao: 'Mergulhe na poesia e louvor',
+      duracao: 30,
+      icon: BookOpen,
+      color: 'from-pink-400 to-pink-600',
+      recomendado: 'Para momentos de reflexão',
+      categoria: 'tematico'
+    },
+    {
+      id: 'paulinas_45',
+      nome: 'Cartas Paulinas em 45 Dias',
+      descricao: 'Estudo profundo das epístolas de Paulo',
+      duracao: 45,
+      icon: Target,
+      color: 'from-teal-400 to-teal-600',
+      recomendado: 'Aprofundamento teológico',
+      categoria: 'tematico'
+    },
+    {
+      id: 'profetas_60',
+      nome: 'Profetas Maiores em 60 Dias',
+      descricao: 'Isaías, Jeremias, Ezequiel e Daniel',
+      duracao: 60,
+      icon: BookOpen,
+      color: 'from-violet-400 to-violet-600',
+      recomendado: 'Compreensão profética',
+      categoria: 'tematico'
+    },
+    {
+      id: 'pentateuco_50',
+      nome: 'Pentateuco em 50 Dias',
+      descricao: 'Os cinco primeiros livros da Bíblia',
+      duracao: 50,
+      icon: Calendar,
+      color: 'from-rose-400 to-rose-600',
+      recomendado: 'Fundamentos da fé',
+      categoria: 'tematico'
     }
   ];
 
@@ -118,33 +166,62 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
     });
   };
 
+  const [selectedCategory, setSelectedCategory] = useState('todos');
+
+  const categories = [
+    { id: 'todos', label: 'Todos os Planos' },
+    { id: 'popular', label: 'Mais Populares' },
+    { id: 'intensivo', label: 'Intensivos' },
+    { id: 'tematico', label: 'Temáticos' }
+  ];
+
+  const filteredPlans = selectedCategory === 'todos' 
+    ? predefinedPlans 
+    : predefinedPlans.filter(p => p.categoria === selectedCategory);
+
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Planos Predefinidos</h2>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          Planos de Leitura
+        </h2>
         <p className="text-slate-600">Escolha um plano estruturado para sua jornada bíblica</p>
       </div>
 
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        {categories.map((cat) => (
+          <Button
+            key={cat.id}
+            variant={selectedCategory === cat.id ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedCategory(cat.id)}
+            className={selectedCategory === cat.id ? "bg-gradient-to-r from-blue-600 to-purple-600" : ""}
+          >
+            {cat.label}
+          </Button>
+        ))}
+      </div>
+
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {predefinedPlans.map((plan) => {
+        {filteredPlans.map((plan) => {
           const Icon = plan.icon;
           return (
             <Card 
               key={plan.id}
-              className="hover:shadow-lg transition-all cursor-pointer"
+              className="hover:shadow-2xl hover:scale-105 transition-all cursor-pointer border-2 hover:border-blue-300"
               onClick={() => handleSelectPlan(plan)}
             >
               <CardHeader>
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${plan.color} flex items-center justify-center mb-3`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${plan.color} flex items-center justify-center mb-3 shadow-lg`}>
+                  <Icon className="w-7 h-7 text-white" />
                 </div>
                 <CardTitle className="text-lg">{plan.nome}</CardTitle>
-                <CardDescription>{plan.descricao}</CardDescription>
+                <CardDescription className="line-clamp-2">{plan.descricao}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline">{plan.duracao} dias</Badge>
-                  <Button size="sm" className={`bg-gradient-to-r ${plan.color} text-white`}>
+                  <Badge variant="outline" className="font-semibold">{plan.duracao} dias</Badge>
+                  <Button size="sm" className={`bg-gradient-to-r ${plan.color} text-white shadow-lg hover:shadow-xl transition-all`}>
                     Iniciar
                   </Button>
                 </div>
