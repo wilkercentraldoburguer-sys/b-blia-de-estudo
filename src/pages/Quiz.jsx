@@ -4,8 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Brain, Award, Target, CheckCircle2, XCircle } from "lucide-react";
+import { Trophy, Brain, Award, Target, CheckCircle2, XCircle, BookOpen } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Leaderboard from "../components/quiz/Leaderboard";
+import DailyChallenge from "../components/quiz/DailyChallenge";
 
 export default function Quiz() {
   const [selectedLevel, setSelectedLevel] = useState(null);
@@ -208,30 +211,54 @@ export default function Quiz() {
             })}
           </div>
 
-          {progress.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Seu Progresso Recente</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {progress.slice(0, 5).map((p, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <div>
-                        <p className="font-semibold capitalize">{p.nivel}</p>
-                        <p className="text-sm text-slate-600">
-                          {p.acertos}/{p.total_perguntas} acertos
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="text-lg">
-                        {p.pontuacao} pts
-                      </Badge>
+          <Tabs defaultValue="jogar" className="mt-12">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="jogar">Jogar</TabsTrigger>
+              <TabsTrigger value="desafios">Desafios</TabsTrigger>
+              <TabsTrigger value="ranking">Ranking</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="jogar">
+              {progress.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Seu Progresso Recente</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {progress.slice(0, 5).map((p, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-all">
+                          <div>
+                            <p className="font-semibold capitalize">{p.nivel}</p>
+                            <p className="text-sm text-slate-600">
+                              {p.acertos}/{p.total_perguntas} acertos ({Math.round((p.acertos/p.total_perguntas)*100)}%)
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="text-lg font-bold">
+                            {p.pontuacao} pts
+                          </Badge>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="desafios">
+              <DailyChallenge 
+                user={user}
+                onStartChallenge={(challenge) => {
+                  // Implementar lógica de iniciar desafio
+                  alert('Função de desafios em desenvolvimento!');
+                }}
+              />
+            </TabsContent>
+
+            <TabsContent value="ranking">
+              <Leaderboard currentUser={user} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     );
@@ -363,23 +390,42 @@ export default function Quiz() {
             ) : (
               <>
                 <div className={`p-4 rounded-lg ${isCorrect ? 'bg-green-50 border-2 border-green-300' : 'bg-red-50 border-2 border-red-300'}`}>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-3">
                     {isCorrect ? (
                       <CheckCircle2 className="w-6 h-6 text-green-600" />
                     ) : (
                       <XCircle className="w-6 h-6 text-red-600" />
                     )}
                     <p className={`font-semibold text-lg ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                      {isCorrect ? 'Correto!' : 'Incorreto'}
+                      {isCorrect ? 'Correto! Parabéns!' : 'Ops! Resposta Incorreta'}
                     </p>
                   </div>
-                  <p className="text-slate-700">
-                    <span className="font-semibold">Resposta correta:</span> {currentQuestion.resposta}
-                  </p>
+                  
+                  {!isCorrect && (
+                    <div className="mb-3 p-3 bg-white rounded-lg">
+                      <p className="text-sm text-slate-600 mb-1">Sua resposta:</p>
+                      <p className="text-slate-800 font-medium">{userAnswer}</p>
+                    </div>
+                  )}
+                  
+                  <div className="p-3 bg-white rounded-lg mb-3">
+                    <p className="text-sm text-slate-600 mb-1">Resposta correta:</p>
+                    <p className="text-slate-800 font-bold text-lg">{currentQuestion.resposta}</p>
+                  </div>
+                  
                   {currentQuestion.referencia_biblica && (
-                    <p className="text-sm text-slate-600 mt-2">
-                      📖 {currentQuestion.referencia_biblica}
-                    </p>
+                    <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <BookOpen className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-blue-900 mb-1">Referência Bíblica</p>
+                        <p className="text-sm text-blue-700">{currentQuestion.referencia_biblica}</p>
+                        {!isCorrect && (
+                          <p className="text-xs text-blue-600 mt-2 italic">
+                            💡 Leia esta passagem para aprender mais sobre o tema
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
                 <Button 
