@@ -31,57 +31,42 @@ export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal)
   const apiVersion = getAPIVersionCode(versionCode);
   const url = `${API_BASE}/verses/${apiVersion}/${bookKey}/${chapter}`;
   
-  console.log(`━━━━━━━━━━━ API REQUEST ━━━━━━━━━━━`);
-  console.log(`versionLabel: ${versionCode}`);
-  console.log(`versionCode: ${apiVersion}`);
-  console.log(`bookKey: ${bookKey}`);
-  console.log(`chapter: ${chapter}`);
-  console.log(`URL: ${url}`);
+  console.log(`versionCode=${apiVersion}`);
+  console.log(`URL=${url}`);
   
   try {
     const response = await fetch(url, { signal });
     const t1 = performance.now();
     const timeMs = Math.round(t1 - t0);
     
-    console.log(`STATUS: ${response.status} ${response.statusText}`);
-    console.log(`TIME: ${timeMs}ms`);
+    console.log(`STATUS=${response.status}`);
+    console.log(`TIME=${timeMs}ms`);
     
     if (!response.ok) {
       // Ler o body da resposta para debug
-      let errorBody = null;
+      let errorBody = '';
       try {
         errorBody = await response.text();
-        console.log(`RESPONSE BODY:`, errorBody.substring(0, 200));
+        const bodyPreview = errorBody.substring(0, 150);
+        console.log(`body=${bodyPreview}${errorBody.length > 150 ? '...' : ''}`);
       } catch (e) {
-        // Ignora se não conseguir ler
+        console.log(`body=(não conseguiu ler)`);
       }
       
-      const errorMsg = `Falha ao acessar a API (status ${response.status})`;
-      
-      if (response.status === 404) {
-        throw new Error(`${errorMsg} - Capítulo não encontrado: ${bookKey} ${chapter}`);
-      }
-      if (response.status === 401 || response.status === 403) {
-        throw new Error(`${errorMsg} - Não autorizado`);
-      }
-      if (response.status === 429) {
-        throw new Error(`${errorMsg} - Limite de requisições excedido`);
-      }
-      if (response.status >= 500) {
-        throw new Error(`${errorMsg} - Erro no servidor`);
-      }
-      
-      throw new Error(`${errorMsg} - ${response.statusText}`);
+      const error = new Error(`Erro ao carregar ${bookKey} ${chapter} (status ${response.status})`);
+      error.status = response.status;
+      throw error;
     }
     
     const data = await response.json();
     
     if (!data.verses || data.verses.length === 0) {
-      throw new Error('API retornou capítulo vazio');
+      const error = new Error('API retornou capítulo vazio');
+      error.status = 'EMPTY';
+      throw error;
     }
     
-    console.log(`VERSES: ${data.verses.length}`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`verses=${data.verses.length}`);
     
     // Converter para nosso formato
     return {
@@ -96,8 +81,13 @@ export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal)
   } catch (error) {
     const t1 = performance.now();
     const timeMs = Math.round(t1 - t0);
-    console.log(`ERROR after ${timeMs}ms:`, error.message);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    
+    if (!error.status) {
+      console.log(`STATUS=ERROR`);
+      console.log(`TIME=${timeMs}ms`);
+      console.log(`body=${String(error.message || error)}`);
+    }
+    
     throw error;
   }
 }

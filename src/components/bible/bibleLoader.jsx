@@ -228,14 +228,16 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   const cacheKey = `${version}|${bookKey}|${chapter}`;
   
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-  console.log(`🔍 Livro selecionado: "${bookName}"`);
-  console.log(`🔑 bookKey gerado: "${bookKey}"`);
-  console.log(`📍 versionCode: ${version}, chapter: ${chapter}`);
+  console.log(`bookLabel=${bookName}`);
+  console.log(`bookKey=${bookKey}`);
+  console.log(`versionLabel=${version}`);
+  console.log(`chapter=${chapter}`);
   
   // 1. Cache memória (instantâneo < 10ms)
   const memCached = getFromMemoryCache(cacheKey);
   if (memCached) {
-    console.log(`✅ cacheHit: MEMÓRIA`);
+    console.log(`cacheHit=memory`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     updateStats('memory');
     return memCached;
   }
@@ -246,35 +248,39 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   if (persistCached) {
     const t1 = performance.now();
     const timeMs = Math.round(t1 - t0);
-    console.log(`✅ cacheHit: PERSISTENTE`);
-    console.log(`   Key: ${CACHE_PREFIX}/${version}/${bookKey}/${chapter}`);
-    console.log(`   Total time: ${timeMs}ms`);
+    console.log(`cacheHit=persistente`);
+    console.log(`TIME=${timeMs}ms`);
+    console.log(`verses=${persistCached.verses?.length || 0}`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     saveToMemoryCache(cacheKey, persistCached);
     updateStats('persistent');
     return persistCached;
   }
   
   // 3. Buscar via API ABíbliaDigital
-  console.log(`⚠️ Cache miss - Buscando via API...`);
+  console.log(`cacheHit=none`);
   
   try {
     const data = await fetchFromAPI(version, bookKey, chapter, signal);
     
     // Verificar se foi cancelado
     if (signal?.aborted) {
-      throw new Error('Carregamento cancelado');
+      const err = new Error('Carregamento cancelado');
+      err.status = 'CANCELLED';
+      throw err;
     }
-    
-    console.log(`✅ API carregado: ${data.verses.length} versículos`);
     
     // Salvar nos caches
     saveToMemoryCache(cacheKey, data);
     await saveToPersistentCache(version, bookKey, chapter, data);
     updateStats('api');
     
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    
     return data;
   } catch (error) {
-    console.error(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.error(`ERROR: ${String(error.message || error)}`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     throw error;
   }
 }

@@ -198,12 +198,14 @@ export default function BibliaLeitura() {
       
       console.error(`❌ Erro ao carregar capítulo:`, error);
       
-      // Erro específico para conteúdo não instalado (404)
+      // Sanitizar erro para exibição segura
+      const errorMessage = String(error.message || error.toString() || 'Erro desconhecido');
       const isNotFound = error.code === 'NOT_FOUND';
       
       setLoadError({
-        message: error.message || `Erro ao carregar ${book} ${chapter}`,
+        message: errorMessage,
         path: error.path,
+        status: error.status,
         isNotFound,
         canRetry: !isNotFound
       });
@@ -504,8 +506,8 @@ export default function BibliaLeitura() {
                 <h3 className="text-lg font-bold text-stone-800 mb-2">
                   {loadError.isNotFound ? 'Conteúdo Não Instalado' : 'Erro ao Carregar Capítulo'}
                 </h3>
-                <p className="text-stone-600 mb-3">
-                  {loadError.message}
+                <p className="text-stone-600 mb-3 whitespace-pre-line">
+                  {String(loadError.message || loadError.status || 'Erro desconhecido')}
                 </p>
                 {loadError.path && (
                   <div className="bg-stone-100 p-3 rounded-lg mb-4">
