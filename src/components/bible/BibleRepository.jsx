@@ -99,7 +99,8 @@ export async function getChapter(versionCode, bookName, chapter) {
   if (memoryCache.has(cacheKey)) {
     const data = memoryCache.get(cacheKey);
     const timeMs = Math.round(performance.now() - t0);
-    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=mem url=- timeMs=${timeMs} verses=${data.verses.length} error=`);
+    const bytes = JSON.stringify(data).length;
+    console.log(`BIBLELOG source=dataset url=- status=200 error=NONE timeMs=${timeMs} bytes=${bytes} cacheHit=mem`);
     return data;
   }
   
@@ -111,7 +112,7 @@ export async function getChapter(versionCode, bookName, chapter) {
       const data = JSON.parse(cached);
       memoryCache.set(cacheKey, data);
       const timeMs = Math.round(performance.now() - t0);
-      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=persist url=- timeMs=${timeMs} verses=${data.verses.length} error=`);
+      console.log(`BIBLELOG source=dataset url=- status=200 error=NONE timeMs=${timeMs} bytes=${cached.length} cacheHit=persist`);
       return data;
     }
   } catch (e) {
@@ -119,14 +120,16 @@ export async function getChapter(versionCode, bookName, chapter) {
   }
   
   // 3. Arquivo local
-  const url = `/bible/${version}/${bookKey}/${chapter}.json`;
+  const basePath = getBasePath();
+  const url = `${basePath}/${version}/${bookKey}/${chapter}.json`;
   
   try {
     const response = await fetch(url);
     const timeMs = Math.round(performance.now() - t0);
+    const bytes = response.ok ? (await response.clone().text()).length : 0;
     
     if (!response.ok) {
-      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=${response.status} cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=DATASET_MISSING`);
+      console.log(`BIBLELOG source=dataset url=${url} status=${response.status} error=DATASET_MISSING timeMs=${timeMs} bytes=${bytes} cacheHit=none`);
       
       const error = new Error(`Capitulo nao disponivel no dataset: ${bookName} ${chapter}`);
       error.code = 'DATASET_MISSING';
@@ -140,7 +143,7 @@ export async function getChapter(versionCode, bookName, chapter) {
     
     // Validar schema
     if (!data.verses || !Array.isArray(data.verses) || data.verses.length === 0) {
-      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=500 cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=INVALID_FORMAT`);
+      console.log(`BIBLELOG source=dataset url=${url} status=500 error=SCHEMA_INVALID timeMs=${timeMs} bytes=${bytes} cacheHit=none`);
       
       const error = new Error('Formato de capitulo invalido');
       error.code = 'INVALID_FORMAT';
@@ -157,7 +160,8 @@ export async function getChapter(versionCode, bookName, chapter) {
     }
     
     const totalTime = Math.round(performance.now() - t0);
-    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=file url=${url} timeMs=${totalTime} verses=${data.verses.length} error=`);
+    const dataBytes = JSON.stringify(data).length;
+    console.log(`BIBLELOG source=dataset url=${url} status=200 error=NONE timeMs=${totalTime} bytes=${dataBytes} cacheHit=file`);
     
     return data;
   } catch (error) {
@@ -167,9 +171,9 @@ export async function getChapter(versionCode, bookName, chapter) {
     
     // Erro de rede/fetch (rota não servida)
     const timeMs = Math.round(performance.now() - t0);
-    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=ERROR cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=DATASET_ROUTE_NOT_SERVED`);
+    console.log(`BIBLELOG source=dataset url=${url} status=ERROR error=DATASET_ROUTE_NOT_SERVED timeMs=${timeMs} bytes=0 cacheHit=none`);
     
-    const err = new Error('Rota /bible nao esta sendo servida no preview. Verifique arquivos em public/bible e caminho de fetch.');
+    const err = new Error('Rota de dataset nao esta sendo servida. Use a funcao de auto-deteccao em Configuracoes.');
     err.code = 'DATASET_ROUTE_NOT_SERVED';
     throw err;
   }
@@ -179,8 +183,9 @@ export async function getChapter(versionCode, bookName, chapter) {
  * Carrega meta.json
  */
 export async function loadMeta() {
+  const basePath = getBasePath();
   try {
-    const response = await fetch('/bible/meta.json');
+    const response = await fetch(`${basePath}/meta.json`);
     if (!response.ok) {
       return { versions: [], books: [], totalChaptersExpected: 1189 };
     }

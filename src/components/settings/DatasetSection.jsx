@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { CheckCircle2, XCircle, AlertTriangle, Download, Loader2, Upload, Database } from "lucide-react";
 import { validateDataset, exportReport } from "../bible/DatasetValidator";
+import DatasetPathConfig from "./DatasetPathConfig";
 
 export default function DatasetSection() {
   const [isValidating, setIsValidating] = useState(false);
@@ -98,6 +99,9 @@ export default function DatasetSection() {
 
   return (
     <div className="space-y-6">
+      {/* Path Config */}
+      <DatasetPathConfig />
+
       {/* Status Card */}
       <Card>
         <CardHeader>
