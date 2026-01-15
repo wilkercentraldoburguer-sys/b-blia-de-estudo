@@ -126,11 +126,11 @@ export async function getChapter(versionCode, bookName, chapter) {
     const timeMs = Math.round(performance.now() - t0);
     
     if (!response.ok) {
-      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=404 cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=DATASET_MISSING`);
+      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=${response.status} cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=DATASET_MISSING`);
       
       const error = new Error(`Capitulo nao disponivel no dataset: ${bookName} ${chapter}`);
       error.code = 'DATASET_MISSING';
-      error.status = 404;
+      error.status = response.status;
       error.bookKey = bookKey;
       error.chapter = chapter;
       throw error;
@@ -165,11 +165,12 @@ export async function getChapter(versionCode, bookName, chapter) {
       throw error;
     }
     
+    // Erro de rede/fetch (rota não servida)
     const timeMs = Math.round(performance.now() - t0);
-    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=ERROR cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=FETCH_FAILED`);
+    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=ERROR cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=DATASET_ROUTE_NOT_SERVED`);
     
-    const err = new Error('Erro ao carregar capitulo do dataset');
-    err.code = 'FETCH_FAILED';
+    const err = new Error('Rota /bible nao esta sendo servida no preview. Verifique arquivos em public/bible e caminho de fetch.');
+    err.code = 'DATASET_ROUTE_NOT_SERVED';
     throw err;
   }
 }

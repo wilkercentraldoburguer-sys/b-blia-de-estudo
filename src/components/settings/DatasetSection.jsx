@@ -11,6 +11,8 @@ export default function DatasetSection() {
   const [isValidating, setIsValidating] = useState(false);
   const [results, setResults] = useState(null);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [testResults, setTestResults] = useState(null);
+  const [isTesting, setIsTesting] = useState(false);
 
   const handleValidate = async () => {
     setIsValidating(true);
@@ -35,6 +37,63 @@ export default function DatasetSection() {
   const getCompletionPercentage = () => {
     if (!results || results.totalExpected === 0) return 0;
     return Math.round((results.totalFound / results.totalExpected) * 100);
+  };
+
+  const handleSmokeTest = async () => {
+    setIsTesting(true);
+    setTestResults(null);
+
+    const tests = [
+      { name: 'meta.json', url: '/bible/meta.json' },
+      { name: 'João 1 (RA)', url: '/bible/ra/jo/1.json' }
+    ];
+
+    const results = [];
+
+    for (const test of tests) {
+      try {
+        const t0 = performance.now();
+        const response = await fetch(test.url);
+        const timeMs = Math.round(performance.now() - t0);
+
+        if (response.ok) {
+          const text = await response.text();
+          const sizeKB = (text.length / 1024).toFixed(2);
+          
+          results.push({
+            name: test.name,
+            url: test.url,
+            status: response.status,
+            statusText: 'OK',
+            sizeKB,
+            timeMs,
+            success: true
+          });
+        } else {
+          results.push({
+            name: test.name,
+            url: test.url,
+            status: response.status,
+            statusText: response.statusText,
+            timeMs,
+            success: false,
+            error: `HTTP ${response.status}`
+          });
+        }
+      } catch (error) {
+        results.push({
+          name: test.name,
+          url: test.url,
+          status: 'ERROR',
+          statusText: error.message,
+          success: false,
+          error: 'Rota não servida ou erro de rede'
+        });
+      }
+    }
+
+    setTestResults(results);
+    setIsTesting(false);
   };
 
   return (
@@ -149,6 +208,78 @@ export default function DatasetSection() {
               </Button>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Smoke Test Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5" style={{ color: '#722f37' }} />
+            Teste de Rotas
+          </CardTitle>
+          <CardDescription>
+            Verifique se as rotas /bible estão sendo servidas corretamente
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button
+            onClick={handleSmokeTest}
+            disabled={isTesting}
+            className="w-full text-white"
+            style={{ backgroundColor: '#722f37' }}
+          >
+            {isTesting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Testando rotas...
+              </>
+            ) : (
+              'Testar Rotas'
+            )}
+          </Button>
+
+          {testResults && (
+            <div className="space-y-2">
+              {testResults.map((test, idx) => (
+                <div
+                  key={idx}
+                  className={`p-3 rounded-lg border ${
+                    test.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        {test.success ? (
+                          <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-600" />
+                        )}
+                        <span className="font-semibold text-sm">{test.name}</span>
+                      </div>
+                      <div className="text-xs text-stone-600 mt-1 font-mono">{test.url}</div>
+                      {test.success ? (
+                        <div className="text-xs text-green-700 mt-1">
+                          HTTP {test.status} • {test.sizeKB} KB • {test.timeMs}ms
+                        </div>
+                      ) : (
+                        <div className="text-xs text-red-700 mt-1">
+                          {test.error}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Alert className="border-blue-200 bg-blue-50">
+            <AlertDescription className="text-blue-800 text-xs">
+              <strong>Importante:</strong> Os arquivos devem estar em <code className="bg-blue-100 px-1 rounded">public/bible/</code> mas o fetch deve ser <code className="bg-blue-100 px-1 rounded">/bible/</code> (sem /public)
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
 
