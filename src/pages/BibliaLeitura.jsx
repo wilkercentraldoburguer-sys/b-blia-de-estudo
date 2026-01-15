@@ -12,7 +12,7 @@ import ReadingSettings from "../components/reader/ReadingSettings";
 import StudyGenerator from "../components/study/StudyGenerator";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
-import { fetchChapterFromJSON, prefetchChapters } from "../components/bible/bibleLoader";
+import { fetchChapterFromJSON, prefetchChapters } from "@/components/bible/bibleLoader";
 
 export default function BibliaLeitura() {
   const [currentBook, setCurrentBook] = useState("João");
