@@ -21,6 +21,7 @@ import ThemeCustomizer from "../components/personalization/ThemeCustomizer";
 import ReadingPlanGenerator from "../components/personalization/ReadingPlanGenerator";
 import PredefinedPlansLibrary from "../components/reading/PredefinedPlansLibrary";
 import AboutSection from "../components/settings/AboutSection";
+import BibleValidator from "../components/bible/BibleValidator";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -140,10 +141,11 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="personalization" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="personalization">Personalização</TabsTrigger>
             <TabsTrigger value="reading">Leitura</TabsTrigger>
             <TabsTrigger value="storage">Armazenamento</TabsTrigger>
+            <TabsTrigger value="validator">Dataset</TabsTrigger>
             <TabsTrigger value="updates">Atualizações</TabsTrigger>
             <TabsTrigger value="about">Sobre</TabsTrigger>
           </TabsList>
@@ -297,6 +299,10 @@ export default function Settings() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="validator">
+            <BibleValidator />
           </TabsContent>
 
           <TabsContent value="updates" className="space-y-6">
