@@ -125,50 +125,9 @@ export default function BibliaLeitura() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notes'] }),
   });
 
-  useEffect(() => {
-    // Cancelar requisição anterior
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    
-    // Limpar debounce e timeout anteriores
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    
-    // Resetar erro
-    setLoadError(null);
-    
-    // Debounce de 250ms
-    debounceTimerRef.current = setTimeout(() => {
-      loadChapterOptimized(currentBook, currentChapter, selectedVersion);
-    }, 250);
-    
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [currentBook, currentChapter, selectedVersion]);
-
-  useEffect(() => {
-    // Salvar progresso de leitura
-    if (currentBook && currentChapter) {
-      localStorage.setItem('last_reading', JSON.stringify({
-        book: currentBook,
-        chapter: currentChapter,
-        timestamp: new Date().toISOString()
-      }));
-    }
-  }, [currentBook, currentChapter]);
-
-  const loadChapterOptimized = async (book, chapter, version) => {
+  const loadChapterOptimizedRef = useRef(null);
+  
+  loadChapterOptimizedRef.current = async (book, chapter, version) => {
     const t0 = performance.now();
     console.log(`🔵 [t0=${t0.toFixed(0)}ms] CLIQUE: ${book} ${chapter} (${version})`);
     
@@ -294,6 +253,51 @@ SEM números, SEM comentários, APENAS texto.`,
       }
     }
   };
+
+  useEffect(() => {
+    // Cancelar requisição anterior
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Limpar debounce e timeout anteriores
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Resetar erro
+    setLoadError(null);
+    
+    // Debounce de 250ms
+    debounceTimerRef.current = setTimeout(() => {
+      loadChapterOptimizedRef.current?.(currentBook, currentChapter, selectedVersion);
+    }, 250);
+    
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [currentBook, currentChapter, selectedVersion]);
+
+  useEffect(() => {
+    // Salvar progresso de leitura
+    if (currentBook && currentChapter) {
+      localStorage.setItem('last_reading', JSON.stringify({
+        book: currentBook,
+        chapter: currentChapter,
+        timestamp: new Date().toISOString()
+      }));
+    }
+  }, [currentBook, currentChapter]);
+
+
 
   const saveToCache = useCallback((key, data) => {
     setChapterCache(prev => {
@@ -515,7 +519,7 @@ SEM números, SEM comentários, APENAS texto.`,
   const handleRetry = () => {
     console.log('🔄 Retry manual');
     setLoadError(null);
-    loadChapterOptimized(currentBook, currentChapter, selectedVersion);
+    loadChapterOptimizedRef.current?.(currentBook, currentChapter, selectedVersion);
   };
 
   const handleLoadFromCache = () => {
