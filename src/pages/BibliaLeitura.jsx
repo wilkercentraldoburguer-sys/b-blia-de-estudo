@@ -157,36 +157,42 @@ export default function BibliaLeitura() {
     setIsLoading(true);
     setLoadError(null);
     
-    // TIMEOUT DE 2 SEGUNDOS
+    // TIMEOUT DE 15 SEGUNDOS (LLM pode demorar)
     const timeoutId = setTimeout(() => {
       if (isLoadingRef.current) {
-        console.error(`❌ TIMEOUT após 2000ms - ${book} ${chapter}`);
+        console.error(`❌ TIMEOUT após 15000ms - ${book} ${chapter}`);
         controller.abort();
         setIsLoading(false);
         isLoadingRef.current = false;
         setLoadError({
-          message: `Tempo limite excedido ao carregar ${book} ${chapter}`,
+          message: `Tempo limite excedido ao carregar ${book} ${chapter}. A geração do texto bíblico está demorando muito.`,
           canRetry: true,
           hasCache: false
         });
       }
-    }, 2000);
+    }, 15000);
     timeoutRef.current = timeoutId;
 
     try {
       const t1 = performance.now();
       console.log(`🔵 [t1=${(t1 - t0).toFixed(0)}ms] Iniciando fetch LLM`);
+      console.log(`📋 FONTE DE DADOS: base44.integrations.Core.InvokeLLM (Geração de texto com IA)`);
+      console.log(`🔍 QUERY: book="${book}", chapter=${chapter}, version="${version}"`);
       
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `Retorne APENAS o texto bíblico de ${book} capítulo ${chapter} na versão ${version} em português.
+
+IMPORTANTE: Este é ${book} capítulo ${chapter}. Retorne TODOS os versículos deste capítulo específico.
+
 JSON:
 {
   "verses": [
-    {"text": "verso 1"},
-    {"text": "verso 2"}
+    {"text": "texto completo do versículo 1"},
+    {"text": "texto completo do versículo 2"}
   ]
 }
-SEM números, SEM comentários, APENAS texto.`,
+
+SEM números de versículos no texto, SEM comentários, APENAS o texto bíblico puro.`,
         response_json_schema: {
           type: "object",
           properties: {
@@ -204,7 +210,14 @@ SEM números, SEM comentários, APENAS texto.`,
       });
       
       const t2 = performance.now();
-      console.log(`🔵 [t2=${(t2 - t0).toFixed(0)}ms] Payload recebido - ${response?.verses?.length || 0} versículos`);
+      console.log(`🔵 [t2=${(t2 - t0).toFixed(0)}ms] Payload recebido`);
+      console.log(`📊 RESULTADO BRUTO:`, response);
+      console.log(`📈 Quantidade de versículos: ${response?.verses?.length || 0}`);
+      if (response?.verses && response.verses.length > 0) {
+        console.log(`📝 Exemplo do primeiro versículo:`, response.verses[0]);
+      } else {
+        console.error(`❌ PROBLEMA: Response vazia ou sem verses`);
+      }
       
       // Verificar se não foi cancelado
       if (controller.signal.aborted) {
@@ -224,13 +237,14 @@ SEM números, SEM comentários, APENAS texto.`,
         setLoadError(null);
         
         const t4 = performance.now();
-        console.log(`🔵 [t4=${(t4 - t0).toFixed(0)}ms] Primeiro conteúdo renderizado`);
-        console.log(`🏁 [TOTAL=${(t4 - t0).toFixed(0)}ms] Carregamento completo`);
+        console.log(`✅ [t4=${(t4 - t0).toFixed(0)}ms] Primeiro conteúdo renderizado`);
+        console.log(`🏁 [TOTAL=${(t4 - t0).toFixed(0)}ms] Carregamento completo - ${response.verses.length} versículos`);
         
         // Prefetch próximos capítulos
         schedulePrefetch(book, chapter, version);
       } else {
-        throw new Error('Resposta vazia da API');
+        console.error(`❌ Nenhum versículo retornado para ${book} ${chapter} (${version})`);
+        throw new Error(`Não foi encontrado conteúdo para ${book} ${chapter} (${version}). A IA não gerou o texto esperado.`);
       }
     } catch (error) {
       clearTimeout(timeoutId);
@@ -241,8 +255,11 @@ SEM números, SEM comentários, APENAS texto.`,
       }
       
       console.error(`❌ Erro ao carregar capítulo:`, error);
+      console.error(`❌ Tipo de erro:`, error.name);
+      console.error(`❌ Stack:`, error.stack);
+      
       setLoadError({
-        message: `Erro ao carregar ${book} ${chapter}: ${error.message}`,
+        message: error.message || `Erro ao carregar ${book} ${chapter}`,
         canRetry: true,
         hasCache: false
       });
