@@ -22,6 +22,7 @@ import ReadingPlanGenerator from "../components/personalization/ReadingPlanGener
 import PredefinedPlansLibrary from "../components/reading/PredefinedPlansLibrary";
 import AboutSection from "../components/settings/AboutSection";
 import BibleValidator from "../components/bible/BibleValidator";
+import DatasetImporter from "../components/bible/DatasetImporter";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -141,11 +142,12 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="personalization" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="personalization">Personalização</TabsTrigger>
             <TabsTrigger value="reading">Leitura</TabsTrigger>
             <TabsTrigger value="storage">Armazenamento</TabsTrigger>
-            <TabsTrigger value="validator">Dataset</TabsTrigger>
+            <TabsTrigger value="importer">Importar</TabsTrigger>
+            <TabsTrigger value="validator">Validar</TabsTrigger>
             <TabsTrigger value="updates">Atualizações</TabsTrigger>
             <TabsTrigger value="about">Sobre</TabsTrigger>
           </TabsList>
@@ -299,6 +301,10 @@ export default function Settings() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="importer">
+            <DatasetImporter onImportComplete={() => queryClient.invalidateQueries()} />
           </TabsContent>
 
           <TabsContent value="validator">
