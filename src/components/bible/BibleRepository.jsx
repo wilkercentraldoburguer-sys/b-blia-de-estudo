@@ -190,6 +190,24 @@ export async function loadMeta() {
 }
 
 /**
+ * Salva capítulo no cache (para importação)
+ */
+export function saveChapterToCache(versionCode, bookName, chapter, data) {
+  const version = getVersionCode(versionCode);
+  const bookKey = getBookKey(bookName);
+  
+  memoryCache.set(`${version}|${bookKey}|${chapter}`, data);
+  
+  try {
+    const storageKey = `bible_${version}_${bookKey}_${chapter}`;
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
  * Limpa cache
  */
 export function clearCache() {
