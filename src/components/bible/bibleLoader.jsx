@@ -218,74 +218,20 @@ export function getCacheStats() {
  * REGRA: NUNCA usa LLM - apenas cache ou API
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
-  const bookKey = getBookKey(bookName);
-  const cacheKey = `${version}|${bookKey}|${chapter}`;
-  
-  // Normalizar bookName removendo acentos para log
-  const bookLabel = bookName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  
-  const logData = {
-    bookLabel,
-    bookKey,
-    chapter,
-    versionLabel: version,
-    versionCode: '',
-    url: '',
-    status: '',
-    timeMs: 0,
-    verses: 0,
-    cacheHit: 'none',
-    error: ''
-  };
-  
-  // 1. Cache memória (instantâneo < 10ms)
-  const memCached = getFromMemoryCache(cacheKey);
-  if (memCached) {
-    logData.cacheHit = 'mem';
-    logData.verses = memCached.verses?.length || 0;
-    console.log(`BIBLELOG bookLabel=${logData.bookLabel} bookKey=${logData.bookKey} chapter=${logData.chapter} versionLabel=${logData.versionLabel} versionCode=na url=na status=na timeMs=0 verses=${logData.verses} cacheHit=${logData.cacheHit} error=`);
-    updateStats('memory');
-    return memCached;
-  }
-  
-  // 2. Cache persistente estruturado (rápido < 100ms)
-  const t0 = performance.now();
-  const persistCached = getFromPersistentCache(version, bookKey, chapter);
-  if (persistCached) {
-    const timeMs = Math.round(performance.now() - t0);
-    logData.cacheHit = 'persist';
-    logData.verses = persistCached.verses?.length || 0;
-    logData.timeMs = timeMs;
-    console.log(`BIBLELOG bookLabel=${logData.bookLabel} bookKey=${logData.bookKey} chapter=${logData.chapter} versionLabel=${logData.versionLabel} versionCode=na url=na status=na timeMs=${logData.timeMs} verses=${logData.verses} cacheHit=${logData.cacheHit} error=`);
-    saveToMemoryCache(cacheKey, persistCached);
-    updateStats('persistent');
-    return persistCached;
-  }
-  
-  // 3. Buscar via API ABíbliaDigital
   try {
-    const data = await fetchFromAPI(version, bookKey, chapter, signal, logData);
+    // Usar BibleRepository (cache-first, local only)
+    const data = await getChapter(version, bookName, chapter);
     
     // Verificar se foi cancelado
     if (signal?.aborted) {
       const err = new Error('Carregamento cancelado');
-      err.status = 'CANCELLED';
+      err.code = 'CANCELLED';
       throw err;
     }
     
-    // Salvar nos caches
-    saveToMemoryCache(cacheKey, data);
-    await saveToPersistentCache(version, bookKey, chapter, data);
-    updateStats('api');
-    
     return data;
   } catch (error) {
-    // Log de erro
-    logData.error = error.status || 'ERR_UNKNOWN';
-    if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-      logData.error = 'ERR_NETWORK';
-    }
-    console.log(`BIBLELOG bookLabel=${logData.bookLabel} bookKey=${logData.bookKey} chapter=${logData.chapter} versionLabel=${logData.versionLabel} versionCode=${logData.versionCode || 'na'} url=${logData.url || 'na'} status=${logData.status || 'ERR'} timeMs=${logData.timeMs} verses=0 cacheHit=none error=${logData.error}`);
+    // Re-throw com informações adequadas
     throw error;
   }
 }

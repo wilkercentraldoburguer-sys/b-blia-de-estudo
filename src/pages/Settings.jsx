@@ -24,6 +24,7 @@ import AboutSection from "../components/settings/AboutSection";
 import BibleValidator from "../components/bible/BibleValidator";
 import DatasetImporter from "../components/bible/DatasetImporter";
 import APITokenConfig from "../components/settings/APITokenConfig";
+import DatasetValidator from "../components/settings/DatasetValidator";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -310,7 +311,8 @@ export default function Settings() {
             <DatasetImporter onImportComplete={() => queryClient.invalidateQueries()} />
           </TabsContent>
 
-          <TabsContent value="validator">
+          <TabsContent value="validator" className="space-y-6">
+            <DatasetValidator />
             <BibleValidator />
           </TabsContent>
 
