@@ -206,8 +206,9 @@ export default function BibliaLeitura() {
         message: errorMessage,
         path: error.path,
         status: error.status,
+        code: error.code,
         isNotFound,
-        canRetry: !isNotFound
+        canRetry: !isNotFound && error.code !== 'NO_TOKEN'
       });
       setIsLoading(false);
     } finally {
@@ -501,10 +502,16 @@ export default function BibliaLeitura() {
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="text-center max-w-2xl">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
-                  <span className="text-3xl">{loadError.isNotFound ? '📦' : '⚠️'}</span>
+                  <span className="text-3xl">
+                    {loadError.code === 'NO_TOKEN' ? '🔑' : loadError.isNotFound ? '📦' : '⚠️'}
+                  </span>
                 </div>
                 <h3 className="text-lg font-bold text-stone-800 mb-2">
-                  {loadError.isNotFound ? 'Conteúdo Não Instalado' : 'Erro ao Carregar Capítulo'}
+                  {loadError.code === 'NO_TOKEN' 
+                    ? 'Token Não Configurado'
+                    : loadError.isNotFound 
+                    ? 'Conteúdo Não Instalado' 
+                    : 'Erro ao Carregar Capítulo'}
                 </h3>
                 <p className="text-stone-600 mb-3 whitespace-pre-line">
                   {String(loadError.message || loadError.status || 'Erro desconhecido')}

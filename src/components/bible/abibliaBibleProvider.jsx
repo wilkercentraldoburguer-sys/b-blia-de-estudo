@@ -27,9 +27,18 @@ export function getAPIVersionCode(appVersion) {
  * Busca capítulo via API
  */
 export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal, logData) {
+  // Verificar se há token configurado
+  if (!hasAPIToken()) {
+    const error = new Error('Token nao configurado. Configure em Configuracoes para carregar capitulos.');
+    error.code = 'NO_TOKEN';
+    error.status = 'NO_TOKEN';
+    throw error;
+  }
+
   const t0 = performance.now();
   const apiVersion = getAPIVersionCode(versionCode);
   const url = `${API_BASE}/verses/${apiVersion}/${bookKey}/${chapter}`;
+  const token = getAPIToken();
   
   if (logData) {
     logData.versionCode = apiVersion;
@@ -37,12 +46,40 @@ export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal,
   }
   
   try {
-    const response = await fetch(url, { signal });
+    const response = await fetch(url, {
+      signal,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    });
+    
     const timeMs = Math.round(performance.now() - t0);
     
     if (logData) {
       logData.status = response.status;
       logData.timeMs = timeMs;
+    }
+    
+    if (response.status === 401 || response.status === 403) {
+      const error = new Error('Token invalido ou sem permissao');
+      error.status = `HTTP_${response.status}`;
+      error.code = 'UNAUTHORIZED';
+      throw error;
+    }
+    
+    if (response.status === 429) {
+      const error = new Error('Limite de requisicoes excedido, tente novamente em alguns minutos');
+      error.status = `HTTP_${response.status}`;
+      error.code = 'RATE_LIMIT';
+      throw error;
+    }
+    
+    if (response.status >= 500) {
+      const error = new Error('Erro interno da API, tente novamente');
+      error.status = `HTTP_${response.status}`;
+      error.code = 'SERVER_ERROR';
+      throw error;
     }
     
     if (!response.ok) {
