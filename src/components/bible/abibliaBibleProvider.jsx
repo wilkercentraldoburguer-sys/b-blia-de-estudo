@@ -3,6 +3,8 @@
  * https://www.abibliadigital.com.br/
  */
 
+import { getAPIToken, hasAPIToken } from './apiTokenManager';
+
 const API_BASE = 'https://www.abibliadigital.com.br/api';
 
 /**

@@ -14,6 +14,7 @@ import OfflineDownloader from "../components/bible/OfflineDownloader";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { fetchChapterFromJSON, prefetchChapters } from "@/components/bible/bibleLoader";
+import { Link } from "react-router-dom";
 
 export default function BibliaLeitura() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -534,7 +535,13 @@ export default function BibliaLeitura() {
                   </div>
                 )}
                 <div className="flex gap-3 justify-center">
-                  {loadError.canRetry && (
+                  {loadError.code === 'NO_TOKEN' ? (
+                    <Link to={createPageUrl('Settings')}>
+                      <Button className="text-white" style={{ backgroundColor: '#722f37' }}>
+                        Ir para Configurações
+                      </Button>
+                    </Link>
+                  ) : loadError.canRetry && (
                     <Button
                       onClick={handleRetry}
                       className="text-white"
@@ -543,13 +550,15 @@ export default function BibliaLeitura() {
                       🔄 Tentar Novamente
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    onClick={() => window.location.href = '/settings?tab=validator'}
-                    style={{ borderColor: '#722f37', color: '#722f37' }}
-                  >
-                    🔍 Verificar Instalação
-                  </Button>
+                  {!loadError.code === 'NO_TOKEN' && (
+                    <Button
+                      variant="outline"
+                      onClick={() => window.location.href = '/settings?tab=validator'}
+                      style={{ borderColor: '#722f37', color: '#722f37' }}
+                    >
+                      🔍 Verificar Instalação
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

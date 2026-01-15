@@ -23,6 +23,7 @@ import PredefinedPlansLibrary from "../components/reading/PredefinedPlansLibrary
 import AboutSection from "../components/settings/AboutSection";
 import BibleValidator from "../components/bible/BibleValidator";
 import DatasetImporter from "../components/bible/DatasetImporter";
+import APITokenConfig from "../components/settings/APITokenConfig";
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -153,6 +154,8 @@ export default function Settings() {
           </TabsList>
 
           <TabsContent value="personalization" className="space-y-6">
+            <APITokenConfig />
+            
             <ThemeCustomizer
               preferences={preferences}
               onUpdate={(data) => updatePreferencesMutation.mutate(data)}
