@@ -7,6 +7,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BookMarked, Menu, Loader2, MapPin, Clock, Key, AlertCircle, Link2, User, MessageSquare, Edit, GitCompare, Heart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import BookSelector from "../components/bible/BookSelector";
 import ChapterNavigation from "../components/bible/ChapterNavigation";
 import DevotionalSection from "../components/study/DevotionalSection";
