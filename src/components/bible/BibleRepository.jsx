@@ -99,7 +99,7 @@ export async function getChapter(versionCode, bookName, chapter) {
   if (memoryCache.has(cacheKey)) {
     const data = memoryCache.get(cacheKey);
     const timeMs = Math.round(performance.now() - t0);
-    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=mem timeMs=${timeMs} verses=${data.verses.length} error=`);
+    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=mem url=- timeMs=${timeMs} verses=${data.verses.length} error=`);
     return data;
   }
   
@@ -111,7 +111,7 @@ export async function getChapter(versionCode, bookName, chapter) {
       const data = JSON.parse(cached);
       memoryCache.set(cacheKey, data);
       const timeMs = Math.round(performance.now() - t0);
-      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=persist timeMs=${timeMs} verses=${data.verses.length} error=`);
+      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=persist url=- timeMs=${timeMs} verses=${data.verses.length} error=`);
       return data;
     }
   } catch (e) {
@@ -126,7 +126,7 @@ export async function getChapter(versionCode, bookName, chapter) {
     const timeMs = Math.round(performance.now() - t0);
     
     if (!response.ok) {
-      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=404 cacheHit=none timeMs=${timeMs} verses=0 error=DATASET_MISSING`);
+      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=404 cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=DATASET_MISSING`);
       
       const error = new Error(`Capitulo nao disponivel no dataset: ${bookName} ${chapter}`);
       error.code = 'DATASET_MISSING';
@@ -140,7 +140,7 @@ export async function getChapter(versionCode, bookName, chapter) {
     
     // Validar schema
     if (!data.verses || !Array.isArray(data.verses) || data.verses.length === 0) {
-      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=500 cacheHit=none timeMs=${timeMs} verses=0 error=INVALID_FORMAT`);
+      console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=500 cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=INVALID_FORMAT`);
       
       const error = new Error('Formato de capitulo invalido');
       error.code = 'INVALID_FORMAT';
@@ -157,7 +157,7 @@ export async function getChapter(versionCode, bookName, chapter) {
     }
     
     const totalTime = Math.round(performance.now() - t0);
-    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=file timeMs=${totalTime} verses=${data.verses.length} error=`);
+    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=200 cacheHit=file url=${url} timeMs=${totalTime} verses=${data.verses.length} error=`);
     
     return data;
   } catch (error) {
@@ -166,7 +166,7 @@ export async function getChapter(versionCode, bookName, chapter) {
     }
     
     const timeMs = Math.round(performance.now() - t0);
-    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=ERROR cacheHit=none timeMs=${timeMs} verses=0 error=FETCH_FAILED`);
+    console.log(`BIBLELOG source=dataset bookLabel=${bookName} bookKey=${bookKey} chapter=${chapter} versionLabel=${versionCode} versionCode=${version} status=ERROR cacheHit=none url=${url} timeMs=${timeMs} verses=0 error=FETCH_FAILED`);
     
     const err = new Error('Erro ao carregar capitulo do dataset');
     err.code = 'FETCH_FAILED';
