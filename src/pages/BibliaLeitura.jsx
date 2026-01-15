@@ -117,6 +117,7 @@ export default function BibliaLeitura() {
   });
 
   const loadChapterOptimizedRef = useRef(null);
+  const [loadingFromInternet, setLoadingFromInternet] = useState(false);
   
   loadChapterOptimizedRef.current = async (book, chapter, version) => {
     const t0 = performance.now();
@@ -130,20 +131,16 @@ export default function BibliaLeitura() {
     
     setIsLoading(true);
     setLoadError(null);
+    setLoadingFromInternet(false);
     
-    // TIMEOUT DE 2 SEGUNDOS (meta obrigatória)
-    const timeoutId = setTimeout(() => {
+    // Após 2s, mostrar indicador de internet mas NÃO abortar
+    const internetIndicatorTimeout = setTimeout(() => {
       if (requestIdRef.current === requestId && !controller.signal.aborted) {
-        console.error(`❌ TIMEOUT após 2000ms - ${book} ${chapter}`);
-        controller.abort();
-        setIsLoading(false);
-        setLoadError({
-          message: `Tempo limite excedido ao carregar ${book} ${chapter}`,
-          canRetry: true
-        });
+        console.log(`⏳ Carregamento demorado (>2s) - mostrando indicador internet`);
+        setLoadingFromInternet(true);
       }
     }, 2000);
-    timeoutRef.current = timeoutId;
+    timeoutRef.current = internetIndicatorTimeout;
 
     try {
       const t1 = performance.now();
@@ -166,7 +163,7 @@ export default function BibliaLeitura() {
         return;
       }
       
-      clearTimeout(timeoutId);
+      clearTimeout(internetIndicatorTimeout);
       
       const t3 = performance.now();
       console.log(`🔵 [t3=${(t3 - t0).toFixed(0)}ms] Processando ${data.verses.length} versículos`);
@@ -176,6 +173,7 @@ export default function BibliaLeitura() {
       
       setVerses(verses);
       setLoadError(null);
+      setLoadingFromInternet(false);
       
       const t4 = performance.now();
       console.log(`✅ [t4=${(t4 - t0).toFixed(0)}ms] Primeiro conteúdo renderizado`);
@@ -185,7 +183,7 @@ export default function BibliaLeitura() {
       prefetchChapters(version, book, chapter, totalChapters);
       
     } catch (error) {
-      clearTimeout(timeoutId);
+      clearTimeout(internetIndicatorTimeout);
       
       // Ignorar erros de requests obsoletos
       if (requestIdRef.current !== requestId) {
@@ -213,6 +211,7 @@ export default function BibliaLeitura() {
     } finally {
       if (!controller.signal.aborted && requestIdRef.current === requestId) {
         setIsLoading(false);
+        setLoadingFromInternet(false);
       }
     }
   };
@@ -549,9 +548,16 @@ export default function BibliaLeitura() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-5 h-5 animate-spin rounded-full border-4 border-stone-200" style={{ borderTopColor: '#722f37' }}></div>
-                <p className="text-stone-700 font-medium">
-                  Carregando {currentBook} {currentChapter}...
-                </p>
+                <div>
+                  <p className="text-stone-700 font-medium">
+                    Carregando {currentBook} {currentChapter}...
+                  </p>
+                  {loadingFromInternet && (
+                    <p className="text-sm text-amber-600 mt-1">
+                      🌐 Carregando via internet...
+                    </p>
+                  )}
+                </div>
               </div>
               {/* Skeleton Loading */}
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (

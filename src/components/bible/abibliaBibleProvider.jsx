@@ -27,51 +27,79 @@ export function getAPIVersionCode(appVersion) {
  * Busca capítulo via API
  */
 export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal) {
+  const t0 = performance.now();
   const apiVersion = getAPIVersionCode(versionCode);
   const url = `${API_BASE}/verses/${apiVersion}/${bookKey}/${chapter}`;
   
-  console.log(`🌐 API Request: ${url}`);
-  console.log(`   Version: ${versionCode} → ${apiVersion}`);
-  console.log(`   Book: ${bookKey}, Chapter: ${chapter}`);
+  console.log(`━━━━━━━━━━━ API REQUEST ━━━━━━━━━━━`);
+  console.log(`versionLabel: ${versionCode}`);
+  console.log(`versionCode: ${apiVersion}`);
+  console.log(`bookKey: ${bookKey}`);
+  console.log(`chapter: ${chapter}`);
+  console.log(`URL: ${url}`);
   
-  const response = await fetch(url, { signal });
-  
-  console.log(`   Status: ${response.status} ${response.statusText}`);
-  
-  if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error(`Capítulo não encontrado na API: ${bookKey} ${chapter}`);
+  try {
+    const response = await fetch(url, { signal });
+    const t1 = performance.now();
+    const timeMs = Math.round(t1 - t0);
+    
+    console.log(`STATUS: ${response.status} ${response.statusText}`);
+    console.log(`TIME: ${timeMs}ms`);
+    
+    if (!response.ok) {
+      // Ler o body da resposta para debug
+      let errorBody = null;
+      try {
+        errorBody = await response.text();
+        console.log(`RESPONSE BODY:`, errorBody.substring(0, 200));
+      } catch (e) {
+        // Ignora se não conseguir ler
+      }
+      
+      const errorMsg = `Falha ao acessar a API (status ${response.status})`;
+      
+      if (response.status === 404) {
+        throw new Error(`${errorMsg} - Capítulo não encontrado: ${bookKey} ${chapter}`);
+      }
+      if (response.status === 401 || response.status === 403) {
+        throw new Error(`${errorMsg} - Não autorizado`);
+      }
+      if (response.status === 429) {
+        throw new Error(`${errorMsg} - Limite de requisições excedido`);
+      }
+      if (response.status >= 500) {
+        throw new Error(`${errorMsg} - Erro no servidor`);
+      }
+      
+      throw new Error(`${errorMsg} - ${response.statusText}`);
     }
-    throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
+    
+    const data = await response.json();
+    
+    if (!data.verses || data.verses.length === 0) {
+      throw new Error('API retornou capítulo vazio');
+    }
+    
+    console.log(`VERSES: ${data.verses.length}`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    
+    // Converter para nosso formato
+    return {
+      version: versionCode,
+      book: bookKey,
+      chapter: parseInt(chapter),
+      verses: data.verses.map(v => ({
+        n: v.number,
+        text: v.text
+      }))
+    };
+  } catch (error) {
+    const t1 = performance.now();
+    const timeMs = Math.round(t1 - t0);
+    console.log(`ERROR after ${timeMs}ms:`, error.message);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    throw error;
   }
-  
-  const data = await response.json();
-  
-  // Formato da API:
-  // {
-  //   book: { abbrev: { pt: "gn" }, name: "Gênesis" },
-  //   chapter: { number: 1, verses: 31 },
-  //   verses: [
-  //     { number: 1, text: "No princípio..." }
-  //   ]
-  // }
-  
-  if (!data.verses || data.verses.length === 0) {
-    throw new Error('API retornou capítulo vazio');
-  }
-  
-  console.log(`   ✅ Recebidos ${data.verses.length} versículos`);
-  
-  // Converter para nosso formato
-  return {
-    version: versionCode,
-    book: bookKey,
-    chapter: parseInt(chapter),
-    verses: data.verses.map(v => ({
-      n: v.number,
-      text: v.text
-    }))
-  };
 }
 
 /**

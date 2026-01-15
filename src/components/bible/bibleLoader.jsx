@@ -141,8 +141,13 @@ function getFromPersistentCache(version, bookKey, chapter) {
 async function saveToPersistentCache(version, bookKey, chapter, data) {
   try {
     const storageKey = `${CACHE_PREFIX}/${version}/${bookKey}/${chapter}`;
-    localStorage.setItem(storageKey, JSON.stringify(data));
-    console.log(`💾 Cache persistente salvo: ${storageKey}`);
+    const jsonData = JSON.stringify(data);
+    const sizeKB = (jsonData.length / 1024).toFixed(2);
+    
+    localStorage.setItem(storageKey, jsonData);
+    
+    console.log(`💾 Saved cache key: ${storageKey}`);
+    console.log(`   Payload size: ${sizeKB} KB`);
   } catch (e) {
     console.error('Erro ao salvar cache persistente:', e);
   }
@@ -236,9 +241,14 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   }
   
   // 2. Cache persistente estruturado (rápido < 100ms)
+  const t0 = performance.now();
   const persistCached = getFromPersistentCache(version, bookKey, chapter);
   if (persistCached) {
-    console.log(`✅ cacheHit: PERSISTENTE (${CACHE_PREFIX}/${version}/${bookKey}/${chapter})`);
+    const t1 = performance.now();
+    const timeMs = Math.round(t1 - t0);
+    console.log(`✅ cacheHit: PERSISTENTE`);
+    console.log(`   Key: ${CACHE_PREFIX}/${version}/${bookKey}/${chapter}`);
+    console.log(`   Total time: ${timeMs}ms`);
     saveToMemoryCache(cacheKey, persistCached);
     updateStats('persistent');
     return persistCached;
