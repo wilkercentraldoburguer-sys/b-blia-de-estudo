@@ -37,7 +37,7 @@ export default function BibliaLeitura() {
   const [theme, setTheme] = useState("light");
   const [user, setUser] = useState(null);
   
-  // Cache em memória (LRU - últimos 30 capítulos)
+  // Cache em memória (LRU - últimos 3 capítulos mais acessados)
   const [chapterCache, setChapterCache] = useState(() => {
     try {
       const saved = localStorage.getItem('biblia_leitura_cache');
@@ -50,7 +50,12 @@ export default function BibliaLeitura() {
   // Controle de cancelamento e debounce
   const abortControllerRef = useRef(null);
   const debounceTimerRef = useRef(null);
+  const timeoutRef = useRef(null);
   const isLoadingRef = useRef(false);
+  
+  // Estado de erro
+  const [loadError, setLoadError] = useState(null);
+  const [hasCache, setHasCache] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -126,10 +131,16 @@ export default function BibliaLeitura() {
       abortControllerRef.current.abort();
     }
     
-    // Limpar debounce anterior
+    // Limpar debounce e timeout anteriores
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Resetar erro
+    setLoadError(null);
     
     // Debounce de 250ms
     debounceTimerRef.current = setTimeout(() => {
@@ -139,6 +150,9 @@ export default function BibliaLeitura() {
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
   }, [currentBook, currentChapter, selectedVersion]);
@@ -155,26 +169,57 @@ export default function BibliaLeitura() {
   }, [currentBook, currentChapter]);
 
   const loadChapterOptimized = async (book, chapter, version) => {
-    const cacheKey = `${book}-${chapter}-${version}`;
+    const t0 = performance.now();
+    console.log(`🔵 [t0=${t0.toFixed(0)}ms] CLIQUE: ${book} ${chapter} (${version})`);
     
-    // 1. Verificar cache em memória (instantâneo)
+    const cacheKey = `${version}|${book}|${chapter}`;
+    
+    // CACHE-FIRST: Verificar cache em memória (instantâneo)
     if (chapterCache[cacheKey]) {
+      const t_cache = performance.now();
+      console.log(`✅ [t=${(t_cache - t0).toFixed(0)}ms] CACHE HIT - Renderizando do cache`);
       setVerses(chapterCache[cacheKey]);
       setIsLoading(false);
+      setLoadError(null);
+      setHasCache(true);
       // Prefetch em background
-      schedulePrefetch(book, chapter);
+      schedulePrefetch(book, chapter, version);
+      console.log(`🏁 [TOTAL=${(performance.now() - t0).toFixed(0)}ms] Carregamento completo (cache)`);
       return;
     }
+    
+    console.log(`⚠️ Cache miss - Buscando da rede`);
+    setHasCache(false);
 
-    // 2. Criar novo AbortController para cancelamento
+    // Criar novo AbortController para cancelamento
     const controller = new AbortController();
     abortControllerRef.current = controller;
     isLoadingRef.current = true;
     setIsLoading(true);
+    setLoadError(null);
+    
+    // TIMEOUT DE 2 SEGUNDOS
+    const timeoutId = setTimeout(() => {
+      if (isLoadingRef.current) {
+        console.error(`❌ TIMEOUT após 2000ms - ${book} ${chapter}`);
+        controller.abort();
+        setIsLoading(false);
+        isLoadingRef.current = false;
+        setLoadError({
+          message: `Tempo limite excedido ao carregar ${book} ${chapter}`,
+          canRetry: true,
+          hasCache: false
+        });
+      }
+    }, 2000);
+    timeoutRef.current = timeoutId;
 
     try {
+      const t1 = performance.now();
+      console.log(`🔵 [t1=${(t1 - t0).toFixed(0)}ms] Iniciando fetch LLM`);
+      
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne APENAS o texto bíblico de ${book} ${chapter} na versão ${version} em português.
+        prompt: `Retorne APENAS o texto bíblico de ${book} capítulo ${chapter} na versão ${version} em português.
 JSON:
 {
   "verses": [
@@ -199,21 +244,49 @@ SEM números, SEM comentários, APENAS texto.`,
         }
       });
       
-      // Verificar se não foi cancelado
-      if (controller.signal.aborted) return;
+      const t2 = performance.now();
+      console.log(`🔵 [t2=${(t2 - t0).toFixed(0)}ms] Payload recebido - ${response?.verses?.length || 0} versículos`);
       
-      if (response?.verses) {
-        setVerses(response.verses);
-        saveToCache(cacheKey, response.verses);
-        // Prefetch próximos capítulos
-        schedulePrefetch(book, chapter);
-      }
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        console.log('Carregamento cancelado');
+      // Verificar se não foi cancelado
+      if (controller.signal.aborted) {
+        console.log('⚠️ Carregamento cancelado');
         return;
       }
-      console.error("Erro ao carregar capítulo:", error);
+      
+      // Limpar timeout
+      clearTimeout(timeoutId);
+      
+      const t3 = performance.now();
+      console.log(`🔵 [t3=${(t3 - t0).toFixed(0)}ms] Preparando dados`);
+      
+      if (response?.verses && response.verses.length > 0) {
+        setVerses(response.verses);
+        saveToCache(cacheKey, response.verses);
+        setLoadError(null);
+        
+        const t4 = performance.now();
+        console.log(`🔵 [t4=${(t4 - t0).toFixed(0)}ms] Primeiro conteúdo renderizado`);
+        console.log(`🏁 [TOTAL=${(t4 - t0).toFixed(0)}ms] Carregamento completo`);
+        
+        // Prefetch próximos capítulos
+        schedulePrefetch(book, chapter, version);
+      } else {
+        throw new Error('Resposta vazia da API');
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        console.log('⚠️ Carregamento cancelado pelo usuário');
+        return;
+      }
+      
+      console.error(`❌ Erro ao carregar capítulo:`, error);
+      setLoadError({
+        message: `Erro ao carregar ${book} ${chapter}: ${error.message}`,
+        canRetry: true,
+        hasCache: false
+      });
     } finally {
       if (!controller.signal.aborted) {
         setIsLoading(false);
@@ -226,27 +299,28 @@ SEM números, SEM comentários, APENAS texto.`,
     setChapterCache(prev => {
       const newCache = { ...prev, [key]: data };
       
-      // LRU: manter apenas últimos 30 em memória
+      // LRU: manter apenas últimos 3 em memória
       const keys = Object.keys(newCache);
-      if (keys.length > 30) {
-        const recentKeys = keys.slice(-30);
+      if (keys.length > 3) {
+        const recentKeys = keys.slice(-3);
         const limitedCache = {};
         recentKeys.forEach(k => limitedCache[k] = newCache[k]);
         
-        // Persistir no localStorage (50 capítulos)
+        // Persistir no localStorage (100 capítulos)
         try {
-          const allKeys = Object.keys(prev);
-          if (allKeys.length > 50) {
-            const storageKeys = allKeys.slice(-50);
+          const storageData = JSON.parse(localStorage.getItem('biblia_leitura_cache') || '{}');
+          const allKeys = Object.keys(storageData);
+          if (allKeys.length > 100) {
+            const storageKeys = allKeys.slice(-100);
             const storageCache = {};
-            storageKeys.forEach(k => storageCache[k] = prev[k]);
+            storageKeys.forEach(k => storageCache[k] = storageData[k]);
             storageCache[key] = data;
             localStorage.setItem('biblia_leitura_cache', JSON.stringify(storageCache));
           } else {
-            localStorage.setItem('biblia_leitura_cache', JSON.stringify({ ...prev, [key]: data }));
+            localStorage.setItem('biblia_leitura_cache', JSON.stringify({ ...storageData, [key]: data }));
           }
         } catch (e) {
-          console.error('Erro ao salvar cache:', e);
+          console.error('💾 Erro ao salvar cache no localStorage:', e);
         }
         
         return limitedCache;
@@ -254,39 +328,42 @@ SEM números, SEM comentários, APENAS texto.`,
       
       // Salvar no localStorage
       try {
-        localStorage.setItem('biblia_leitura_cache', JSON.stringify(newCache));
+        const storageData = JSON.parse(localStorage.getItem('biblia_leitura_cache') || '{}');
+        localStorage.setItem('biblia_leitura_cache', JSON.stringify({ ...storageData, [key]: data }));
       } catch (e) {
-        console.error('Erro ao salvar cache:', e);
+        console.error('💾 Erro ao salvar cache no localStorage:', e);
       }
       
       return newCache;
     });
   }, []);
 
-  const schedulePrefetch = useCallback((book, chapter) => {
+  const schedulePrefetch = useCallback((book, chapter, version) => {
     // Prefetch em background (não bloquear UI)
     setTimeout(() => {
+      console.log(`🔄 Iniciando prefetch: ${book} ${chapter+1}, ${chapter+2}`);
       if (chapter < totalChapters) {
-        prefetchChapter(book, chapter + 1, selectedVersion);
+        prefetchChapter(book, chapter + 1, version);
         if (chapter + 1 < totalChapters) {
-          prefetchChapter(book, chapter + 2, selectedVersion);
+          prefetchChapter(book, chapter + 2, version);
         }
       }
-      if (chapter > 1) {
-        prefetchChapter(book, chapter - 1, selectedVersion);
-      }
-    }, 100);
-  }, [totalChapters, selectedVersion]);
+    }, 500);
+  }, [totalChapters]);
 
   const prefetchChapter = useCallback(async (book, chapter, version) => {
-    const cacheKey = `${book}-${chapter}-${version}`;
+    const cacheKey = `${version}|${book}|${chapter}`;
     
     // Só carregar se não estiver em cache
-    if (chapterCache[cacheKey]) return;
+    if (chapterCache[cacheKey]) {
+      console.log(`⚡ Prefetch skip (cache): ${book} ${chapter}`);
+      return;
+    }
 
     try {
+      console.log(`⚡ Prefetch start: ${book} ${chapter}`);
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne APENAS o texto bíblico de ${book} ${chapter} na versão ${version} em português.
+        prompt: `Retorne APENAS o texto bíblico de ${book} capítulo ${chapter} na versão ${version} em português.
 JSON:
 {
   "verses": [
@@ -311,11 +388,12 @@ SEM números, SEM comentários, APENAS texto.`,
         }
       });
       
-      if (response?.verses) {
+      if (response?.verses && response.verses.length > 0) {
         saveToCache(cacheKey, response.verses);
+        console.log(`✅ Prefetch complete: ${book} ${chapter} (${response.verses.length} vs)`);
       }
     } catch (error) {
-      // Silenciar erros de prefetch
+      console.log(`⚠️ Prefetch failed: ${book} ${chapter}`);
     }
   }, [chapterCache, saveToCache]);
 
@@ -434,6 +512,35 @@ SEM números, SEM comentários, APENAS texto.`,
     }
   };
 
+  const handleRetry = () => {
+    console.log('🔄 Retry manual');
+    setLoadError(null);
+    loadChapterOptimized(currentBook, currentChapter, selectedVersion);
+  };
+
+  const handleLoadFromCache = () => {
+    console.log('💾 Tentando carregar do cache persistente');
+    const cacheKey = `${selectedVersion}|${currentBook}|${currentChapter}`;
+    try {
+      const storageData = JSON.parse(localStorage.getItem('biblia_leitura_cache') || '{}');
+      if (storageData[cacheKey]) {
+        setVerses(storageData[cacheKey]);
+        setChapterCache(prev => ({ ...prev, [cacheKey]: storageData[cacheKey] }));
+        setLoadError(null);
+        setIsLoading(false);
+        console.log('✅ Carregado do cache persistente');
+      } else {
+        setLoadError({
+          message: 'Nenhum cache encontrado para este capítulo',
+          canRetry: true,
+          hasCache: false
+        });
+      }
+    } catch (e) {
+      console.error('Erro ao carregar cache:', e);
+    }
+  };
+
   const fontSizeClasses = {
     small: "text-sm",
     medium: "text-base",
@@ -548,7 +655,37 @@ SEM números, SEM comentários, APENAS texto.`,
 
         {/* Versículos */}
         <div className={`space-y-4 ${fontSizeClasses[fontSize]} ${lineSpacingClasses[lineSpacing]}`}>
-          {isLoading ? (
+          {loadError ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <div className="text-center max-w-md">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                  <span className="text-3xl">⚠️</span>
+                </div>
+                <h3 className="text-lg font-bold text-stone-800 mb-2">
+                  Erro ao Carregar Capítulo
+                </h3>
+                <p className="text-stone-600 mb-6">
+                  {loadError.message}
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Button
+                    onClick={handleRetry}
+                    className="text-white"
+                    style={{ backgroundColor: '#722f37' }}
+                  >
+                    🔄 Tentar Novamente
+                  </Button>
+                  <Button
+                    onClick={handleLoadFromCache}
+                    variant="outline"
+                    style={{ borderColor: '#722f37', color: '#722f37' }}
+                  >
+                    💾 Abrir do Cache
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : isLoading ? (
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-5 h-5 animate-spin rounded-full border-4 border-stone-200" style={{ borderTopColor: '#722f37' }}></div>
@@ -572,6 +709,13 @@ SEM números, SEM comentários, APENAS texto.`,
           ) : verses.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <p className="text-stone-600">Nenhum versículo carregado</p>
+              <Button
+                onClick={handleRetry}
+                variant="outline"
+                style={{ borderColor: '#722f37', color: '#722f37' }}
+              >
+                Carregar Capítulo
+              </Button>
             </div>
           ) : (
             verses.map((verse, index) => {
