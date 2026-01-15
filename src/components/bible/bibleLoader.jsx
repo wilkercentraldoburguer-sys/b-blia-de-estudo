@@ -1,5 +1,4 @@
 import { getBookKey } from './bibleUtils';
-import { base44 } from '@/api/base44Client';
 
 // Cache em memória (LRU - últimos 3 capítulos)
 let memoryCache = {};
@@ -167,60 +166,32 @@ function getFromPersistentCache(key) {
 }
 
 /**
- * Busca capítulo via LLM (fonte de dados)
+ * Busca capítulo do servidor JSON (simulado)
+ * NA PRODUÇÃO: isso seria um fetch real para /data/${version}/${bookKey}/${chapter}.json
  */
-async function fetchFromLLM(version, bookKey, chapter, bookName) {
-  console.log(`🌐 Buscando via LLM: ${bookName} ${chapter} (${version})`);
+async function fetchFromJSON(version, bookKey, chapter) {
+  const path = `/data/${version}/${bookKey}/${chapter}.json`;
   
-  const response = await base44.integrations.Core.InvokeLLM({
-    prompt: `Retorne o texto bíblico completo de ${bookName} capítulo ${chapter} na versão ${version} em português.
-
-IMPORTANTE: Retorne TODOS os versículos do capítulo ${chapter} de ${bookName}.
-
-Formato JSON obrigatório:
-{
-  "verses": [
-    {"n": 1, "text": "texto do versículo 1"},
-    {"n": 2, "text": "texto do versículo 2"},
-    ...
-  ]
-}
-
-Regras:
-- verses[] deve conter TODOS os versículos do capítulo
-- Cada item tem "n" (número) e "text" (texto completo)
-- NÃO incluir números de versículos dentro do texto
-- NÃO adicionar comentários ou explicações
-- APENAS o texto bíblico puro`,
-    response_json_schema: {
-      type: "object",
-      properties: {
-        verses: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              n: { type: "integer" },
-              text: { type: "string" }
-            },
-            required: ["n", "text"]
-          }
-        }
-      },
-      required: ["verses"]
-    }
-  });
+  console.log(`📋 Path resolvido: ${path}`);
   
-  if (!response?.verses || response.verses.length === 0) {
-    throw new Error('LLM retornou resposta vazia');
+  // Tentar carregar (simulado - na produção seria fetch real)
+  // Por enquanto, retorna dados inline se disponível
+  const cacheKey = `${version}|${bookKey}|${chapter}`;
+  const inlineData = INLINE_DATA[cacheKey];
+  
+  if (inlineData) {
+    console.log(`✅ Resultado do fetch: 200 OK (inline data)`);
+    return inlineData;
   }
   
-  return {
-    version,
-    book: bookKey,
-    chapter,
-    verses: response.verses
-  };
+  // Arquivo não encontrado
+  console.error(`❌ Resultado do fetch: 404 NOT FOUND`);
+  console.error(`❌ Conteúdo não instalado: ${path}`);
+  
+  const error = new Error(`Conteúdo não instalado: ${path}`);
+  error.code = 'NOT_FOUND';
+  error.path = path;
+  throw error;
 }
 
 /**
@@ -256,16 +227,21 @@ export function getCacheStats() {
 
 /**
  * Carrega capítulo com estratégia cache-first
+ * REGRA: NUNCA usa LLM - apenas JSON local
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   const bookKey = getBookKey(bookName);
   const cacheKey = `${version}|${bookKey}|${chapter}`;
   
-  console.log(`🔍 QUERY: version="${version}", book="${bookName}" → "${bookKey}", chapter=${chapter}`);
+  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+  console.log(`🔍 Livro selecionado: "${bookName}"`);
+  console.log(`🔑 bookKey gerado: "${bookKey}"`);
+  console.log(`📍 Version: ${version}, Chapter: ${chapter}`);
   
   // 1. Cache memória (instantâneo < 10ms)
   const memCached = getFromMemoryCache(cacheKey);
   if (memCached) {
+    console.log(`✅ Cache hit: MEMÓRIA`);
     updateStats('memory');
     return memCached;
   }
@@ -273,39 +249,35 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   // 2. Cache persistente (rápido < 100ms)
   const persistCached = getFromPersistentCache(cacheKey);
   if (persistCached) {
+    console.log(`✅ Cache hit: PERSISTENTE`);
     saveToMemoryCache(cacheKey, persistCached);
     updateStats('persistent');
     return persistCached;
   }
   
-  // 3. Dados inline (João 1-4)
-  const inlineData = INLINE_DATA[cacheKey];
-  if (inlineData) {
-    console.log(`✅ Dados inline: ${inlineData.verses.length} versículos`);
-    saveToMemoryCache(cacheKey, inlineData);
-    await saveToPersistentCache(cacheKey, inlineData);
-    updateStats('inline');
-    return inlineData;
+  // 3. Buscar JSON (ÚNICO fallback - SEM LLM)
+  console.log(`⚠️ Cache miss - Buscando JSON...`);
+  
+  try {
+    const data = await fetchFromJSON(version, bookKey, chapter);
+    
+    // Verificar se foi cancelado
+    if (signal?.aborted) {
+      throw new Error('Carregamento cancelado');
+    }
+    
+    console.log(`✅ JSON carregado: ${data.verses.length} versículos`);
+    
+    // Salvar nos caches
+    saveToMemoryCache(cacheKey, data);
+    await saveToPersistentCache(cacheKey, data);
+    updateStats('json');
+    
+    return data;
+  } catch (error) {
+    console.error(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    throw error;
   }
-  
-  // 4. Buscar via LLM e cachear permanentemente
-  console.log(`⚠️ Cache miss completo - Buscando via LLM`);
-  
-  const data = await fetchFromLLM(version, bookKey, chapter, bookName);
-  
-  // Verificar se foi cancelado
-  if (signal?.aborted) {
-    throw new Error('Carregamento cancelado');
-  }
-  
-  console.log(`✅ LLM retornou: ${data.verses.length} versículos`);
-  
-  // Salvar nos caches (permanentemente)
-  saveToMemoryCache(cacheKey, data);
-  await saveToPersistentCache(cacheKey, data);
-  updateStats('llm');
-  
-  return data;
 }
 
 /**

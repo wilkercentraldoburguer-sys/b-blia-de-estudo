@@ -22,24 +22,28 @@ export default function BibleValidator() {
     const results = {
       totalBooks: BIBLE_META.totalBooks,
       totalChapters: BIBLE_META.totalChapters,
+      expectedFiles: BIBLE_META.totalChapters,
       validated: 0,
       missing: [],
       empty: [],
       samples: [],
-      errors: []
+      errors: [],
+      first20Missing: []
     };
     
     let processed = 0;
     
-    // Validar amostra aleatória (10 capítulos)
-    const samples = [];
-    for (let i = 0; i < 10; i++) {
-      const randomBook = BIBLE_META.books[Math.floor(Math.random() * BIBLE_META.books.length)];
-      const randomChapter = Math.floor(Math.random() * randomBook.chapters) + 1;
-      samples.push({ book: randomBook, chapter: randomChapter });
+    // VALIDAÇÃO COMPLETA - todos os 1189 capítulos
+    const allChapters = [];
+    for (const book of BIBLE_META.books) {
+      for (let chapter = 1; chapter <= book.chapters; chapter++) {
+        allChapters.push({ book, chapter });
+      }
     }
     
-    for (const { book, chapter } of samples) {
+    console.log(`🔍 Iniciando validação de ${allChapters.length} capítulos...`);
+    
+    for (const { book, chapter } of allChapters) {
       try {
         const data = await fetchChapterFromJSON('ARA', book.name, chapter);
         
@@ -47,25 +51,43 @@ export default function BibleValidator() {
           results.empty.push(`${book.name} ${chapter}`);
         } else {
           results.validated++;
-          results.samples.push({
-            path: `${book.key}/${chapter}`,
-            verses: data.verses.length,
-            book: book.name,
-            chapter
-          });
+          
+          // Amostrar 10 aleatórios para exibir
+          if (results.samples.length < 10 && Math.random() < 0.01) {
+            results.samples.push({
+              path: `data/ARA/${book.key}/${chapter}.json`,
+              verses: data.verses.length,
+              book: book.name,
+              chapter
+            });
+          }
         }
       } catch (error) {
-        results.missing.push(`${book.name} ${chapter}`);
-        results.errors.push({
-          book: book.name,
-          chapter,
-          error: error.message
-        });
+        const path = `/data/ARA/${book.key}/${chapter}.json`;
+        results.missing.push(path);
+        
+        // Guardar primeiros 20 faltantes
+        if (results.first20Missing.length < 20) {
+          results.first20Missing.push({
+            path,
+            book: book.name,
+            chapter,
+            error: error.message
+          });
+        }
       }
       
       processed++;
-      setProgress((processed / samples.length) * 100);
+      setProgress((processed / allChapters.length) * 100);
+      
+      // Update UI a cada 50 capítulos
+      if (processed % 50 === 0) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
     }
+    
+    console.log(`✅ Validação completa: ${results.validated}/${allChapters.length} encontrados`);
+    console.log(`❌ Faltando: ${results.missing.length} arquivos`);
     
     setReport(results);
     setCacheStats(getCacheStats());
@@ -142,10 +164,10 @@ export default function BibleValidator() {
           {isValidating ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Validando...
+              Validando {Math.round(progress)}%...
             </>
           ) : (
-            'Validar Dataset (Amostra Aleatória)'
+            'Validar Dataset Completo (1.189 capítulos)'
           )}
         </Button>
 
@@ -161,54 +183,107 @@ export default function BibleValidator() {
         {report && (
           <div className="space-y-4">
             <div className="border-t pt-4">
-              <h3 className="font-semibold text-lg mb-3">Relatório de Validação</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-lg">Relatório de Validação Completa</h3>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const reportText = `
+RELATÓRIO DE VALIDAÇÃO DO DATASET BÍBLICO
+==========================================
+
+Total Esperado: ${report.expectedFiles} arquivos (66 livros, 1.189 capítulos)
+Total Encontrados: ${report.validated} arquivos (${((report.validated / report.expectedFiles) * 100).toFixed(1)}%)
+Total Faltando: ${report.missing.length} arquivos
+Total Vazios: ${report.empty.length} arquivos
+
+STATUS: ${report.missing.length === 0 ? '✅ COMPLETO' : `❌ INCOMPLETO (${report.missing.length} faltantes)`}
+
+${report.missing.length > 0 ? `
+PRIMEIROS 20 ARQUIVOS FALTANTES:
+${report.first20Missing.map((m, i) => `${i + 1}. ${m.path}\n   ${m.book} ${m.chapter} - ${m.error}`).join('\n')}
+` : ''}
+
+AMOSTRAS VERIFICADAS:
+${report.samples.map(s => `✓ ${s.path} (${s.verses} versículos)`).join('\n')}
+
+Data: ${new Date().toISOString()}
+                    `.trim();
+                    
+                    navigator.clipboard.writeText(reportText);
+                    alert('Relatório copiado para a área de transferência!');
+                  }}
+                >
+                  📋 Copiar Relatório
+                </Button>
+              </div>
               
               <div className="grid gap-3">
-                {/* Resumo */}
-                <div className="flex items-center gap-2 text-green-700">
-                  <CheckCircle2 className="w-5 h-5" />
-                  <span>{report.validated} amostras validadas com sucesso</span>
-                </div>
-                
-                {report.missing.length > 0 && (
-                  <div className="flex items-center gap-2 text-red-700">
-                    <XCircle className="w-5 h-5" />
-                    <span>{report.missing.length} capítulos faltantes</span>
+                {/* Resumo Principal */}
+                <div className={`p-4 rounded-lg ${report.missing.length === 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border-2`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    {report.missing.length === 0 ? (
+                      <CheckCircle2 className="w-6 h-6 text-green-700" />
+                    ) : (
+                      <XCircle className="w-6 h-6 text-red-700" />
+                    )}
+                    <div>
+                      <p className={`font-bold ${report.missing.length === 0 ? 'text-green-900' : 'text-red-900'}`}>
+                        {report.missing.length === 0 
+                          ? '✅ DATASET COMPLETO' 
+                          : `❌ DATASET INCOMPLETO (${report.missing.length} faltantes)`}
+                      </p>
+                      <p className={`text-sm ${report.missing.length === 0 ? 'text-green-700' : 'text-red-700'}`}>
+                        {report.validated} de {report.expectedFiles} arquivos ({((report.validated / report.expectedFiles) * 100).toFixed(1)}%)
+                      </p>
+                    </div>
                   </div>
-                )}
-                
-                {report.empty.length > 0 && (
-                  <div className="flex items-center gap-2 text-amber-700">
-                    <XCircle className="w-5 h-5" />
-                    <span>{report.empty.length} capítulos vazios</span>
+                </div>
+
+                {/* Primeiros 20 Faltantes */}
+                {report.first20Missing.length > 0 && (
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-200 max-h-96 overflow-y-auto">
+                    <h4 className="font-semibold mb-3 text-red-900 flex items-center gap-2">
+                      <XCircle className="w-5 h-5" />
+                      Primeiros 20 Arquivos Faltantes:
+                    </h4>
+                    <div className="space-y-2 text-sm font-mono">
+                      {report.first20Missing.map((missing, i) => (
+                        <div key={i} className="bg-white p-2 rounded border border-red-200">
+                          <div className="text-red-800 font-semibold">{i + 1}. {missing.path}</div>
+                          <div className="text-red-600 text-xs mt-1">{missing.book} {missing.chapter} - {missing.error}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {report.missing.length > 20 && (
+                      <p className="text-xs text-red-700 mt-3 italic">
+                        ... e mais {report.missing.length - 20} arquivos faltando
+                      </p>
+                    )}
                   </div>
                 )}
 
-                {/* Amostras */}
+                {/* Amostras Encontradas */}
                 {report.samples.length > 0 && (
-                  <div className="bg-slate-50 p-4 rounded-lg mt-4">
-                    <h4 className="font-semibold mb-2">Amostras Verificadas:</h4>
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h4 className="font-semibold mb-2 text-green-900">Amostras Encontradas:</h4>
                     <div className="space-y-1 text-sm font-mono">
                       {report.samples.map((sample, i) => (
-                        <div key={i} className="flex justify-between">
-                          <span>{sample.book} {sample.chapter}</span>
+                        <div key={i} className="flex justify-between bg-white p-2 rounded">
+                          <span className="text-green-800">{sample.path}</span>
                           <span className="text-green-600">{sample.verses} versículos</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-
-                {/* Erros */}
-                {report.errors.length > 0 && (
-                  <div className="bg-red-50 p-4 rounded-lg mt-4">
-                    <h4 className="font-semibold mb-2 text-red-800">Erros Encontrados:</h4>
-                    <div className="space-y-1 text-sm">
-                      {report.errors.map((err, i) => (
-                        <div key={i} className="text-red-700">
-                          {err.book} {err.chapter}: {err.error}
-                        </div>
-                      ))}
+                
+                {report.empty.length > 0 && (
+                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                    <h4 className="font-semibold mb-2 text-amber-900">Capítulos Vazios ({report.empty.length}):</h4>
+                    <div className="text-sm text-amber-800">
+                      {report.empty.join(', ')}
                     </div>
                   </div>
                 )}

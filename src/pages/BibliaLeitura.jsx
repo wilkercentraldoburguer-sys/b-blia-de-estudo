@@ -151,8 +151,7 @@ export default function BibliaLeitura() {
       const data = await fetchChapterFromJSON(version, book, chapter, controller.signal);
       
       const t2 = performance.now();
-      const cacheSource = t2 - t1 < 10 ? 'memória' : t2 - t1 < 100 ? 'persistente' : 'rede';
-      console.log(`🔵 [t2=${(t2 - t0).toFixed(0)}ms] JSON carregado de: ${cacheSource}`);
+      console.log(`🔵 [t2=${(t2 - t0).toFixed(0)}ms] JSON carregado`);
       
       // Verificar se este request ainda é válido
       if (requestIdRef.current !== requestId) {
@@ -200,9 +199,14 @@ export default function BibliaLeitura() {
       
       console.error(`❌ Erro ao carregar capítulo:`, error);
       
+      // Erro específico para conteúdo não instalado (404)
+      const isNotFound = error.code === 'NOT_FOUND';
+      
       setLoadError({
         message: error.message || `Erro ao carregar ${book} ${chapter}`,
-        canRetry: true
+        path: error.path,
+        isNotFound,
+        canRetry: !isNotFound
       });
       setIsLoading(false);
     } finally {
@@ -488,25 +492,50 @@ export default function BibliaLeitura() {
         <div className={`space-y-4 ${fontSizeClasses[fontSize]} ${lineSpacingClasses[lineSpacing]}`}>
           {loadError ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="text-center max-w-md">
+              <div className="text-center max-w-2xl">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
-                  <span className="text-3xl">⚠️</span>
+                  <span className="text-3xl">{loadError.isNotFound ? '📦' : '⚠️'}</span>
                 </div>
                 <h3 className="text-lg font-bold text-stone-800 mb-2">
-                  Erro ao Carregar Capítulo
+                  {loadError.isNotFound ? 'Conteúdo Não Instalado' : 'Erro ao Carregar Capítulo'}
                 </h3>
-                <p className="text-stone-600 mb-6">
+                <p className="text-stone-600 mb-3">
                   {loadError.message}
                 </p>
+                {loadError.path && (
+                  <div className="bg-stone-100 p-3 rounded-lg mb-4">
+                    <p className="text-xs font-mono text-stone-700">{loadError.path}</p>
+                  </div>
+                )}
+                {loadError.isNotFound && (
+                  <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mb-4 text-left">
+                    <p className="text-sm text-amber-900 mb-2">
+                      <strong>📋 Instruções:</strong>
+                    </p>
+                    <ol className="text-sm text-amber-800 space-y-1 list-decimal list-inside">
+                      <li>Verifique se o dataset foi instalado corretamente</li>
+                      <li>Confira se o arquivo JSON existe na pasta /data/</li>
+                      <li>Vá em Configurações → Dataset para validar</li>
+                    </ol>
+                  </div>
+                )}
                 <div className="flex gap-3 justify-center">
+                  {loadError.canRetry && (
+                    <Button
+                      onClick={handleRetry}
+                      className="text-white"
+                      style={{ backgroundColor: '#722f37' }}
+                    >
+                      🔄 Tentar Novamente
+                    </Button>
+                  )}
                   <Button
-                    onClick={handleRetry}
-                    className="text-white"
-                    style={{ backgroundColor: '#722f37' }}
+                    variant="outline"
+                    onClick={() => window.location.href = '/settings?tab=validator'}
+                    style={{ borderColor: '#722f37', color: '#722f37' }}
                   >
-                    🔄 Tentar Novamente
+                    🔍 Verificar Instalação
                   </Button>
-
                 </div>
               </div>
             </div>
