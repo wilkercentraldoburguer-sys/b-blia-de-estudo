@@ -1,11 +1,12 @@
 import { getBookKey } from './bibleUtils';
+import { fetchChapterFromAPI } from './abibliaBibleProvider';
 
 // Cache em memória (LRU - últimos 3 capítulos)
 let memoryCache = {};
 const MAX_MEMORY_CACHE = 3;
 
-// Storage key para cache persistente
-const STORAGE_KEY = 'bible_chapters_cache';
+// Storage key para cache persistente (estruturado)
+const CACHE_PREFIX = 'data_cache';
 const STATS_KEY = 'bible_loader_stats';
 
 /**
@@ -166,32 +167,29 @@ function getFromPersistentCache(key) {
 }
 
 /**
- * Busca capítulo do servidor JSON (simulado)
- * NA PRODUÇÃO: isso seria um fetch real para /data/${version}/${bookKey}/${chapter}.json
+ * Busca capítulo via ABíbliaDigital API
  */
-async function fetchFromJSON(version, bookKey, chapter) {
-  const path = `/data/${version}/${bookKey}/${chapter}.json`;
+async function fetchFromAPI(version, bookKey, chapter, signal) {
+  console.log(`🌐 Buscando via API ABíbliaDigital...`);
   
-  console.log(`📋 Path resolvido: ${path}`);
-  
-  // Tentar carregar (simulado - na produção seria fetch real)
-  // Por enquanto, retorna dados inline se disponível
-  const cacheKey = `${version}|${bookKey}|${chapter}`;
-  const inlineData = INLINE_DATA[cacheKey];
-  
-  if (inlineData) {
-    console.log(`✅ Resultado do fetch: 200 OK (inline data)`);
-    return inlineData;
+  try {
+    const data = await fetchChapterFromAPI(version, bookKey, chapter, signal);
+    console.log(`✅ API retornou: ${data.verses.length} versículos`);
+    return data;
+  } catch (error) {
+    console.error(`❌ Erro na API:`, error.message);
+    
+    // Tentar dados inline como último recurso
+    const cacheKey = `${version}|${bookKey}|${chapter}`;
+    const inlineData = INLINE_DATA[cacheKey];
+    
+    if (inlineData) {
+      console.log(`⚠️ Usando dados inline como fallback`);
+      return inlineData;
+    }
+    
+    throw error;
   }
-  
-  // Arquivo não encontrado
-  console.error(`❌ Resultado do fetch: 404 NOT FOUND`);
-  console.error(`❌ Conteúdo não instalado: ${path}`);
-  
-  const error = new Error(`Conteúdo não instalado: ${path}`);
-  error.code = 'NOT_FOUND';
-  error.path = path;
-  throw error;
 }
 
 /**
@@ -227,7 +225,7 @@ export function getCacheStats() {
 
 /**
  * Carrega capítulo com estratégia cache-first
- * REGRA: NUNCA usa LLM - apenas JSON local
+ * REGRA: NUNCA usa LLM - apenas cache ou API
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   const bookKey = getBookKey(bookName);
@@ -236,48 +234,94 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
   console.log(`🔍 Livro selecionado: "${bookName}"`);
   console.log(`🔑 bookKey gerado: "${bookKey}"`);
-  console.log(`📍 Version: ${version}, Chapter: ${chapter}`);
+  console.log(`📍 versionCode: ${version}, chapter: ${chapter}`);
   
   // 1. Cache memória (instantâneo < 10ms)
   const memCached = getFromMemoryCache(cacheKey);
   if (memCached) {
-    console.log(`✅ Cache hit: MEMÓRIA`);
+    console.log(`✅ cacheHit: MEMÓRIA`);
     updateStats('memory');
     return memCached;
   }
   
-  // 2. Cache persistente (rápido < 100ms)
-  const persistCached = getFromPersistentCache(cacheKey);
+  // 2. Cache persistente estruturado (rápido < 100ms)
+  const persistCached = getFromPersistentCache(version, bookKey, chapter);
   if (persistCached) {
-    console.log(`✅ Cache hit: PERSISTENTE`);
+    console.log(`✅ cacheHit: PERSISTENTE (${CACHE_PREFIX}/${version}/${bookKey}/${chapter})`);
     saveToMemoryCache(cacheKey, persistCached);
     updateStats('persistent');
     return persistCached;
   }
   
-  // 3. Buscar JSON (ÚNICO fallback - SEM LLM)
-  console.log(`⚠️ Cache miss - Buscando JSON...`);
+  // 3. Buscar via API ABíbliaDigital
+  console.log(`⚠️ Cache miss - Buscando via API...`);
   
   try {
-    const data = await fetchFromJSON(version, bookKey, chapter);
+    const data = await fetchFromAPI(version, bookKey, chapter, signal);
     
     // Verificar se foi cancelado
     if (signal?.aborted) {
       throw new Error('Carregamento cancelado');
     }
     
-    console.log(`✅ JSON carregado: ${data.verses.length} versículos`);
+    console.log(`✅ API carregado: ${data.verses.length} versículos`);
     
     // Salvar nos caches
     saveToMemoryCache(cacheKey, data);
-    await saveToPersistentCache(cacheKey, data);
-    updateStats('json');
+    await saveToPersistentCache(version, bookKey, chapter, data);
+    updateStats('api');
     
     return data;
   } catch (error) {
     console.error(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
     throw error;
   }
+}
+
+/**
+ * Download de um livro completo para offline
+ */
+export async function downloadBookOffline(version, bookName, totalChapters, onProgress) {
+  const bookKey = getBookKey(bookName);
+  const results = {
+    success: 0,
+    failed: 0,
+    errors: []
+  };
+  
+  console.log(`📥 Iniciando download offline: ${bookName} (${totalChapters} capítulos)`);
+  
+  for (let chapter = 1; chapter <= totalChapters; chapter++) {
+    try {
+      const data = await fetchChapterFromAPI(version, bookKey, chapter);
+      await saveToPersistentCache(version, bookKey, chapter, data);
+      
+      results.success++;
+      
+      if (onProgress) {
+        onProgress({
+          current: chapter,
+          total: totalChapters,
+          percentage: (chapter / totalChapters) * 100
+        });
+      }
+      
+      // Pequeno delay para não sobrecarregar a API
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+    } catch (error) {
+      results.failed++;
+      results.errors.push({
+        chapter,
+        error: error.message
+      });
+      console.error(`Erro ao baixar ${bookName} ${chapter}:`, error);
+    }
+  }
+  
+  console.log(`✅ Download completo: ${results.success}/${totalChapters} capítulos salvos`);
+  
+  return results;
 }
 
 /**

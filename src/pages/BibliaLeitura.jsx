@@ -10,6 +10,7 @@ import ImmersiveMode from "../components/reader/ImmersiveMode";
 import ShareCard from "../components/reader/ShareCard";
 import ReadingSettings from "../components/reader/ReadingSettings";
 import StudyGenerator from "../components/study/StudyGenerator";
+import OfflineDownloader from "../components/bible/OfflineDownloader";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { fetchChapterFromJSON, prefetchChapters } from "@/components/bible/bibleLoader";
@@ -418,6 +419,11 @@ export default function BibliaLeitura() {
               Leitura Bíblica
             </h1>
             <div className="flex gap-2">
+              <OfflineDownloader
+                currentBook={currentBook}
+                totalChapters={totalChapters}
+                selectedVersion={selectedVersion}
+              />
               <Button
                 onClick={() => setStudyGeneratorOpen(true)}
                 size="sm"
