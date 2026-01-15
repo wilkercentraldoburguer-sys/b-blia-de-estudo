@@ -1,5 +1,6 @@
 import { getBookKey } from './bibleUtils';
 import { fetchChapterFromAPI } from './abibliaBibleProvider';
+import { getChapter } from './BibleRepository';
 
 // Cache em memória (LRU - últimos 3 capítulos)
 let memoryCache = {};
