@@ -125,45 +125,27 @@ function getFromMemoryCache(key) {
 }
 
 /**
- * Salva capítulo no cache persistente
+ * Cache persistente estruturado por versão/livro/capítulo
  */
-async function saveToPersistentCache(key, data) {
+function getFromPersistentCache(version, bookKey, chapter) {
   try {
-    const cache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    cache[key] = {
-      data,
-      timestamp: Date.now()
-    };
-    
-    // Limitar a 100 capítulos no persistente
-    const keys = Object.keys(cache);
-    if (keys.length > 100) {
-      // Remover 20 mais antigos
-      const sorted = keys.sort((a, b) => cache[a].timestamp - cache[b].timestamp);
-      sorted.slice(0, 20).forEach(k => delete cache[k]);
-    }
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
-  } catch (error) {
-    console.warn('Erro ao salvar cache persistente:', error);
+    const storageKey = `${CACHE_PREFIX}/${version}/${bookKey}/${chapter}`;
+    const cached = localStorage.getItem(storageKey);
+    return cached ? JSON.parse(cached) : null;
+  } catch (e) {
+    console.error('Erro ao ler cache persistente:', e);
+    return null;
   }
 }
 
-/**
- * Busca capítulo do cache persistente
- */
-function getFromPersistentCache(key) {
+async function saveToPersistentCache(version, bookKey, chapter, data) {
   try {
-    const cache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    const cached = cache[key];
-    if (cached) {
-      console.log(`✅ Cache HIT (persistente): ${key}`);
-      return cached.data;
-    }
-  } catch (error) {
-    console.warn('Erro ao ler cache persistente:', error);
+    const storageKey = `${CACHE_PREFIX}/${version}/${bookKey}/${chapter}`;
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    console.log(`💾 Cache persistente salvo: ${storageKey}`);
+  } catch (e) {
+    console.error('Erro ao salvar cache persistente:', e);
   }
-  return null;
 }
 
 /**
@@ -213,10 +195,19 @@ function updateStats(source) {
 export function getCacheStats() {
   try {
     const stats = JSON.parse(localStorage.getItem(STATS_KEY) || '{}');
-    const cache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    
+    // Contar capítulos em cache estruturado
+    let cachedCount = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith(CACHE_PREFIX + '/')) {
+        cachedCount++;
+      }
+    }
+    
     return {
       ...stats,
-      cachedChapters: Object.keys(cache).length
+      cachedChapters: cachedCount
     };
   } catch (e) {
     return { cachedChapters: 0, total: 0 };
@@ -336,7 +327,7 @@ export function prefetchChapters(version, bookName, currentChapter, totalChapter
       const cacheKey = `${version}|${bookKey}|${nextChapter}`;
       
       // Só fazer prefetch se não estiver em cache
-      if (!getFromMemoryCache(cacheKey) && !getFromPersistentCache(cacheKey)) {
+      if (!getFromMemoryCache(cacheKey) && !getFromPersistentCache(version, bookKey, nextChapter)) {
         setTimeout(() => {
           console.log(`⚡ Prefetch: ${bookName} ${nextChapter}`);
           
@@ -359,6 +350,16 @@ export function prefetchChapters(version, bookName, currentChapter, totalChapter
  */
 export function clearCache() {
   memoryCache = {};
-  localStorage.removeItem(STORAGE_KEY);
-  console.log('🗑️ Cache limpo');
+  
+  // Limpar cache estruturado
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith(CACHE_PREFIX + '/')) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(key => localStorage.removeItem(key));
+  
+  console.log(`🗑️ Cache limpo (${keysToRemove.length} capítulos removidos)`);
 }
