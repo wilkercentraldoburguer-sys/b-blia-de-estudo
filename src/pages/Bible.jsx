@@ -40,7 +40,15 @@ export default function Bible() {
   const [selectedVerse, setSelectedVerse] = useState(null);
   const [noteText, setNoteText] = useState("");
   const [user, setUser] = useState(null);
-  const [chapterCache, setChapterCache] = useState({});
+  const [chapterCache, setChapterCache] = useState(() => {
+    // Carregar cache do localStorage
+    try {
+      const saved = localStorage.getItem('bible_chapter_cache');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
 
   const queryClient = useQueryClient();
 
@@ -50,6 +58,14 @@ export default function Bible() {
 
   useEffect(() => {
     loadChapter();
+    // Pre-carregar próximo capítulo
+    if (currentChapter < totalChapters) {
+      prefetchChapter(currentChapter + 1);
+    }
+    // Pre-carregar capítulo anterior
+    if (currentChapter > 1) {
+      prefetchChapter(currentChapter - 1);
+    }
   }, [currentBook, currentChapter, selectedVersion]);
 
   const loadUser = async () => {
@@ -155,16 +171,103 @@ IMPORTANTE:
       
       if (response?.verses) {
         setVerses(response.verses);
-        // Salvar no cache
-        setChapterCache(prev => ({
-          ...prev,
-          [cacheKey]: response.verses
-        }));
+        // Salvar no cache em memória e localStorage
+        setChapterCache(prev => {
+          const newCache = {
+            ...prev,
+            [cacheKey]: response.verses
+          };
+          // Persistir no localStorage (limitar a 50 capítulos)
+          try {
+            const keys = Object.keys(newCache);
+            if (keys.length > 50) {
+              const recentKeys = keys.slice(-50);
+              const limitedCache = {};
+              recentKeys.forEach(k => limitedCache[k] = newCache[k]);
+              localStorage.setItem('bible_chapter_cache', JSON.stringify(limitedCache));
+              return limitedCache;
+            }
+            localStorage.setItem('bible_chapter_cache', JSON.stringify(newCache));
+          } catch (e) {
+            console.error('Erro ao salvar cache:', e);
+          }
+          return newCache;
+        });
       }
     } catch (error) {
       console.error("Erro ao carregar capítulo:", error);
     }
     setIsLoading(false);
+  };
+
+  const prefetchChapter = async (chapterNumber) => {
+    const cacheKey = `${currentBook}-${chapterNumber}-${selectedVersion}`;
+    
+    // Só carregar se não estiver em cache
+    if (chapterCache[cacheKey]) return;
+
+    try {
+      const versionName = BIBLE_VERSIONS.find(v => v.sigla === selectedVersion)?.nome || "Almeida Revista e Atualizada";
+      
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Retorne o texto completo de ${currentBook} capítulo ${chapterNumber} da Bíblia em português, versão ${versionName}.
+
+Formato JSON:
+{
+  "verses": [
+    {"number": 1, "text": "texto do versículo 1"},
+    {"number": 2, "text": "texto do versículo 2"}
+  ]
+}
+
+IMPORTANTE:
+- Retorne TODOS os versículos do capítulo
+- Não inclua comentários ou explicações
+- Apenas o texto bíblico puro`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            verses: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  number: { type: "integer" },
+                  text: { type: "string" }
+                },
+                required: ["number", "text"]
+              }
+            }
+          },
+          required: ["verses"]
+        }
+      });
+      
+      if (response?.verses) {
+        setChapterCache(prev => {
+          const newCache = {
+            ...prev,
+            [cacheKey]: response.verses
+          };
+          try {
+            const keys = Object.keys(newCache);
+            if (keys.length > 50) {
+              const recentKeys = keys.slice(-50);
+              const limitedCache = {};
+              recentKeys.forEach(k => limitedCache[k] = newCache[k]);
+              localStorage.setItem('bible_chapter_cache', JSON.stringify(limitedCache));
+              return limitedCache;
+            }
+            localStorage.setItem('bible_chapter_cache', JSON.stringify(newCache));
+          } catch (e) {
+            console.error('Erro ao salvar cache:', e);
+          }
+          return newCache;
+        });
+      }
+    } catch (error) {
+      // Silenciar erros de prefetch
+    }
   };
 
   const handleBookSelect = (bookName, chapters) => {
