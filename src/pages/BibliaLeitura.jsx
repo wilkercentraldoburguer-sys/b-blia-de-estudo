@@ -205,11 +205,9 @@ export default function BibliaLeitura() {
       
       setLoadError({
         message: errorMessage,
-        path: error.path,
-        status: error.status,
         code: error.code,
-        isNotFound,
-        canRetry: !isNotFound && error.code !== 'NO_TOKEN'
+        bookKey: error.bookKey,
+        chapter: error.chapter
       });
       setIsLoading(false);
     } finally {
@@ -502,63 +500,37 @@ export default function BibliaLeitura() {
           {loadError ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="text-center max-w-2xl">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
-                  <span className="text-3xl">
-                    {loadError.code === 'NO_TOKEN' ? '🔑' : loadError.isNotFound ? '📦' : '⚠️'}
-                  </span>
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
+                  <span className="text-3xl">📦</span>
                 </div>
                 <h3 className="text-lg font-bold text-stone-800 mb-2">
-                  {loadError.code === 'NO_TOKEN' 
-                    ? 'Token Não Configurado'
-                    : loadError.isNotFound 
-                    ? 'Conteúdo Não Instalado' 
-                    : 'Erro ao Carregar Capítulo'}
+                  {loadError.code === 'DATASET_MISSING' 
+                    ? 'Capítulo não disponível no dataset'
+                    : 'Erro ao carregar capítulo'}
                 </h3>
-                <p className="text-stone-600 mb-3 whitespace-pre-line">
-                  {String(loadError.message || loadError.status || 'Erro desconhecido')}
+                <p className="text-stone-600 mb-3">
+                  {loadError.code === 'DATASET_MISSING'
+                    ? 'Importe um dataset para habilitar a Bíblia completa.'
+                    : String(loadError.message || 'Erro desconhecido')}
                 </p>
                 {loadError.path && (
                   <div className="bg-stone-100 p-3 rounded-lg mb-4">
                     <p className="text-xs font-mono text-stone-700">{loadError.path}</p>
                   </div>
                 )}
-                {loadError.isNotFound && (
-                  <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg mb-4 text-left">
-                    <p className="text-sm text-amber-900 mb-2">
-                      <strong>📋 Instruções:</strong>
-                    </p>
-                    <ol className="text-sm text-amber-800 space-y-1 list-decimal list-inside">
-                      <li>Verifique se o dataset foi instalado corretamente</li>
-                      <li>Confira se o arquivo JSON existe na pasta /data/</li>
-                      <li>Vá em Configurações → Dataset para validar</li>
-                    </ol>
-                  </div>
-                )}
                 <div className="flex gap-3 justify-center">
-                  {loadError.code === 'NO_TOKEN' ? (
-                    <Link to={createPageUrl('Settings')}>
-                      <Button className="text-white" style={{ backgroundColor: '#722f37' }}>
-                        Ir para Configurações
-                      </Button>
-                    </Link>
-                  ) : loadError.canRetry && (
-                    <Button
-                      onClick={handleRetry}
-                      className="text-white"
-                      style={{ backgroundColor: '#722f37' }}
-                    >
-                      🔄 Tentar Novamente
+                  <Link to={createPageUrl('Settings')}>
+                    <Button className="text-white" style={{ backgroundColor: '#722f37' }}>
+                      Ir para Configurações
                     </Button>
-                  )}
-                  {!loadError.code === 'NO_TOKEN' && (
-                    <Button
-                      variant="outline"
-                      onClick={() => window.location.href = '/settings?tab=validator'}
-                      style={{ borderColor: '#722f37', color: '#722f37' }}
-                    >
-                      🔍 Verificar Instalação
-                    </Button>
-                  )}
+                  </Link>
+                  <Button
+                    variant="outline"
+                    onClick={() => window.location.href = createPageUrl('Settings')}
+                    style={{ borderColor: '#722f37', color: '#722f37' }}
+                  >
+                    Ver Status do Dataset
+                  </Button>
                 </div>
               </div>
             </div>

@@ -218,22 +218,8 @@ export function getCacheStats() {
  * REGRA: NUNCA usa LLM - apenas cache ou API
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
-  try {
-    // Usar BibleRepository (cache-first, local only)
-    const data = await getChapter(version, bookName, chapter);
-    
-    // Verificar se foi cancelado
-    if (signal?.aborted) {
-      const err = new Error('Carregamento cancelado');
-      err.code = 'CANCELLED';
-      throw err;
-    }
-    
-    return data;
-  } catch (error) {
-    // Re-throw com informações adequadas
-    throw error;
-  }
+  // Usar apenas BibleRepository (sem API, sem LLM)
+  return await getChapter(version, bookName, chapter);
 }
 
 /**
