@@ -156,22 +156,16 @@ async function saveToPersistentCache(version, bookKey, chapter, data) {
 /**
  * Busca capítulo via ABíbliaDigital API
  */
-async function fetchFromAPI(version, bookKey, chapter, signal) {
-  console.log(`🌐 Buscando via API ABíbliaDigital...`);
-  
+async function fetchFromAPI(version, bookKey, chapter, signal, logData) {
   try {
-    const data = await fetchChapterFromAPI(version, bookKey, chapter, signal);
-    console.log(`✅ API retornou: ${data.verses.length} versículos`);
+    const data = await fetchChapterFromAPI(version, bookKey, chapter, signal, logData);
     return data;
   } catch (error) {
-    console.error(`❌ Erro na API:`, error.message);
-    
     // Tentar dados inline como último recurso
     const cacheKey = `${version}|${bookKey}|${chapter}`;
     const inlineData = INLINE_DATA[cacheKey];
     
     if (inlineData) {
-      console.log(`⚠️ Usando dados inline como fallback`);
       return inlineData;
     }
     
@@ -227,17 +221,29 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   const bookKey = getBookKey(bookName);
   const cacheKey = `${version}|${bookKey}|${chapter}`;
   
-  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-  console.log(`bookLabel=${bookName}`);
-  console.log(`bookKey=${bookKey}`);
-  console.log(`versionLabel=${version}`);
-  console.log(`chapter=${chapter}`);
+  // Normalizar bookName removendo acentos para log
+  const bookLabel = bookName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  
+  const logData = {
+    bookLabel,
+    bookKey,
+    chapter,
+    versionLabel: version,
+    versionCode: '',
+    url: '',
+    status: '',
+    timeMs: 0,
+    verses: 0,
+    cacheHit: 'none',
+    error: ''
+  };
   
   // 1. Cache memória (instantâneo < 10ms)
   const memCached = getFromMemoryCache(cacheKey);
   if (memCached) {
-    console.log(`cacheHit=memory`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    logData.cacheHit = 'mem';
+    logData.verses = memCached.verses?.length || 0;
+    console.log(`BIBLELOG bookLabel=${logData.bookLabel} bookKey=${logData.bookKey} chapter=${logData.chapter} versionLabel=${logData.versionLabel} versionCode=na url=na status=na timeMs=0 verses=${logData.verses} cacheHit=${logData.cacheHit} error=`);
     updateStats('memory');
     return memCached;
   }
@@ -246,22 +252,19 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   const t0 = performance.now();
   const persistCached = getFromPersistentCache(version, bookKey, chapter);
   if (persistCached) {
-    const t1 = performance.now();
-    const timeMs = Math.round(t1 - t0);
-    console.log(`cacheHit=persistente`);
-    console.log(`TIME=${timeMs}ms`);
-    console.log(`verses=${persistCached.verses?.length || 0}`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    const timeMs = Math.round(performance.now() - t0);
+    logData.cacheHit = 'persist';
+    logData.verses = persistCached.verses?.length || 0;
+    logData.timeMs = timeMs;
+    console.log(`BIBLELOG bookLabel=${logData.bookLabel} bookKey=${logData.bookKey} chapter=${logData.chapter} versionLabel=${logData.versionLabel} versionCode=na url=na status=na timeMs=${logData.timeMs} verses=${logData.verses} cacheHit=${logData.cacheHit} error=`);
     saveToMemoryCache(cacheKey, persistCached);
     updateStats('persistent');
     return persistCached;
   }
   
   // 3. Buscar via API ABíbliaDigital
-  console.log(`cacheHit=none`);
-  
   try {
-    const data = await fetchFromAPI(version, bookKey, chapter, signal);
+    const data = await fetchFromAPI(version, bookKey, chapter, signal, logData);
     
     // Verificar se foi cancelado
     if (signal?.aborted) {
@@ -275,12 +278,14 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
     await saveToPersistentCache(version, bookKey, chapter, data);
     updateStats('api');
     
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    
     return data;
   } catch (error) {
-    console.error(`ERROR: ${String(error.message || error)}`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    // Log de erro
+    logData.error = error.status || 'ERR_UNKNOWN';
+    if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+      logData.error = 'ERR_NETWORK';
+    }
+    console.log(`BIBLELOG bookLabel=${logData.bookLabel} bookKey=${logData.bookKey} chapter=${logData.chapter} versionLabel=${logData.versionLabel} versionCode=${logData.versionCode || 'na'} url=${logData.url || 'na'} status=${logData.status || 'ERR'} timeMs=${logData.timeMs} verses=0 cacheHit=none error=${logData.error}`);
     throw error;
   }
 }

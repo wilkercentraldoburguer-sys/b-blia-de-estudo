@@ -26,47 +26,45 @@ export function getAPIVersionCode(appVersion) {
 /**
  * Busca capítulo via API
  */
-export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal) {
+export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal, logData) {
   const t0 = performance.now();
   const apiVersion = getAPIVersionCode(versionCode);
   const url = `${API_BASE}/verses/${apiVersion}/${bookKey}/${chapter}`;
   
-  console.log(`versionCode=${apiVersion}`);
-  console.log(`URL=${url}`);
+  if (logData) {
+    logData.versionCode = apiVersion;
+    logData.url = url;
+  }
   
   try {
     const response = await fetch(url, { signal });
-    const t1 = performance.now();
-    const timeMs = Math.round(t1 - t0);
+    const timeMs = Math.round(performance.now() - t0);
     
-    console.log(`STATUS=${response.status}`);
-    console.log(`TIME=${timeMs}ms`);
+    if (logData) {
+      logData.status = response.status;
+      logData.timeMs = timeMs;
+    }
     
     if (!response.ok) {
-      // Ler o body da resposta para debug
-      let errorBody = '';
-      try {
-        errorBody = await response.text();
-        const bodyPreview = errorBody.substring(0, 150);
-        console.log(`body=${bodyPreview}${errorBody.length > 150 ? '...' : ''}`);
-      } catch (e) {
-        console.log(`body=(não conseguiu ler)`);
-      }
-      
       const error = new Error(`Erro ao carregar ${bookKey} ${chapter} (status ${response.status})`);
-      error.status = response.status;
+      error.status = `HTTP_${response.status}`;
       throw error;
     }
     
     const data = await response.json();
     
     if (!data.verses || data.verses.length === 0) {
-      const error = new Error('API retornou capítulo vazio');
+      const error = new Error('API retornou capitulo vazio');
       error.status = 'EMPTY';
       throw error;
     }
     
-    console.log(`verses=${data.verses.length}`);
+    if (logData) {
+      logData.verses = data.verses.length;
+      // Normalizar para ASCII
+      const bookLabelNorm = (logData.bookLabel || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      console.log(`BIBLELOG bookLabel=${bookLabelNorm} bookKey=${logData.bookKey} chapter=${logData.chapter} versionLabel=${logData.versionLabel} versionCode=${apiVersion} url=${url} status=${response.status} timeMs=${timeMs} verses=${data.verses.length} cacheHit=none error=`);
+    }
     
     // Converter para nosso formato
     return {
@@ -79,13 +77,11 @@ export async function fetchChapterFromAPI(versionCode, bookKey, chapter, signal)
       }))
     };
   } catch (error) {
-    const t1 = performance.now();
-    const timeMs = Math.round(t1 - t0);
+    const timeMs = Math.round(performance.now() - t0);
     
-    if (!error.status) {
-      console.log(`STATUS=ERROR`);
-      console.log(`TIME=${timeMs}ms`);
-      console.log(`body=${String(error.message || error)}`);
+    if (logData) {
+      logData.timeMs = timeMs;
+      logData.error = error.status || 'ERR_NETWORK';
     }
     
     throw error;
