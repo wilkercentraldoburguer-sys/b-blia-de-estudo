@@ -40,6 +40,7 @@ export default function Bible() {
   const [selectedVerse, setSelectedVerse] = useState(null);
   const [noteText, setNoteText] = useState("");
   const [user, setUser] = useState(null);
+  const [chapterCache, setChapterCache] = useState({});
 
   const queryClient = useQueryClient();
 
@@ -106,6 +107,14 @@ export default function Bible() {
   });
 
   const loadChapter = async () => {
+    const cacheKey = `${currentBook}-${currentChapter}-${selectedVersion}`;
+    
+    // Verificar cache primeiro
+    if (chapterCache[cacheKey]) {
+      setVerses(chapterCache[cacheKey]);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const versionName = BIBLE_VERSIONS.find(v => v.sigla === selectedVersion)?.nome || "Almeida Revista e Atualizada";
@@ -146,6 +155,11 @@ IMPORTANTE:
       
       if (response?.verses) {
         setVerses(response.verses);
+        // Salvar no cache
+        setChapterCache(prev => ({
+          ...prev,
+          [cacheKey]: response.verses
+        }));
       }
     } catch (error) {
       console.error("Erro ao carregar capítulo:", error);
