@@ -3,6 +3,7 @@
  */
 
 import { loadMeta } from './BibleRepository';
+import { getBasePath } from './DatasetPathDetector';
 
 /**
  * Valida dataset completo
@@ -21,10 +22,12 @@ export async function validateDataset(versionCode = 'ra') {
     checked: 0
   };
   
+  const basePath = getBasePath();
+  
   for (const book of books) {
     for (let chapter = 1; chapter <= book.chapters; chapter++) {
       results.checked++;
-      const url = `/bible/${versionCode}/${book.key}/${chapter}.json`;
+      const url = `${basePath}/${versionCode}/${book.key}/${chapter}.json`;
       
       try {
         const response = await fetch(url);
