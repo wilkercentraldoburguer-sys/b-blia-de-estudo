@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, ChevronRight, Settings, Maximize2, Share2, BookOpen } from "lucide-react";
 import VerseSelector from "../components/reader/VerseSelector";
 import VerseActions from "../components/reader/VerseActions";
@@ -35,6 +36,21 @@ export default function BibliaLeitura() {
   const [lineSpacing, setLineSpacing] = useState("normal");
   const [theme, setTheme] = useState("light");
   const [user, setUser] = useState(null);
+  
+  // Cache em memória (LRU - últimos 30 capítulos)
+  const [chapterCache, setChapterCache] = useState(() => {
+    try {
+      const saved = localStorage.getItem('biblia_leitura_cache');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  
+  // Controle de cancelamento e debounce
+  const abortControllerRef = useRef(null);
+  const debounceTimerRef = useRef(null);
+  const isLoadingRef = useRef(false);
 
   const queryClient = useQueryClient();
 
@@ -105,7 +121,26 @@ export default function BibliaLeitura() {
   });
 
   useEffect(() => {
-    loadChapter(currentBook, currentChapter, selectedVersion);
+    // Cancelar requisição anterior
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Limpar debounce anterior
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    
+    // Debounce de 250ms
+    debounceTimerRef.current = setTimeout(() => {
+      loadChapterOptimized(currentBook, currentChapter, selectedVersion);
+    }, 250);
+    
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
   }, [currentBook, currentChapter, selectedVersion]);
 
   useEffect(() => {
@@ -119,8 +154,136 @@ export default function BibliaLeitura() {
     }
   }, [currentBook, currentChapter]);
 
-  const loadChapter = async (book, chapter, version) => {
+  const loadChapterOptimized = async (book, chapter, version) => {
+    const cacheKey = `${book}-${chapter}-${version}`;
+    
+    // 1. Verificar cache em memória (instantâneo)
+    if (chapterCache[cacheKey]) {
+      setVerses(chapterCache[cacheKey]);
+      setIsLoading(false);
+      // Prefetch em background
+      schedulePrefetch(book, chapter);
+      return;
+    }
+
+    // 2. Criar novo AbortController para cancelamento
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    isLoadingRef.current = true;
     setIsLoading(true);
+
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Retorne APENAS o texto bíblico de ${book} ${chapter} na versão ${version} em português.
+JSON:
+{
+  "verses": [
+    {"text": "verso 1"},
+    {"text": "verso 2"}
+  ]
+}
+SEM números, SEM comentários, APENAS texto.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            verses: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: { text: { type: "string" } },
+                required: ["text"]
+              }
+            }
+          },
+          required: ["verses"]
+        }
+      });
+      
+      // Verificar se não foi cancelado
+      if (controller.signal.aborted) return;
+      
+      if (response?.verses) {
+        setVerses(response.verses);
+        saveToCache(cacheKey, response.verses);
+        // Prefetch próximos capítulos
+        schedulePrefetch(book, chapter);
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('Carregamento cancelado');
+        return;
+      }
+      console.error("Erro ao carregar capítulo:", error);
+    } finally {
+      if (!controller.signal.aborted) {
+        setIsLoading(false);
+        isLoadingRef.current = false;
+      }
+    }
+  };
+
+  const saveToCache = useCallback((key, data) => {
+    setChapterCache(prev => {
+      const newCache = { ...prev, [key]: data };
+      
+      // LRU: manter apenas últimos 30 em memória
+      const keys = Object.keys(newCache);
+      if (keys.length > 30) {
+        const recentKeys = keys.slice(-30);
+        const limitedCache = {};
+        recentKeys.forEach(k => limitedCache[k] = newCache[k]);
+        
+        // Persistir no localStorage (50 capítulos)
+        try {
+          const allKeys = Object.keys(prev);
+          if (allKeys.length > 50) {
+            const storageKeys = allKeys.slice(-50);
+            const storageCache = {};
+            storageKeys.forEach(k => storageCache[k] = prev[k]);
+            storageCache[key] = data;
+            localStorage.setItem('biblia_leitura_cache', JSON.stringify(storageCache));
+          } else {
+            localStorage.setItem('biblia_leitura_cache', JSON.stringify({ ...prev, [key]: data }));
+          }
+        } catch (e) {
+          console.error('Erro ao salvar cache:', e);
+        }
+        
+        return limitedCache;
+      }
+      
+      // Salvar no localStorage
+      try {
+        localStorage.setItem('biblia_leitura_cache', JSON.stringify(newCache));
+      } catch (e) {
+        console.error('Erro ao salvar cache:', e);
+      }
+      
+      return newCache;
+    });
+  }, []);
+
+  const schedulePrefetch = useCallback((book, chapter) => {
+    // Prefetch em background (não bloquear UI)
+    setTimeout(() => {
+      if (chapter < totalChapters) {
+        prefetchChapter(book, chapter + 1, selectedVersion);
+        if (chapter + 1 < totalChapters) {
+          prefetchChapter(book, chapter + 2, selectedVersion);
+        }
+      }
+      if (chapter > 1) {
+        prefetchChapter(book, chapter - 1, selectedVersion);
+      }
+    }, 100);
+  }, [totalChapters, selectedVersion]);
+
+  const prefetchChapter = useCallback(async (book, chapter, version) => {
+    const cacheKey = `${book}-${chapter}-${version}`;
+    
+    // Só carregar se não estiver em cache
+    if (chapterCache[cacheKey]) return;
+
     try {
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `Retorne APENAS o texto bíblico de ${book} ${chapter} na versão ${version} em português.
@@ -149,13 +312,22 @@ SEM números, SEM comentários, APENAS texto.`,
       });
       
       if (response?.verses) {
-        setVerses(response.verses);
+        saveToCache(cacheKey, response.verses);
       }
     } catch (error) {
-      console.error("Erro ao carregar capítulo:", error);
+      // Silenciar erros de prefetch
     }
-    setIsLoading(false);
-  };
+  }, [chapterCache, saveToCache]);
+
+  // Invalidar cache ao trocar versão
+  useEffect(() => {
+    const cacheVersion = localStorage.getItem('biblia_leitura_cache_version');
+    if (cacheVersion !== selectedVersion) {
+      setChapterCache({});
+      localStorage.removeItem('biblia_leitura_cache');
+      localStorage.setItem('biblia_leitura_cache_version', selectedVersion);
+    }
+  }, [selectedVersion]);
 
   const handleVerseClick = (verseNumber, verseText, event) => {
     setSelectedVerse({ number: verseNumber, text: verseText });
@@ -377,12 +549,29 @@ SEM números, SEM comentários, APENAS texto.`,
         {/* Versículos */}
         <div className={`space-y-4 ${fontSizeClasses[fontSize]} ${lineSpacingClasses[lineSpacing]}`}>
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <div className="w-10 h-10 animate-spin rounded-full border-4 border-stone-200" style={{ borderTopColor: '#722f37' }}></div>
-              <div className="text-center">
-                <p className="text-stone-700 font-medium">Preparando a leitura...</p>
-                <p className="text-stone-500 text-sm mt-1">{currentBook} {currentChapter}</p>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-5 h-5 animate-spin rounded-full border-4 border-stone-200" style={{ borderTopColor: '#722f37' }}></div>
+                <p className="text-stone-700 font-medium">
+                  Preparando {currentBook} {currentChapter}...
+                </p>
               </div>
+              {/* Skeleton Loading */}
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                <div key={i} className="p-4 rounded-lg">
+                  <div className="flex gap-3">
+                    <Skeleton className="w-8 h-6 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : verses.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <p className="text-stone-600">Nenhum versículo carregado</p>
             </div>
           ) : (
             verses.map((verse, index) => {
