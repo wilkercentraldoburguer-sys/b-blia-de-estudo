@@ -12,6 +12,7 @@ import ReadingSettings from "../components/reader/ReadingSettings";
 import StudyGenerator from "../components/study/StudyGenerator";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
+import { fetchChapterFromJSON, prefetchChapters } from "../utils/bibleLoader";
 
 export default function BibliaLeitura() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -37,25 +38,14 @@ export default function BibliaLeitura() {
   const [theme, setTheme] = useState("light");
   const [user, setUser] = useState(null);
   
-  // Cache em memória (LRU - últimos 3 capítulos mais acessados)
-  const [chapterCache, setChapterCache] = useState(() => {
-    try {
-      const saved = localStorage.getItem('biblia_leitura_cache');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-  
-  // Controle de cancelamento e debounce
+  // Controle de cancelamento, debounce e request ID
   const abortControllerRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const timeoutRef = useRef(null);
-  const isLoadingRef = useRef(false);
+  const requestIdRef = useRef(0);
   
   // Estado de erro
   const [loadError, setLoadError] = useState(null);
-  const [hasCache, setHasCache] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -129,94 +119,45 @@ export default function BibliaLeitura() {
   
   loadChapterOptimizedRef.current = async (book, chapter, version) => {
     const t0 = performance.now();
-    console.log(`🔵 [t0=${t0.toFixed(0)}ms] CLIQUE: ${book} ${chapter} (${version})`);
+    const requestId = ++requestIdRef.current;
     
-    const cacheKey = `${version}|${book}|${chapter}`;
+    console.log(`🔵 [t0=${t0.toFixed(0)}ms] CLIQUE: ${book} ${chapter} (${version}) [req#${requestId}]`);
     
-    // CACHE-FIRST: Verificar cache em memória (instantâneo)
-    if (chapterCache[cacheKey]) {
-      const t_cache = performance.now();
-      console.log(`✅ [t=${(t_cache - t0).toFixed(0)}ms] CACHE HIT - Renderizando do cache`);
-      setVerses(chapterCache[cacheKey]);
-      setIsLoading(false);
-      setLoadError(null);
-      setHasCache(true);
-      // Prefetch em background
-      schedulePrefetch(book, chapter, version);
-      console.log(`🏁 [TOTAL=${(performance.now() - t0).toFixed(0)}ms] Carregamento completo (cache)`);
-      return;
-    }
-    
-    console.log(`⚠️ Cache miss - Buscando da rede`);
-    setHasCache(false);
-
-    // Criar novo AbortController para cancelamento
+    // Criar AbortController
     const controller = new AbortController();
     abortControllerRef.current = controller;
-    isLoadingRef.current = true;
+    
     setIsLoading(true);
     setLoadError(null);
     
-    // TIMEOUT DE 15 SEGUNDOS (LLM pode demorar)
+    // TIMEOUT DE 2 SEGUNDOS (meta obrigatória)
     const timeoutId = setTimeout(() => {
-      if (isLoadingRef.current) {
-        console.error(`❌ TIMEOUT após 15000ms - ${book} ${chapter}`);
+      if (requestIdRef.current === requestId && !controller.signal.aborted) {
+        console.error(`❌ TIMEOUT após 2000ms - ${book} ${chapter}`);
         controller.abort();
         setIsLoading(false);
-        isLoadingRef.current = false;
         setLoadError({
-          message: `Tempo limite excedido ao carregar ${book} ${chapter}. A geração do texto bíblico está demorando muito.`,
-          canRetry: true,
-          hasCache: false
+          message: `Tempo limite excedido ao carregar ${book} ${chapter}`,
+          canRetry: true
         });
       }
-    }, 15000);
+    }, 2000);
     timeoutRef.current = timeoutId;
 
     try {
       const t1 = performance.now();
-      console.log(`🔵 [t1=${(t1 - t0).toFixed(0)}ms] Iniciando fetch LLM`);
-      console.log(`📋 FONTE DE DADOS: base44.integrations.Core.InvokeLLM (Geração de texto com IA)`);
-      console.log(`🔍 QUERY: book="${book}", chapter=${chapter}, version="${version}"`);
+      console.log(`🔵 [t1=${(t1 - t0).toFixed(0)}ms] Iniciando loader JSON`);
       
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne APENAS o texto bíblico de ${book} capítulo ${chapter} na versão ${version} em português.
-
-IMPORTANTE: Este é ${book} capítulo ${chapter}. Retorne TODOS os versículos deste capítulo específico.
-
-JSON:
-{
-  "verses": [
-    {"text": "texto completo do versículo 1"},
-    {"text": "texto completo do versículo 2"}
-  ]
-}
-
-SEM números de versículos no texto, SEM comentários, APENAS o texto bíblico puro.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            verses: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: { text: { type: "string" } },
-                required: ["text"]
-              }
-            }
-          },
-          required: ["verses"]
-        }
-      });
+      const data = await fetchChapterFromJSON(version, book, chapter, controller.signal);
       
       const t2 = performance.now();
-      console.log(`🔵 [t2=${(t2 - t0).toFixed(0)}ms] Payload recebido`);
-      console.log(`📊 RESULTADO BRUTO:`, response);
-      console.log(`📈 Quantidade de versículos: ${response?.verses?.length || 0}`);
-      if (response?.verses && response.verses.length > 0) {
-        console.log(`📝 Exemplo do primeiro versículo:`, response.verses[0]);
-      } else {
-        console.error(`❌ PROBLEMA: Response vazia ou sem verses`);
+      const cacheSource = t2 - t1 < 10 ? 'memória' : t2 - t1 < 100 ? 'persistente' : 'rede';
+      console.log(`🔵 [t2=${(t2 - t0).toFixed(0)}ms] JSON carregado de: ${cacheSource}`);
+      
+      // Verificar se este request ainda é válido
+      if (requestIdRef.current !== requestId) {
+        console.log(`⚠️ Request #${requestId} obsoleto, descartando`);
+        return;
       }
       
       // Verificar se não foi cancelado
@@ -225,48 +166,48 @@ SEM números de versículos no texto, SEM comentários, APENAS o texto bíblico 
         return;
       }
       
-      // Limpar timeout
       clearTimeout(timeoutId);
       
       const t3 = performance.now();
-      console.log(`🔵 [t3=${(t3 - t0).toFixed(0)}ms] Preparando dados`);
+      console.log(`🔵 [t3=${(t3 - t0).toFixed(0)}ms] Processando ${data.verses.length} versículos`);
       
-      if (response?.verses && response.verses.length > 0) {
-        setVerses(response.verses);
-        saveToCache(cacheKey, response.verses);
-        setLoadError(null);
-        
-        const t4 = performance.now();
-        console.log(`✅ [t4=${(t4 - t0).toFixed(0)}ms] Primeiro conteúdo renderizado`);
-        console.log(`🏁 [TOTAL=${(t4 - t0).toFixed(0)}ms] Carregamento completo - ${response.verses.length} versículos`);
-        
-        // Prefetch próximos capítulos
-        schedulePrefetch(book, chapter, version);
-      } else {
-        console.error(`❌ Nenhum versículo retornado para ${book} ${chapter} (${version})`);
-        throw new Error(`Não foi encontrado conteúdo para ${book} ${chapter} (${version}). A IA não gerou o texto esperado.`);
-      }
+      // Mapear para formato esperado pelo componente
+      const verses = data.verses.map(v => ({ text: v.text }));
+      
+      setVerses(verses);
+      setLoadError(null);
+      
+      const t4 = performance.now();
+      console.log(`✅ [t4=${(t4 - t0).toFixed(0)}ms] Primeiro conteúdo renderizado`);
+      console.log(`🏁 [TOTAL=${(t4 - t0).toFixed(0)}ms] Carregamento completo - ${verses.length} versículos`);
+      
+      // Prefetch próximos capítulos em background
+      prefetchChapters(version, book, chapter, totalChapters);
+      
     } catch (error) {
       clearTimeout(timeoutId);
       
-      if (error.name === 'AbortError') {
+      // Ignorar erros de requests obsoletos
+      if (requestIdRef.current !== requestId) {
+        console.log(`⚠️ Request #${requestId} obsoleto, ignorando erro`);
+        return;
+      }
+      
+      if (error.message === 'Carregamento cancelado') {
         console.log('⚠️ Carregamento cancelado pelo usuário');
         return;
       }
       
       console.error(`❌ Erro ao carregar capítulo:`, error);
-      console.error(`❌ Tipo de erro:`, error.name);
-      console.error(`❌ Stack:`, error.stack);
       
       setLoadError({
         message: error.message || `Erro ao carregar ${book} ${chapter}`,
-        canRetry: true,
-        hasCache: false
+        canRetry: true
       });
+      setIsLoading(false);
     } finally {
-      if (!controller.signal.aborted) {
+      if (!controller.signal.aborted && requestIdRef.current === requestId) {
         setIsLoading(false);
-        isLoadingRef.current = false;
       }
     }
   };
@@ -316,117 +257,7 @@ SEM números de versículos no texto, SEM comentários, APENAS o texto bíblico 
 
 
 
-  const saveToCache = useCallback((key, data) => {
-    setChapterCache(prev => {
-      const newCache = { ...prev, [key]: data };
-      
-      // LRU: manter apenas últimos 3 em memória
-      const keys = Object.keys(newCache);
-      if (keys.length > 3) {
-        const recentKeys = keys.slice(-3);
-        const limitedCache = {};
-        recentKeys.forEach(k => limitedCache[k] = newCache[k]);
-        
-        // Persistir no localStorage (100 capítulos)
-        try {
-          const storageData = JSON.parse(localStorage.getItem('biblia_leitura_cache') || '{}');
-          const allKeys = Object.keys(storageData);
-          if (allKeys.length > 100) {
-            const storageKeys = allKeys.slice(-100);
-            const storageCache = {};
-            storageKeys.forEach(k => storageCache[k] = storageData[k]);
-            storageCache[key] = data;
-            localStorage.setItem('biblia_leitura_cache', JSON.stringify(storageCache));
-          } else {
-            localStorage.setItem('biblia_leitura_cache', JSON.stringify({ ...storageData, [key]: data }));
-          }
-        } catch (e) {
-          console.error('💾 Erro ao salvar cache no localStorage:', e);
-        }
-        
-        return limitedCache;
-      }
-      
-      // Salvar no localStorage
-      try {
-        const storageData = JSON.parse(localStorage.getItem('biblia_leitura_cache') || '{}');
-        localStorage.setItem('biblia_leitura_cache', JSON.stringify({ ...storageData, [key]: data }));
-      } catch (e) {
-        console.error('💾 Erro ao salvar cache no localStorage:', e);
-      }
-      
-      return newCache;
-    });
-  }, []);
 
-  const schedulePrefetch = useCallback((book, chapter, version) => {
-    // Prefetch em background (não bloquear UI)
-    setTimeout(() => {
-      console.log(`🔄 Iniciando prefetch: ${book} ${chapter+1}, ${chapter+2}`);
-      if (chapter < totalChapters) {
-        prefetchChapter(book, chapter + 1, version);
-        if (chapter + 1 < totalChapters) {
-          prefetchChapter(book, chapter + 2, version);
-        }
-      }
-    }, 500);
-  }, [totalChapters]);
-
-  const prefetchChapter = useCallback(async (book, chapter, version) => {
-    const cacheKey = `${version}|${book}|${chapter}`;
-    
-    // Só carregar se não estiver em cache
-    if (chapterCache[cacheKey]) {
-      console.log(`⚡ Prefetch skip (cache): ${book} ${chapter}`);
-      return;
-    }
-
-    try {
-      console.log(`⚡ Prefetch start: ${book} ${chapter}`);
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne APENAS o texto bíblico de ${book} capítulo ${chapter} na versão ${version} em português.
-JSON:
-{
-  "verses": [
-    {"text": "verso 1"},
-    {"text": "verso 2"}
-  ]
-}
-SEM números, SEM comentários, APENAS texto.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            verses: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: { text: { type: "string" } },
-                required: ["text"]
-              }
-            }
-          },
-          required: ["verses"]
-        }
-      });
-      
-      if (response?.verses && response.verses.length > 0) {
-        saveToCache(cacheKey, response.verses);
-        console.log(`✅ Prefetch complete: ${book} ${chapter} (${response.verses.length} vs)`);
-      }
-    } catch (error) {
-      console.log(`⚠️ Prefetch failed: ${book} ${chapter}`);
-    }
-  }, [chapterCache, saveToCache]);
-
-  // Invalidar cache ao trocar versão
-  useEffect(() => {
-    const cacheVersion = localStorage.getItem('biblia_leitura_cache_version');
-    if (cacheVersion !== selectedVersion) {
-      setChapterCache({});
-      localStorage.removeItem('biblia_leitura_cache');
-      localStorage.setItem('biblia_leitura_cache_version', selectedVersion);
-    }
-  }, [selectedVersion]);
 
   const handleVerseClick = (verseNumber, verseText, event) => {
     setSelectedVerse({ number: verseNumber, text: verseText });
@@ -539,28 +370,7 @@ SEM números, SEM comentários, APENAS texto.`,
     loadChapterOptimizedRef.current?.(currentBook, currentChapter, selectedVersion);
   };
 
-  const handleLoadFromCache = () => {
-    console.log('💾 Tentando carregar do cache persistente');
-    const cacheKey = `${selectedVersion}|${currentBook}|${currentChapter}`;
-    try {
-      const storageData = JSON.parse(localStorage.getItem('biblia_leitura_cache') || '{}');
-      if (storageData[cacheKey]) {
-        setVerses(storageData[cacheKey]);
-        setChapterCache(prev => ({ ...prev, [cacheKey]: storageData[cacheKey] }));
-        setLoadError(null);
-        setIsLoading(false);
-        console.log('✅ Carregado do cache persistente');
-      } else {
-        setLoadError({
-          message: 'Nenhum cache encontrado para este capítulo',
-          canRetry: true,
-          hasCache: false
-        });
-      }
-    } catch (e) {
-      console.error('Erro ao carregar cache:', e);
-    }
-  };
+
 
   const fontSizeClasses = {
     small: "text-sm",
@@ -696,13 +506,7 @@ SEM números, SEM comentários, APENAS texto.`,
                   >
                     🔄 Tentar Novamente
                   </Button>
-                  <Button
-                    onClick={handleLoadFromCache}
-                    variant="outline"
-                    style={{ borderColor: '#722f37', color: '#722f37' }}
-                  >
-                    💾 Abrir do Cache
-                  </Button>
+
                 </div>
               </div>
             </div>
@@ -711,7 +515,7 @@ SEM números, SEM comentários, APENAS texto.`,
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-5 h-5 animate-spin rounded-full border-4 border-stone-200" style={{ borderTopColor: '#722f37' }}></div>
                 <p className="text-stone-700 font-medium">
-                  Preparando {currentBook} {currentChapter}...
+                  Carregando {currentBook} {currentChapter}...
                 </p>
               </div>
               {/* Skeleton Loading */}
