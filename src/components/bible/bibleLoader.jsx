@@ -1,4 +1,5 @@
 import { getBookKey } from './bibleUtils';
+import { base44 } from '@/api/base44Client';
 
 // Cache em memória (LRU - últimos 3 capítulos)
 let memoryCache = {};
@@ -6,6 +7,7 @@ const MAX_MEMORY_CACHE = 3;
 
 // Storage key para cache persistente
 const STORAGE_KEY = 'bible_chapters_cache';
+const STATS_KEY = 'bible_loader_stats';
 
 /**
  * Dados bíblicos inline (João 1-4 ARA)
@@ -165,6 +167,94 @@ function getFromPersistentCache(key) {
 }
 
 /**
+ * Busca capítulo via LLM (fonte de dados)
+ */
+async function fetchFromLLM(version, bookKey, chapter, bookName) {
+  console.log(`🌐 Buscando via LLM: ${bookName} ${chapter} (${version})`);
+  
+  const response = await base44.integrations.Core.InvokeLLM({
+    prompt: `Retorne o texto bíblico completo de ${bookName} capítulo ${chapter} na versão ${version} em português.
+
+IMPORTANTE: Retorne TODOS os versículos do capítulo ${chapter} de ${bookName}.
+
+Formato JSON obrigatório:
+{
+  "verses": [
+    {"n": 1, "text": "texto do versículo 1"},
+    {"n": 2, "text": "texto do versículo 2"},
+    ...
+  ]
+}
+
+Regras:
+- verses[] deve conter TODOS os versículos do capítulo
+- Cada item tem "n" (número) e "text" (texto completo)
+- NÃO incluir números de versículos dentro do texto
+- NÃO adicionar comentários ou explicações
+- APENAS o texto bíblico puro`,
+    response_json_schema: {
+      type: "object",
+      properties: {
+        verses: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              n: { type: "integer" },
+              text: { type: "string" }
+            },
+            required: ["n", "text"]
+          }
+        }
+      },
+      required: ["verses"]
+    }
+  });
+  
+  if (!response?.verses || response.verses.length === 0) {
+    throw new Error('LLM retornou resposta vazia');
+  }
+  
+  return {
+    version,
+    book: bookKey,
+    chapter,
+    verses: response.verses
+  };
+}
+
+/**
+ * Atualiza estatísticas de cache
+ */
+function updateStats(source) {
+  try {
+    const stats = JSON.parse(localStorage.getItem(STATS_KEY) || '{}');
+    stats[source] = (stats[source] || 0) + 1;
+    stats.total = (stats.total || 0) + 1;
+    stats.lastUpdate = new Date().toISOString();
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  } catch (e) {
+    // Ignore stats errors
+  }
+}
+
+/**
+ * Obtém estatísticas de cache
+ */
+export function getCacheStats() {
+  try {
+    const stats = JSON.parse(localStorage.getItem(STATS_KEY) || '{}');
+    const cache = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return {
+      ...stats,
+      cachedChapters: Object.keys(cache).length
+    };
+  } catch (e) {
+    return { cachedChapters: 0, total: 0 };
+  }
+}
+
+/**
  * Carrega capítulo com estratégia cache-first
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
@@ -172,41 +262,48 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   const cacheKey = `${version}|${bookKey}|${chapter}`;
   
   console.log(`🔍 QUERY: version="${version}", book="${bookName}" → "${bookKey}", chapter=${chapter}`);
-  console.log(`📋 FONTE: Dados inline (João 1-4 ARA)`);
   
-  // 1. Cache memória (instantâneo)
+  // 1. Cache memória (instantâneo < 10ms)
   const memCached = getFromMemoryCache(cacheKey);
   if (memCached) {
+    updateStats('memory');
     return memCached;
   }
   
-  // 2. Cache persistente (rápido)
+  // 2. Cache persistente (rápido < 100ms)
   const persistCached = getFromPersistentCache(cacheKey);
   if (persistCached) {
-    // Atualizar cache de memória
     saveToMemoryCache(cacheKey, persistCached);
+    updateStats('persistent');
     return persistCached;
   }
   
-  // 3. Dados inline
-  console.log(`⚠️ Cache miss - Buscando dados inline`);
-  
-  const data = INLINE_DATA[cacheKey];
-  
-  if (!data) {
-    throw new Error(`Capítulo não encontrado na base local: ${bookName} ${chapter} (${version})`);
+  // 3. Dados inline (João 1-4)
+  const inlineData = INLINE_DATA[cacheKey];
+  if (inlineData) {
+    console.log(`✅ Dados inline: ${inlineData.verses.length} versículos`);
+    saveToMemoryCache(cacheKey, inlineData);
+    await saveToPersistentCache(cacheKey, inlineData);
+    updateStats('inline');
+    return inlineData;
   }
+  
+  // 4. Buscar via LLM e cachear permanentemente
+  console.log(`⚠️ Cache miss completo - Buscando via LLM`);
+  
+  const data = await fetchFromLLM(version, bookKey, chapter, bookName);
   
   // Verificar se foi cancelado
   if (signal?.aborted) {
     throw new Error('Carregamento cancelado');
   }
   
-  console.log(`✅ Dados carregados: ${data.verses.length} versículos`);
+  console.log(`✅ LLM retornou: ${data.verses.length} versículos`);
   
-  // Salvar nos caches
+  // Salvar nos caches (permanentemente)
   saveToMemoryCache(cacheKey, data);
   await saveToPersistentCache(cacheKey, data);
+  updateStats('llm');
   
   return data;
 }
