@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AdminUsers from './pages/AdminUsers';
 import Bible from './pages/Bible';
 import BibliaLeitura from './pages/BibliaLeitura';
 import Champions from './pages/Champions';
@@ -60,11 +61,12 @@ import Reader from './pages/Reader';
 import Sermons from './pages/Sermons';
 import Settings from './pages/Settings';
 import Study from './pages/Study';
-import AdminUsers from './pages/AdminUsers';
+import DiagnosticReport from './pages/DiagnosticReport';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AdminUsers": AdminUsers,
     "Bible": Bible,
     "BibliaLeitura": BibliaLeitura,
     "Champions": Champions,
@@ -78,7 +80,7 @@ export const PAGES = {
     "Sermons": Sermons,
     "Settings": Settings,
     "Study": Study,
-    "AdminUsers": AdminUsers,
+    "DiagnosticReport": DiagnosticReport,
 }
 
 export const pagesConfig = {
