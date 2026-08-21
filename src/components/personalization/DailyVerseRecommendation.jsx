@@ -121,7 +121,7 @@ JSON:
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+          <Loader2 className="w-6 h-6 animate-spin text-accent" />
         </CardContent>
       </Card>
     );
@@ -130,33 +130,33 @@ JSON:
   if (!verse) return null;
 
   return (
-    <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+    <Card className="bg-primary border-primary">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span className="flex items-center gap-2 text-purple-900">
-            <Sparkles className="w-5 h-5" />
+          <span className="flex items-center gap-2 text-primary-foreground">
+            <Sparkles className="w-5 h-5 text-brand-amber" />
             Versículo do Dia para Você
           </span>
-          <Button size="sm" variant="ghost" onClick={refreshVerse}>
+          <Button size="sm" variant="ghost" onClick={refreshVerse} className="text-primary-foreground hover:bg-white/10 hover:text-primary-foreground">
             <RefreshCw className="w-4 h-4" />
           </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <p className="text-sm font-semibold text-purple-700 mb-2">{verse.referencia}</p>
-          <p className="text-lg leading-relaxed text-slate-800 italic mb-3">
+          <p className="text-sm font-semibold text-brand-amber mb-2">{verse.referencia}</p>
+          <p className="font-display text-lg leading-relaxed text-primary-foreground italic mb-3">
             "{verse.texto}"
           </p>
-          <div className="p-3 bg-white/50 rounded-lg">
-            <p className="text-sm text-slate-700">
-              <span className="font-semibold">Por que este versículo hoje:</span> {verse.razao}
+          <div className="p-3 bg-white/[0.06] border border-white/10 rounded-lg">
+            <p className="text-sm text-primary-foreground/80">
+              <span className="font-semibold text-primary-foreground">Por que este versículo hoje:</span> {verse.razao}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+          <span className="text-xs px-2 py-1 bg-brand-amber/15 text-brand-amber border border-brand-amber/30 rounded-full">
             {verse.tema}
           </span>
         </div>

@@ -2,76 +2,84 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Identidade visual "Vigília" do Abba Estudos: azul-noite quieto (#232A45)
+ * com âmbar de vela (#D98B3F) sobre marfim frio (#E9E6DE). Escolhida pelo
+ * usuário entre 3 direções propostas (ver artefato de comparação).
+ * Essas variáveis HSL alimentam os componentes shadcn/ui (Button, Card,
+ * Badge, Switch etc. - ver tailwind.config.js) para que toda a UI de base
+ * já saia consistente, sem precisar tocar em cada componente um por um.
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 44 20% 89%;
+    --foreground: 228 22% 14%;
+    --card: 45 15% 95%;
+    --card-foreground: 228 22% 14%;
+    --popover: 45 15% 95%;
+    --popover-foreground: 228 22% 14%;
+    --primary: 228 33% 20%;
+    --primary-foreground: 44 30% 95%;
+    --secondary: 42 18% 83%;
+    --secondary-foreground: 228 22% 14%;
+    --muted: 42 15% 85%;
+    --muted-foreground: 228 12% 42%;
+    --accent: 30 67% 55%;
+    --accent-foreground: 228 22% 14%;
+    --destructive: 5 62% 46%;
+    --destructive-foreground: 44 30% 95%;
+    --border: 40 14% 78%;
+    --input: 40 14% 78%;
+    --ring: 30 67% 55%;
+    --chart-1: 30 67% 55%;
+    --chart-2: 228 33% 20%;
+    --chart-3: 7 38% 53%;
+    --chart-4: 60 30% 55%;
+    --chart-5: 200 30% 45%;
+    --radius: 0.6rem;
+    --sidebar-background: 228 33% 20%;
+    --sidebar-foreground: 44 30% 92%;
+    --sidebar-primary: 30 67% 55%;
+    --sidebar-primary-foreground: 228 22% 14%;
+    --sidebar-accent: 228 28% 28%;
+    --sidebar-accent-foreground: 44 30% 92%;
+    --sidebar-border: 228 25% 30%;
+    --sidebar-ring: 30 67% 55%;
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 228 24% 10%;
+    --foreground: 44 20% 92%;
+    --card: 228 22% 14%;
+    --card-foreground: 44 20% 92%;
+    --popover: 228 22% 14%;
+    --popover-foreground: 44 20% 92%;
+    --primary: 30 67% 55%;
+    --primary-foreground: 228 24% 10%;
+    --secondary: 228 15% 20%;
+    --secondary-foreground: 44 20% 92%;
+    --muted: 228 12% 18%;
+    --muted-foreground: 44 10% 65%;
+    --accent: 30 67% 55%;
+    --accent-foreground: 228 24% 10%;
+    --destructive: 5 55% 45%;
+    --destructive-foreground: 44 20% 92%;
+    --border: 228 15% 22%;
+    --input: 228 15% 22%;
+    --ring: 30 67% 55%;
+    --chart-1: 30 67% 55%;
+    --chart-2: 44 20% 80%;
+    --chart-3: 7 38% 53%;
+    --chart-4: 60 30% 55%;
+    --chart-5: 200 30% 55%;
+    --sidebar-background: 228 26% 8%;
+    --sidebar-foreground: 44 20% 92%;
+    --sidebar-primary: 30 67% 55%;
+    --sidebar-primary-foreground: 228 24% 10%;
+    --sidebar-accent: 228 20% 16%;
+    --sidebar-accent-foreground: 44 20% 92%;
+    --sidebar-border: 228 18% 18%;
+    --sidebar-ring: 30 67% 55%;
   }
 }
 
@@ -83,6 +91,10 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
   }
 }

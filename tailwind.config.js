@@ -4,12 +4,29 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			display: ['"Spectral"', 'Georgia', 'serif'],
+  			sans: ['"Public Sans"', 'system-ui', 'sans-serif']
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			/* Paleta "Vigília" - identidade visual do Abba Estudos.
+  			 * Cores fixas (fora do sistema hsl(var(--token)) do shadcn)
+  			 * pra uso direto em gradientes e detalhes de marca, ex.:
+  			 * bg-brand-night, text-brand-amber, border-brand-clay. */
+  			brand: {
+  				night: '#232A45',
+  				'night-light': '#323a5c',
+  				amber: '#D98B3F',
+  				clay: '#B5645A',
+  				bone: '#E9E6DE',
+  				tint: '#EFECE3',
+  				ink: '#1B1E2A'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
