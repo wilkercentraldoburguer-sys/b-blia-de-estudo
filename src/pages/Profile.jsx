@@ -185,27 +185,26 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-50 to-slate-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
         <div className="flex items-center gap-3 mb-8">
-          <User className="w-10 h-10" style={{ color: '#722f37' }} />
+          <User className="w-10 h-10 text-primary" />
           <h1 className="text-4xl font-bold text-stone-800">Meu Perfil</h1>
         </div>
 
         {/* Informações do Usuário */}
         {user && (
-          <Card className="mb-6 border-2" style={{ borderColor: '#722f37' }}>
+          <Card className="mb-6 border-2 border-primary">
             <CardHeader>
-              <CardTitle style={{ color: '#722f37' }}>Informações</CardTitle>
+              <CardTitle className="text-primary">Informações</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-stone-700"><strong>Nome:</strong> {user.full_name || "Não informado"}</p>
               <p className="text-stone-700 mt-2"><strong>Email:</strong> {user.email}</p>
-              <Button 
-                onClick={handleLogout} 
-                variant="outline" 
-                className="mt-4"
-                style={{ borderColor: '#722f37', color: '#722f37' }}
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="mt-4 border-primary text-primary"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sair
@@ -312,7 +311,7 @@ export default function Profile() {
                       </span>
                     )}
                     {commentator === "Ryrie" && (
-                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      <span className="ml-2 text-xs bg-brand-clay/15 text-brand-clay px-2 py-1 rounded">
                         Sempre ativo
                       </span>
                     )}
@@ -338,7 +337,7 @@ export default function Profile() {
               </div>
               <Dialog open={planDialogOpen} onOpenChange={setPlanDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                  <Button size="sm" className="bg-primary hover:bg-primary/90">
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Plano
                   </Button>
@@ -378,7 +377,7 @@ export default function Profile() {
                       <Button variant="outline" onClick={() => setPlanDialogOpen(false)}>
                         Cancelar
                       </Button>
-                      <Button onClick={handleCreatePlan} className="bg-indigo-600 hover:bg-indigo-700">
+                      <Button onClick={handleCreatePlan} className="bg-primary hover:bg-primary/90">
                         Criar Plano
                       </Button>
                     </div>
@@ -395,7 +394,7 @@ export default function Profile() {
             ) : (
               <div className="space-y-3">
                 {readingPlans.map((plan) => (
-                  <Card key={plan.id} className="bg-blue-50/30 border-l-4 border-blue-400">
+                  <Card key={plan.id} className="bg-primary/5 border-l-4 border-primary">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1">
@@ -409,8 +408,8 @@ export default function Profile() {
                           </div>
                           <p className="text-sm text-slate-600 capitalize">{plan.tipo}</p>
                           <div className="mt-2 bg-slate-200 rounded-full h-2 overflow-hidden">
-                            <div 
-                              className="bg-blue-600 h-full transition-all"
+                            <div
+                              className="bg-accent h-full transition-all"
                               style={{ width: `${plan.progresso || 0}%` }}
                             />
                           </div>
@@ -421,7 +420,7 @@ export default function Profile() {
                             variant="ghost"
                             size="icon"
                             onClick={() => togglePlanActiveMutation.mutate({ id: plan.id, ativo: !plan.ativo })}
-                            className={plan.ativo ? "text-amber-600" : "text-slate-400"}
+                            className={plan.ativo ? "text-accent" : "text-slate-400"}
                           >
                             <CheckCircle2 className="w-4 h-4" />
                           </Button>
@@ -459,11 +458,11 @@ export default function Profile() {
             ) : (
               <div className="space-y-3">
                 {favorites.slice(0, 5).map((fav) => (
-                  <Card key={fav.id} className="bg-red-50/30 border-l-4 border-red-400">
+                  <Card key={fav.id} className="bg-brand-clay/5 border-l-4 border-brand-clay">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1">
-                          <p className="font-semibold text-indigo-900 mb-2">
+                          <p className="font-semibold text-primary mb-2">
                             {fav.book} {fav.chapter}:{fav.verse}
                           </p>
                           <p className="text-sm text-slate-700 italic">
@@ -543,11 +542,11 @@ export default function Profile() {
             ) : (
               <div className="space-y-4">
                 {notes.map((note) => (
-                  <Card key={note.id} className="bg-amber-50/30 border-l-4 border-amber-400">
+                  <Card key={note.id} className="bg-accent/5 border-l-4 border-accent">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1">
-                          <p className="font-semibold text-indigo-900 mb-2">
+                          <p className="font-semibold text-primary mb-2">
                             {note.book} {note.chapter}:{note.verse}
                           </p>
                           <p className="text-sm text-slate-600 italic mb-2">

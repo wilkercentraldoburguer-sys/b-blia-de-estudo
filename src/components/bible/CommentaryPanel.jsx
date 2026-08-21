@@ -32,13 +32,13 @@ export default function CommentaryPanel({ book, chapter, verse, activeCommentato
   // que exibe esses nomes, o texto é uma reflexão gerada por IA "inspirada
   // no estilo" da pessoa - nunca uma citação literal (ver aviso na UI).
   const commentatorColors = {
-    "Ryrie": "from-blue-500 to-blue-600",
-    "Hernandes Dias Lopes": "from-purple-500 to-purple-600",
-    "Matthew Henry": "from-green-500 to-green-600",
-    "Spurgeon": "from-orange-500 to-orange-600",
-    "John Stott": "from-teal-500 to-teal-600",
-    "MacArthur": "from-red-500 to-red-600",
-    "Pastor Local": "from-indigo-500 to-indigo-600"
+    "Ryrie": "bg-primary text-primary-foreground",
+    "Hernandes Dias Lopes": "bg-primary text-primary-foreground",
+    "Matthew Henry": "bg-primary text-primary-foreground",
+    "Spurgeon": "bg-primary text-primary-foreground",
+    "John Stott": "bg-primary text-primary-foreground",
+    "MacArthur": "bg-primary text-primary-foreground",
+    "Pastor Local": "bg-primary text-primary-foreground"
   };
 
   const groupedCommentaries = commentaries.reduce((acc, comm) => {
@@ -53,7 +53,7 @@ export default function CommentaryPanel({ book, chapter, verse, activeCommentato
     return (
       <Card className="shadow-lg">
         <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </CardContent>
       </Card>
     );
@@ -70,11 +70,11 @@ export default function CommentaryPanel({ book, chapter, verse, activeCommentato
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <BookOpen className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-            <p className="text-slate-500 text-sm">
+            <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+            <p className="text-muted-foreground text-sm">
               Nenhum comentário disponível para este capítulo
             </p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Selecione um versículo para ver comentários específicos
             </p>
           </div>
@@ -85,9 +85,9 @@ export default function CommentaryPanel({ book, chapter, verse, activeCommentato
 
   return (
     <Card className="shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50">
+      <CardHeader className="bg-primary/5">
         <CardTitle className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-blue-600" />
+          <MessageSquare className="w-5 h-5 text-primary" />
           Comentários Bíblicos
           <Badge variant="outline" className="ml-auto">
             {commentaries.length} {commentaries.length === 1 ? 'comentário' : 'comentários'}
@@ -96,16 +96,12 @@ export default function CommentaryPanel({ book, chapter, verse, activeCommentato
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue={Object.keys(groupedCommentaries)[0]} className="w-full">
-          <TabsList className="w-full justify-start overflow-x-auto flex-wrap h-auto p-2 bg-slate-50">
+          <TabsList className="w-full justify-start overflow-x-auto flex-wrap h-auto p-2 bg-secondary">
             {Object.keys(groupedCommentaries).map((commentator) => (
-              <TabsTrigger 
-                key={commentator} 
+              <TabsTrigger
+                key={commentator}
                 value={commentator}
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:text-white whitespace-nowrap"
-                style={{
-                  backgroundImage: groupedCommentaries[commentator] ? 
-                    `linear-gradient(to right, var(--tw-gradient-stops))` : 'none'
-                }}
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-nowrap"
               >
                 {commentator}
               </TabsTrigger>
@@ -117,21 +113,21 @@ export default function CommentaryPanel({ book, chapter, verse, activeCommentato
               <ScrollArea className="h-[400px] pr-4">
                 <div className="space-y-4">
                   {comms.map((comm, idx) => (
-                    <div 
+                    <div
                       key={idx}
-                      className="p-4 bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-lg border border-slate-200"
+                      className="p-4 bg-secondary/40 rounded-lg border border-border"
                     >
                       <div className="flex items-center gap-2 mb-3">
-                        <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${commentatorColors[commentator]} text-white text-xs font-semibold`}>
+                        <div className={`px-3 py-1 rounded-full ${commentatorColors[commentator]} text-xs font-semibold`}>
                           {commentator}
                         </div>
                         <Badge variant="outline" className="text-xs">
                           {comm.livro} {comm.capitulo}:{comm.versiculo_inicio}
-                          {comm.versiculo_fim && comm.versiculo_fim !== comm.versiculo_inicio && 
+                          {comm.versiculo_fim && comm.versiculo_fim !== comm.versiculo_inicio &&
                             `-${comm.versiculo_fim}`}
                         </Badge>
                       </div>
-                      <p className="text-slate-700 leading-relaxed whitespace-pre-line">
+                      <p className="text-foreground leading-relaxed whitespace-pre-line">
                         {comm.comentario}
                       </p>
                     </div>

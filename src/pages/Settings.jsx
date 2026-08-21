@@ -137,11 +137,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">Configurações</h1>
-          <p className="text-slate-600">Gerencie seu conteúdo offline e armazenamento</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Configurações</h1>
+          <p className="text-muted-foreground">Gerencie seu conteúdo offline e armazenamento</p>
         </div>
 
         <Tabs defaultValue="personalization" className="space-y-6">
@@ -192,10 +192,10 @@ export default function Settings() {
               <CardContent className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-700">
+                    <span className="text-sm font-medium text-foreground">
                       {formatBytes(storageInfo.used)} de {formatBytes(storageInfo.total)} usados
                     </span>
-                    <span className="text-sm text-slate-500">
+                    <span className="text-sm text-muted-foreground">
                       {Math.round(getStoragePercentage())}%
                     </span>
                   </div>
@@ -204,21 +204,21 @@ export default function Settings() {
 
                 <div className="grid grid-cols-3 gap-4 pt-4 border-t">
                   <div className="text-center">
-                    <Database className="w-8 h-8 mx-auto text-blue-600 mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">{offlineData.length}</p>
-                    <p className="text-xs text-slate-600">Livros Baixados</p>
+                    <Database className="w-8 h-8 mx-auto text-primary mb-2" />
+                    <p className="text-2xl font-bold text-foreground">{offlineData.length}</p>
+                    <p className="text-xs text-muted-foreground">Livros Baixados</p>
                   </div>
                   <div className="text-center">
                     <Download className="w-8 h-8 mx-auto text-green-600 mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">
+                    <p className="text-2xl font-bold text-foreground">
                       {offlineData.reduce((acc, b) => acc + (b.chapters?.length || 0), 0)}
                     </p>
-                    <p className="text-xs text-slate-600">Capítulos</p>
+                    <p className="text-xs text-muted-foreground">Capítulos</p>
                   </div>
                   <div className="text-center">
-                    <Clock className="w-8 h-8 mx-auto text-amber-600 mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">{updateAvailable.length}</p>
-                    <p className="text-xs text-slate-600">Precisam Atualizar</p>
+                    <Clock className="w-8 h-8 mx-auto text-accent mb-2" />
+                    <p className="text-2xl font-bold text-foreground">{updateAvailable.length}</p>
+                    <p className="text-xs text-muted-foreground">Precisam Atualizar</p>
                   </div>
                 </div>
 
@@ -248,9 +248,9 @@ export default function Settings() {
               <CardContent>
                 {offlineData.length === 0 ? (
                   <div className="text-center py-8">
-                    <Download className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-                    <p className="text-slate-600">Nenhum conteúdo offline ainda</p>
-                    <p className="text-sm text-slate-500 mt-1">
+                    <Download className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-muted-foreground">Nenhum conteúdo offline ainda</p>
+                    <p className="text-sm text-muted-foreground mt-1">
                       Vá para a seção Bíblia para baixar livros
                     </p>
                   </div>
@@ -259,23 +259,23 @@ export default function Settings() {
                     {offlineData.map((book, index) => {
                       const needsUpdate = updateAvailable.some(b => b.book === book.book);
                       const bookSize = getBookSize(book);
-                      
+
                       return (
                         <div
                           key={index}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors"
+                          className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-secondary transition-colors"
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="font-semibold text-slate-800">{book.book}</p>
+                              <p className="font-semibold text-foreground">{book.book}</p>
                               {needsUpdate && (
-                                <Badge variant="outline" className="text-amber-600 border-amber-600">
+                                <Badge variant="outline" className="text-accent border-accent">
                                   <RefreshCw className="w-3 h-3 mr-1" />
                                   Atualização Disponível
                                 </Badge>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 text-sm text-slate-600">
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
                               <span>{book.chapters?.length || 0} capítulos</span>
                               <span>•</span>
                               <span>{formatBytes(bookSize)}</span>
@@ -332,8 +332,8 @@ export default function Settings() {
                 {updateAvailable.length === 0 ? (
                   <div className="text-center py-8">
                     <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-3" />
-                    <p className="text-slate-800 font-semibold">Tudo atualizado!</p>
-                    <p className="text-sm text-slate-600 mt-1">
+                    <p className="text-foreground font-semibold">Tudo atualizado!</p>
+                    <p className="text-sm text-muted-foreground mt-1">
                       Seu conteúdo offline está em dia
                     </p>
                   </div>
@@ -342,30 +342,30 @@ export default function Settings() {
                     {updateAvailable.map((book, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 border border-amber-200 bg-amber-50 rounded-lg"
+                        className="flex items-center justify-between p-4 border border-accent/20 bg-accent/10 rounded-lg"
                       >
                         <div>
-                          <p className="font-semibold text-slate-800">{book.book}</p>
-                          <p className="text-sm text-slate-600">
-                            Última atualização: {book.lastUpdated 
+                          <p className="font-semibold text-foreground">{book.book}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Última atualização: {book.lastUpdated
                               ? new Date(book.lastUpdated).toLocaleDateString('pt-BR')
                               : 'Desconhecida'}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <AlertCircle className="w-5 h-5 text-amber-600" />
-                          <Badge variant="outline" className="bg-white">
+                          <AlertCircle className="w-5 h-5 text-accent" />
+                          <Badge variant="outline" className="bg-card">
                             Atualizar Recomendado
                           </Badge>
                         </div>
                       </div>
                     ))}
                     <div className="pt-4 border-t">
-                      <p className="text-sm text-slate-600 mb-3">
+                      <p className="text-sm text-muted-foreground mb-3">
                         <AlertCircle className="w-4 h-4 inline mr-1" />
                         Recomendamos atualizar o conteúdo para garantir precisão e qualidade.
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         Vá para a seção de Downloads Offline na Bíblia para atualizar os livros individualmente.
                       </p>
                     </div>
@@ -381,19 +381,19 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between py-2 border-b">
-                  <span className="text-sm text-slate-600">Versão do Cache</span>
-                  <span className="text-sm font-semibold text-slate-800">
+                  <span className="text-sm text-muted-foreground">Versão do Cache</span>
+                  <span className="text-sm font-semibold text-foreground">
                     {localStorage.getItem('offline_cache_version') || '1.0'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b">
-                  <span className="text-sm text-slate-600">Última Verificação</span>
-                  <span className="text-sm font-semibold text-slate-800">
+                  <span className="text-sm text-muted-foreground">Última Verificação</span>
+                  <span className="text-sm font-semibold text-foreground">
                     {new Date().toLocaleDateString('pt-BR')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-slate-600">Status</span>
+                  <span className="text-sm text-muted-foreground">Status</span>
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Funcionando

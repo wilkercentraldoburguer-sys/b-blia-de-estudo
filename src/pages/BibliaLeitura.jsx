@@ -416,7 +416,7 @@ export default function BibliaLeitura() {
         {/* Header com Seletores */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-stone-800" style={{ color: '#722f37' }}>
+            <h1 className="text-2xl font-bold text-primary">
               Leitura Bíblica
             </h1>
             <div className="flex gap-2">
@@ -428,8 +428,7 @@ export default function BibliaLeitura() {
               <Button
                 onClick={() => setStudyGeneratorOpen(true)}
                 size="sm"
-                className="text-white"
-                style={{ backgroundColor: '#722f37' }}
+                className="bg-accent text-accent-foreground hover:bg-accent/90"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Estudo do Texto
@@ -438,17 +437,17 @@ export default function BibliaLeitura() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setImmersiveMode(true)}
-                className="hover:bg-stone-200"
+                className="hover:bg-secondary"
               >
-                <Maximize2 className="w-5 h-5" style={{ color: '#722f37' }} />
+                <Maximize2 className="w-5 h-5 text-primary" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSettingsOpen(true)}
-                className="hover:bg-stone-200"
+                className="hover:bg-secondary"
               >
-                <Settings className="w-5 h-5" style={{ color: '#722f37' }} />
+                <Settings className="w-5 h-5 text-primary" />
               </Button>
             </div>
           </div>
@@ -469,26 +468,24 @@ export default function BibliaLeitura() {
         </div>
 
         {/* Navegação de Capítulos */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b-2" style={{ borderColor: '#722f37' }}>
+        <div className="flex items-center justify-between mb-6 pb-4 border-b-2 border-primary">
           <Button
             variant="outline"
             onClick={handlePrevChapter}
             disabled={currentChapter === 1}
-            className="gap-2"
-            style={{ borderColor: '#722f37', color: '#722f37' }}
+            className="gap-2 border-primary text-primary"
           >
             <ChevronLeft className="w-4 h-4" />
             Anterior
           </Button>
-          <span className="text-lg font-semibold" style={{ color: '#722f37' }}>
+          <span className="text-lg font-semibold text-primary">
             {currentBook} {currentChapter}
           </span>
           <Button
             variant="outline"
             onClick={handleNextChapter}
             disabled={currentChapter === totalChapters}
-            className="gap-2"
-            style={{ borderColor: '#722f37', color: '#722f37' }}
+            className="gap-2 border-primary text-primary"
           >
             Próximo
             <ChevronRight className="w-4 h-4" />
@@ -500,34 +497,34 @@ export default function BibliaLeitura() {
           {loadError ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <div className="text-center max-w-2xl">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/15 flex items-center justify-center">
                   <span className="text-3xl">📦</span>
                 </div>
-                <h3 className="text-lg font-bold text-stone-800 mb-2">
-                  {loadError.code === 'DATASET_MISSING' 
+                <h3 className="text-lg font-bold text-foreground mb-2">
+                  {loadError.code === 'DATASET_MISSING'
                     ? 'Capítulo não disponível no dataset'
                     : 'Erro ao carregar capítulo'}
                 </h3>
-                <p className="text-stone-600 mb-3">
+                <p className="text-muted-foreground mb-3">
                   {loadError.code === 'DATASET_MISSING'
                     ? 'Importe um dataset para habilitar a Bíblia completa.'
                     : String(loadError.message || 'Erro desconhecido')}
                 </p>
                 {loadError.path && (
-                  <div className="bg-stone-100 p-3 rounded-lg mb-4">
-                    <p className="text-xs font-mono text-stone-700">{loadError.path}</p>
+                  <div className="bg-secondary p-3 rounded-lg mb-4">
+                    <p className="text-xs font-mono text-secondary-foreground">{loadError.path}</p>
                   </div>
                 )}
                 <div className="flex gap-3 justify-center">
                   <Link to={createPageUrl('Settings')}>
-                    <Button className="text-white" style={{ backgroundColor: '#722f37' }}>
+                    <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                       Ir para Configurações
                     </Button>
                   </Link>
                   <Button
                     variant="outline"
                     onClick={() => window.location.href = createPageUrl('Settings')}
-                    style={{ borderColor: '#722f37', color: '#722f37' }}
+                    className="border-primary text-primary"
                   >
                     Ver Status do Dataset
                   </Button>
@@ -537,13 +534,13 @@ export default function BibliaLeitura() {
           ) : isLoading ? (
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-5 h-5 animate-spin rounded-full border-4 border-stone-200" style={{ borderTopColor: '#722f37' }}></div>
+                <div className="w-5 h-5 animate-spin rounded-full border-4 border-secondary border-t-primary"></div>
                 <div>
-                  <p className="text-stone-700 font-medium">
+                  <p className="text-muted-foreground font-medium">
                     Carregando {currentBook} {currentChapter}...
                   </p>
                   {loadingFromInternet && (
-                    <p className="text-sm text-amber-600 mt-1">
+                    <p className="text-sm text-accent mt-1">
                       🌐 Carregando via internet...
                     </p>
                   )}
@@ -564,11 +561,11 @@ export default function BibliaLeitura() {
             </div>
           ) : verses.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <p className="text-stone-600">Nenhum versículo carregado</p>
+              <p className="text-muted-foreground">Nenhum versículo carregado</p>
               <Button
                 onClick={handleRetry}
                 variant="outline"
-                style={{ borderColor: '#722f37', color: '#722f37' }}
+                className="border-primary text-primary"
               >
                 Carregar Capítulo
               </Button>
@@ -593,23 +590,22 @@ export default function BibliaLeitura() {
                 <div
                   key={index}
                   className={`p-4 rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                    highlight ? highlightColors[highlight.color] : 'hover:bg-stone-100'
+                    highlight ? highlightColors[highlight.color] : 'hover:bg-secondary'
                   }`}
                   onClick={(e) => handleVerseClick(verseNumber, verse.text, e)}
                   onTouchStart={(e) => handleTouchStart(verseNumber, verse.text, e)}
                   onTouchEnd={handleTouchEnd}
                 >
                   <div className="flex gap-3">
-                    <span 
-                      className="font-bold text-lg flex-shrink-0 select-none"
-                      style={{ color: '#722f37' }}
+                    <span
+                      className="font-bold text-lg flex-shrink-0 select-none text-primary"
                     >
                       {verseNumber}
                     </span>
-                    <p className="text-stone-800 flex-1">
+                    <p className="text-foreground flex-1">
                       {verse.text}
                       {note && (
-                        <span className="ml-2 text-xs px-2 py-1 rounded-full bg-stone-300 text-stone-700">
+                        <span className="ml-2 text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
                           📝
                         </span>
                       )}

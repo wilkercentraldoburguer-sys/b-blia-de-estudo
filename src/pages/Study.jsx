@@ -410,13 +410,13 @@ Retorne apenas um JSON:
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 py-8 pb-24">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <BookMarked className="w-10 h-10 text-indigo-600" />
-            <h1 className="text-4xl font-bold text-slate-800">Estudo & Devocionais</h1>
+            <BookMarked className="w-10 h-10 text-primary" />
+            <h1 className="text-4xl font-bold text-foreground">Estudo & Devocionais</h1>
           </div>
           
           <Sheet>
@@ -438,13 +438,13 @@ Retorne apenas um JSON:
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-slate-200">
+        <div className="flex gap-2 mb-6 border-b border-border">
           <Button
             variant="ghost"
             className={`rounded-none border-b-2 transition-colors ${
               activeTab === "estudo"
-                ? "border-indigo-600 text-indigo-600"
-                : "border-transparent text-slate-600"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground"
             }`}
             onClick={() => setActiveTab("estudo")}
           >
@@ -456,7 +456,7 @@ Retorne apenas um JSON:
             className={`rounded-none border-b-2 transition-colors ${
               activeTab === "devocionais"
                 ? "border-rose-600 text-rose-600"
-                : "border-transparent text-slate-600"
+                : "border-transparent text-muted-foreground"
             }`}
             onClick={() => setActiveTab("devocionais")}
           >
@@ -495,15 +495,15 @@ Retorne apenas um JSON:
             />
             
             <div className="mt-4 flex items-center gap-3">
-              <span className="text-sm font-medium text-slate-700">Versículo:</span>
+              <span className="text-sm font-medium text-muted-foreground">Versículo:</span>
               <input
                 type="number"
                 min="1"
                 value={selectedVerse}
                 onChange={(e) => setSelectedVerse(parseInt(e.target.value) || 1)}
-                className="w-20 px-3 py-2 border border-slate-300 rounded-lg text-center"
+                className="w-20 px-3 py-2 border border-border rounded-lg text-center"
               />
-              <Button onClick={loadStudy} size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+              <Button onClick={loadStudy} size="sm" className="bg-primary hover:bg-primary/90">
                 Estudar
               </Button>
             </div>
@@ -514,7 +514,7 @@ Retorne apenas um JSON:
         {isLoading ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-20 gap-3">
-              <div className="w-12 h-12 rounded-full border-4 border-stone-200 animate-spin" style={{ borderTopColor: '#722f37' }}></div>
+              <div className="w-12 h-12 rounded-full border-4 border-stone-200 border-t-primary animate-spin"></div>
               <div className="text-center">
                 <p className="text-stone-700 font-medium">Gerando estudo bíblico...</p>
                 <p className="text-stone-500 text-sm mt-1">{currentBook} {currentChapter}:{selectedVerse}</p>
@@ -524,7 +524,7 @@ Retorne apenas um JSON:
         ) : studyData ? (
           <div className="space-y-6">
             {/* Versículo */}
-            <Card className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white border-none">
+            <Card className="bg-primary text-primary-foreground border-none">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
@@ -557,15 +557,15 @@ Retorne apenas um JSON:
 
             {/* Exibir Anotação Existente */}
             {existingNote && (
-              <Card className="border-l-4 border-amber-400 bg-amber-50/30">
+              <Card className="border-l-4 border-accent bg-accent/10">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-amber-700" />
+                    <MessageSquare className="w-5 h-5 text-accent" />
                     Minha Anotação
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-800 leading-relaxed whitespace-pre-line">
+                  <p className="text-foreground leading-relaxed whitespace-pre-line">
                     {existingNote.note_text}
                   </p>
                 </CardContent>
@@ -576,7 +576,7 @@ Retorne apenas um JSON:
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Key className="w-5 h-5 text-indigo-600" />
+                  <Key className="w-5 h-5 text-primary" />
                   Explicação Básica
                 </CardTitle>
               </CardHeader>
@@ -584,10 +584,10 @@ Retorne apenas um JSON:
                 {/* Contexto Histórico */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-amber-600" />
-                    <h3 className="font-semibold text-slate-800">Contexto Histórico</h3>
+                    <Clock className="w-4 h-4 text-primary" />
+                    <h3 className="font-semibold text-foreground">Contexto Histórico</h3>
                   </div>
-                  <p className="text-slate-700 leading-relaxed">
+                  <p className="text-foreground leading-relaxed">
                     {studyData.explicacao_basica.contexto_historico}
                   </p>
                 </div>
@@ -595,14 +595,14 @@ Retorne apenas um JSON:
                 {/* Palavras-Chave */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <Key className="w-4 h-4 text-blue-600" />
-                    <h3 className="font-semibold text-slate-800">Palavras-Chave</h3>
+                    <Key className="w-4 h-4 text-primary" />
+                    <h3 className="font-semibold text-foreground">Palavras-Chave</h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {studyData.explicacao_basica.palavras_chave.map((palavra, idx) => (
                       <span
                         key={idx}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+                        className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium"
                       >
                         {palavra}
                       </span>
@@ -615,9 +615,9 @@ Retorne apenas um JSON:
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="w-4 h-4 text-green-600" />
-                      <h3 className="font-semibold text-slate-800">Contexto Geográfico</h3>
+                      <h3 className="font-semibold text-foreground">Contexto Geográfico</h3>
                     </div>
-                    <p className="text-slate-700 leading-relaxed">
+                    <p className="text-foreground leading-relaxed">
                       {studyData.explicacao_basica.mapa_contexto}
                     </p>
                   </div>
@@ -626,21 +626,21 @@ Retorne apenas um JSON:
             </Card>
 
             {/* Comentário principal - FIXO E OBRIGATÓRIO */}
-            <Card className="border-2 border-indigo-300 bg-indigo-50/50">
+            <Card className="border-2 border-brand-clay/40 bg-brand-clay/10">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BookMarked className="w-5 h-5 text-indigo-700" />
+                  <BookMarked className="w-5 h-5 text-brand-clay" />
                   Inspirado em Ryrie
-                  <span className="ml-auto text-xs bg-indigo-600 text-white px-3 py-1 rounded-full">
+                  <span className="ml-auto text-xs bg-brand-clay text-white px-3 py-1 rounded-full">
                     Base Principal
                   </span>
                 </CardTitle>
-                <p className="text-xs text-indigo-700/70 flex items-center gap-1">
+                <p className="text-xs text-brand-clay/70 flex items-center gap-1">
                   ✦ Reflexão gerada por IA inspirada no estilo de Ryrie - não é uma citação da Bíblia de Estudo Ryrie nem de nenhuma outra obra
                 </p>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-800 leading-relaxed whitespace-pre-line">
+                <p className="text-foreground leading-relaxed whitespace-pre-line">
                   {studyData.comentario_principal.texto}
                 </p>
               </CardContent>
@@ -652,15 +652,15 @@ Retorne apenas um JSON:
                 key={idx}
                 className={commentary.isReal
                   ? "border-l-4 border-emerald-400 bg-emerald-50/30"
-                  : "border-l-4 border-purple-400 bg-purple-50/30"}
+                  : "border-l-4 border-brand-clay/40 bg-brand-clay/10"}
               >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <User className={commentary.isReal ? "w-5 h-5 text-emerald-700" : "w-5 h-5 text-purple-700"} />
+                    <User className={commentary.isReal ? "w-5 h-5 text-emerald-700" : "w-5 h-5 text-brand-clay"} />
                     {commentary.isReal ? commentary.name : `Inspirado em ${commentary.name}`}
                     <span className={commentary.isReal
                       ? "ml-auto text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full"
-                      : "ml-auto text-xs bg-purple-100 text-purple-800 px-3 py-1 rounded-full"}
+                      : "ml-auto text-xs bg-brand-clay/20 text-brand-clay px-3 py-1 rounded-full"}
                     >
                       {commentary.isReal ? "Citação Real" : "Opcional"}
                     </span>
@@ -672,13 +672,13 @@ Retorne apenas um JSON:
                         ` (comentário cobre o trecho a partir do v. ${commentary.versiculoInicioBloco})`}
                     </p>
                   ) : (
-                    <p className="text-xs text-purple-700/70 flex items-center gap-1">
+                    <p className="text-xs text-brand-clay/70 flex items-center gap-1">
                       ✦ Reflexão original gerada por IA no estilo de {commentary.name} - não é uma citação literal do que essa pessoa escreveu
                     </p>
                   )}
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-800 leading-relaxed whitespace-pre-line">
+                  <p className="text-foreground leading-relaxed whitespace-pre-line">
                     {commentary.text}
                   </p>
                 </CardContent>
@@ -687,20 +687,20 @@ Retorne apenas um JSON:
 
             {/* Referências Cruzadas */}
             {crossReferences.length > 0 && (
-              <Card className="border-l-4 border-teal-400 bg-teal-50/30">
+              <Card className="border-l-4 border-primary/40 bg-primary/5">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Link2 className="w-5 h-5 text-teal-700" />
+                    <Link2 className="w-5 h-5 text-primary" />
                     Referências Cruzadas
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {crossReferences.map((ref, idx) => (
-                      <div key={idx} className="bg-white p-4 rounded-lg border border-teal-200">
-                        <p className="font-semibold text-teal-900 mb-2">{ref.referencia}</p>
-                        <p className="text-slate-700 italic mb-2">"{ref.texto}"</p>
-                        <p className="text-slate-600 text-sm">{ref.explicacao}</p>
+                      <div key={idx} className="bg-card p-4 rounded-lg border border-primary/20">
+                        <p className="font-semibold text-primary mb-2">{ref.referencia}</p>
+                        <p className="text-foreground italic mb-2">"{ref.texto}"</p>
+                        <p className="text-muted-foreground text-sm">{ref.explicacao}</p>
                       </div>
                     ))}
                   </div>
@@ -709,15 +709,15 @@ Retorne apenas um JSON:
             )}
 
             {/* Rodapé Espiritual Obrigatório */}
-            <Card className="bg-amber-50 border-l-4 border-amber-500">
+            <Card className="bg-accent/10 border-l-4 border-accent">
               <CardContent className="p-6">
                 <div className="flex gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-1" />
+                  <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-1" />
                   <div>
-                    <p className="text-slate-700 leading-relaxed italic">
+                    <p className="text-foreground leading-relaxed italic font-display">
                       "Ore, consulte a Palavra e confirme com seu pastor.
                     </p>
-                    <p className="text-slate-700 leading-relaxed italic">
+                    <p className="text-foreground leading-relaxed italic font-display">
                       O Espírito Santo é o Mestre de toda verdade."
                     </p>
                   </div>
@@ -728,14 +728,13 @@ Retorne apenas um JSON:
         ) : myStudies.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
-              <BookMarked className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500 text-lg mb-4">
+              <BookMarked className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground text-lg mb-4">
                 Nenhum estudo gerado ainda
               </p>
               <Button
                 onClick={() => setStudyGeneratorOpen(true)}
-                className="text-white"
-                style={{ backgroundColor: '#722f37' }}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 Gerar Primeiro Estudo
               </Button>
@@ -750,14 +749,14 @@ Retorne apenas um JSON:
                 onClick={() => setCurrentStudy(study)}
               >
                 <CardHeader>
-                  <CardTitle className="text-lg" style={{ color: '#722f37' }}>
+                  <CardTitle className="text-lg text-primary">
                     {study.referencia}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      <Badge style={{ backgroundColor: '#722f37' }} className="text-white text-xs">
+                      <Badge className="bg-primary text-primary-foreground text-xs">
                         {study.versao}
                       </Badge>
                       <Badge variant="outline" className="capitalize text-xs">
@@ -781,12 +780,11 @@ Retorne apenas um JSON:
             ))}
             
             <Card 
-              className="cursor-pointer hover:shadow-lg transition-all border-2 border-dashed"
-              style={{ borderColor: '#722f37' }}
+              className="cursor-pointer hover:shadow-lg transition-all border-2 border-dashed border-accent"
               onClick={() => setStudyGeneratorOpen(true)}
             >
               <CardContent className="py-16 text-center">
-                <BookMarked className="w-12 h-12 mx-auto mb-3" style={{ color: '#722f37' }} />
+                <BookMarked className="w-12 h-12 mx-auto mb-3 text-accent" />
                 <p className="text-stone-600 font-semibold">
                   Gerar Novo Estudo
                 </p>
@@ -805,7 +803,7 @@ Retorne apenas um JSON:
             </DialogHeader>
             <div className="space-y-4">
               {studyData && (
-                <p className="text-sm text-slate-600 italic">"{studyData.versiculo_texto}"</p>
+                <p className="text-sm text-muted-foreground italic">"{studyData.versiculo_texto}"</p>
               )}
               <Textarea
                 value={noteText}
@@ -817,7 +815,7 @@ Retorne apenas um JSON:
                 <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleSaveNote} className="bg-indigo-600 hover:bg-indigo-700">
+                <Button onClick={handleSaveNote} className="bg-primary hover:bg-primary/90">
                   Salvar
                 </Button>
               </div>
@@ -836,7 +834,7 @@ Retorne apenas um JSON:
             
             {/* Seleção de Versões */}
             <div className="border-b pb-4 mb-4">
-              <p className="text-sm font-medium text-slate-700 mb-3">Selecione as versões para comparar:</p>
+              <p className="text-sm font-medium text-muted-foreground mb-3">Selecione as versões para comparar:</p>
               <div className="flex flex-wrap gap-2">
                 {BIBLE_VERSIONS.map(version => (
                   <Button
@@ -850,9 +848,9 @@ Retorne apenas um JSON:
                   </Button>
                 ))}
               </div>
-              <Button 
-                onClick={loadComparison} 
-                className="mt-3 bg-indigo-600 hover:bg-indigo-700"
+              <Button
+                onClick={loadComparison}
+                className="mt-3 bg-primary hover:bg-primary/90"
                 size="sm"
               >
                 Atualizar Comparação
@@ -862,25 +860,25 @@ Retorne apenas um JSON:
             {/* Comparação */}
             {isLoadingComparison ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-                <p className="text-slate-600">Carregando versões...</p>
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <p className="text-muted-foreground">Carregando versões...</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {comparisonData.map((version, idx) => (
-                  <Card key={idx} className="border-l-4 border-blue-400">
+                  <Card key={idx} className="border-l-4 border-primary/40">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-base flex items-center gap-2">
-                        <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold">
+                        <span className="bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-bold">
                           {version.sigla}
                         </span>
-                        <span className="text-sm text-slate-600 font-normal">
+                        <span className="text-sm text-muted-foreground font-normal">
                           {version.nome}
                         </span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-slate-800 leading-relaxed">
+                      <p className="text-foreground leading-relaxed">
                         "{version.texto}"
                       </p>
                     </CardContent>

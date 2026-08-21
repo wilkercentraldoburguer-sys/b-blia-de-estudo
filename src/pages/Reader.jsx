@@ -391,7 +391,7 @@ export default function Reader() {
         <UpdateNotificationBanner />
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-blue-900">Bíblia de Estudo</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary">Bíblia de Estudo</h1>
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
             <Button
               variant="outline"
@@ -437,7 +437,7 @@ export default function Reader() {
         </div>
 
         <div 
-          className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8"
+          className="bg-card text-card-foreground rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -463,7 +463,7 @@ export default function Reader() {
             onChapterSelect={setCurrentChapter}
           />
 
-          <div className="border-t border-slate-200 mt-6 pt-6 space-y-4">
+          <div className="border-t border-border mt-6 pt-6 space-y-4">
             {!isLoading && verses.length > 0 && (
               <>
                 <AudioPlayer 
@@ -472,7 +472,7 @@ export default function Reader() {
                   chapter={currentChapter} 
                 />
 
-                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
                   <div className="flex items-center gap-2">
                     <Switch
                       id="compare-mode"
@@ -504,11 +504,11 @@ export default function Reader() {
             <div className="md:col-span-2">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
-                  <Loader2 className="w-8 h-8 animate-spin text-blue-900" />
-                  <p className="text-slate-600 text-sm">Carregando capítulo...</p>
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <p className="text-muted-foreground text-sm">Carregando capítulo...</p>
                 </div>
               ) : (
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-border">
                   {verses.map((verse, index) => (
                     <VerseCard
                       key={index}
@@ -558,7 +558,7 @@ export default function Reader() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-slate-600 italic">"{selectedVerse?.text}"</p>
+            <p className="text-sm text-muted-foreground italic font-display">"{selectedVerse?.text}"</p>
             <Textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
@@ -569,7 +569,7 @@ export default function Reader() {
               <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleSaveNote} className="bg-blue-900 hover:bg-blue-800">
+              <Button onClick={handleSaveNote} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 Salvar
               </Button>
             </div>
@@ -587,15 +587,15 @@ export default function Reader() {
           </DialogHeader>
           <div className="space-y-6">
             {/* Texto do Versículo */}
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <p className="text-slate-800 leading-relaxed italic">
+            <div className="p-4 bg-secondary rounded-lg">
+              <p className="text-secondary-foreground leading-relaxed italic font-display">
                 "{selectedVerseData?.text}"
               </p>
             </div>
 
             {/* Cores de Destaque */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-3">
+              <h3 className="text-sm font-semibold text-foreground mb-3">
                 Marcar com cor:
               </h3>
               <div className="flex gap-2 flex-wrap">
@@ -634,19 +634,19 @@ export default function Reader() {
 
             {/* Outras Versões */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-3">
+              <h3 className="text-sm font-semibold text-foreground mb-3">
                 Outras versões:
               </h3>
               {isLoadingComparison ? (
                 <div className="flex items-center justify-center py-6">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-900" />
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
                 </div>
               ) : (
                 <div className="space-y-3">
                   {comparisonVerses.map((v, idx) => (
-                    <div key={idx} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-xs font-bold text-blue-900 mb-1">{v.version}</p>
-                      <p className="text-sm text-slate-700">"{v.text}"</p>
+                    <div key={idx} className="p-3 bg-accent/10 rounded-lg border border-accent/30">
+                      <p className="text-xs font-bold text-primary mb-1">{v.version}</p>
+                      <p className="text-sm text-foreground font-display">"{v.text}"</p>
                     </div>
                   ))}
                 </div>
