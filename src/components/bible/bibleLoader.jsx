@@ -2,6 +2,8 @@ import { getBookKey } from './bibleUtils';
 import { fetchChapterFromAPI } from './abibliaBibleProvider';
 import { fetchChapterFromGetBible } from './getBibleProvider';
 import { getChapter, saveChapterToCache } from './BibleRepository';
+import { getAbibliaBookCode } from './bookCodes';
+import { hasAPIToken } from './apiTokenManager';
 
 // Cache em memória (LRU - últimos 3 capítulos)
 let memoryCache = {};
@@ -156,26 +158,6 @@ async function saveToPersistentCache(version, bookKey, chapter, data) {
 }
 
 /**
- * Busca capítulo via ABíbliaDigital API
- */
-async function fetchFromAPI(version, bookKey, chapter, signal, logData) {
-  try {
-    const data = await fetchChapterFromAPI(version, bookKey, chapter, signal, logData);
-    return data;
-  } catch (error) {
-    // Tentar dados inline como último recurso
-    const cacheKey = `${version}|${bookKey}|${chapter}`;
-    const inlineData = INLINE_DATA[cacheKey];
-    
-    if (inlineData) {
-      return inlineData;
-    }
-    
-    throw error;
-  }
-}
-
-/**
  * Atualiza estatísticas de cache
  */
 function updateStats(source) {
@@ -217,17 +199,37 @@ export function getCacheStats() {
 
 /**
  * Carrega capítulo com estratégia cache-first
- * REGRA: NUNCA usa LLM - apenas cache local, dataset estático ou API pública (getbible.net)
+ * REGRA: NUNCA usa LLM para o texto biblico - apenas cache local, dataset
+ * estático, a API real da ABíbliaDigital (quando há token) ou a API pública
+ * getbible.net. O texto sagrado nunca é "gerado"; é sempre buscado de uma
+ * fonte real.
  *
- * Ordem: memória -> localStorage -> dataset estático (/bible/...) -> getbible.net (sem token)
- * Quando vem do getbible.net, o resultado é salvo no cache local para as próximas leituras.
+ * Ordem: memória -> localStorage -> dataset estático (/bible/...)
+ *        -> ABíbliaDigital (se houver token configurado, melhor qualidade/versão)
+ *        -> getbible.net (fallback público, sem token, sempre disponível)
+ * O resultado das APIs é salvo no cache local para as próximas leituras.
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   try {
     return await getChapter(version, bookName, chapter);
   } catch (repositoryError) {
-    // Dataset estático não tem esse capítulo (ou rota não servida) - buscar na API pública
+    // Dataset estático não tem esse capítulo (ou rota não servida) - buscar numa API real
     const bookKey = getBookKey(bookName);
+
+    // Se houver token da ABíbliaDigital configurado, tenta primeiro (texto
+    // mais fiel à versão escolhida e ortografia atual).
+    if (hasAPIToken()) {
+      try {
+        const apiBookCode = getAbibliaBookCode(bookKey);
+        const data = await fetchChapterFromAPI(version, apiBookCode, chapter, signal);
+        saveChapterToCache(version, bookName, chapter, data);
+        return data;
+      } catch (tokenApiError) {
+        // Token inválido, indisponível ou limite excedido: cai para o
+        // fallback público abaixo em vez de falhar a leitura inteira.
+        console.warn('ABíbliaDigital indisponível, usando getbible.net como fallback:', tokenApiError.message);
+      }
+    }
 
     try {
       const data = await fetchChapterFromGetBible(bookKey, chapter, signal);
@@ -243,6 +245,8 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
 
 /**
  * Download de um livro completo para offline
+ * Usa a mesma cadeia confiável de fetchChapterFromJSON (dataset -> ABíbliaDigital
+ * com token, se houver -> getbible.net), então funciona mesmo sem token.
  */
 export async function downloadBookOffline(version, bookName, totalChapters, onProgress) {
   const bookKey = getBookKey(bookName);
@@ -251,12 +255,12 @@ export async function downloadBookOffline(version, bookName, totalChapters, onPr
     failed: 0,
     errors: []
   };
-  
+
   console.log(`📥 Iniciando download offline: ${bookName} (${totalChapters} capítulos)`);
-  
+
   for (let chapter = 1; chapter <= totalChapters; chapter++) {
     try {
-      const data = await fetchChapterFromAPI(version, bookKey, chapter);
+      const data = await fetchChapterFromJSON(version, bookName, chapter);
       await saveToPersistentCache(version, bookKey, chapter, data);
       
       results.success++;

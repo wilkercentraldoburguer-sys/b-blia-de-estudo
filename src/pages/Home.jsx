@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, BookMarked, Video, User, Loader2 } from "lucide-react";
 import DailyVerseRecommendation from "../components/personalization/DailyVerseRecommendation";
+import { fetchRandomVerse } from "../components/bible/abibliaBibleProvider";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -28,24 +29,13 @@ export default function Home() {
 
   const loadDailyVerse = async () => {
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Escolha um versículo bíblico edificante em português (Almeida Revista e Atualizada).
-        
-JSON:
-{
-  "referencia": "Livro Capítulo:Versículo",
-  "texto": "texto do versículo"
-}`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            referencia: { type: "string" },
-            texto: { type: "string" }
-          },
-          required: ["referencia", "texto"]
-        }
+      // Versículo real e aleatório da ABíbliaDigital - nunca "escolhido"
+      // e escrito por uma IA.
+      const verse = await fetchRandomVerse("ARA");
+      setDailyVerse({
+        referencia: `${verse.book} ${verse.chapter}:${verse.verse}`,
+        texto: verse.text
       });
-      setDailyVerse(response);
     } catch (error) {
       console.error("Erro ao carregar versículo:", error);
     }

@@ -3,6 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles, RefreshCw } from "lucide-react";
+import { fetchChapterFromJSON } from "@/components/bible/bibleLoader";
+import { fetchRandomVerse } from "@/components/bible/abibliaBibleProvider";
 
 export default function DailyVerseRecommendation({ user }) {
   const [verse, setVerse] = useState(null);
@@ -37,19 +39,23 @@ export default function DailyVerseRecommendation({ user }) {
       const interesses = userPrefs?.interesses || [];
       const objetivo = userPrefs?.objetivo_leitura || "conhecimento_geral";
 
+      // A IA escolhe APENAS a referência e o comentário personalizado - o
+      // texto do versículo em si nunca é gerado por ela, é sempre buscado
+      // de uma fonte bíblica real (evita qualquer risco de imprecisão no
+      // texto sagrado).
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Recomende um versículo bíblico personalizado para hoje baseado no seguinte perfil:
+        prompt: `Recomende a REFERÊNCIA de um versículo bíblico personalizado para hoje baseado no seguinte perfil:
 
 Interesses: ${interesses.join(", ") || "Geral"}
 Objetivo de leitura: ${objetivo}
 Atividade recente: ${highlights.length} destaques, ${favorites.length} favoritos, ${notes.length} anotações
 
 Escolha um versículo relevante, edificante e apropriado para o momento.
+NÃO escreva o texto do versículo - apenas a referência exata, o motivo da recomendação e o tema.
 
 JSON:
 {
   "referencia": "Livro Capítulo:Versículo",
-  "texto": "texto completo do versículo",
   "razao": "breve explicação de por que este versículo é relevante para o usuário hoje",
   "tema": "tema principal"
 }`,
@@ -57,15 +63,43 @@ JSON:
           type: "object",
           properties: {
             referencia: { type: "string" },
-            texto: { type: "string" },
             razao: { type: "string" },
             tema: { type: "string" }
           },
-          required: ["referencia", "texto", "razao", "tema"]
+          required: ["referencia", "razao", "tema"]
         }
       });
 
-      setVerse(response);
+      // Busca o texto REAL do versículo recomendado.
+      let texto = null;
+      let referenciaFinal = response.referencia;
+      const match = response.referencia?.match(/^(.+?)\s+(\d+):(\d+)$/);
+      if (match) {
+        const [, book, chapterStr, verseStr] = match;
+        try {
+          const data = await fetchChapterFromJSON("ARA", book.trim(), parseInt(chapterStr, 10));
+          const verseData = data?.verses?.[parseInt(verseStr, 10) - 1];
+          texto = verseData?.text || null;
+        } catch (fetchError) {
+          console.error("Erro ao buscar texto real do versículo recomendado:", fetchError);
+        }
+      }
+
+      if (!texto) {
+        // Não foi possível confirmar o texto real da referência sugerida -
+        // em vez de arriscar mostrar um texto impreciso, usa um versículo
+        // real aleatório como alternativa segura.
+        const fallback = await fetchRandomVerse("ARA");
+        texto = fallback.text;
+        referenciaFinal = `${fallback.book} ${fallback.chapter}:${fallback.verse}`;
+      }
+
+      setVerse({
+        referencia: referenciaFinal,
+        texto,
+        razao: response.razao,
+        tema: response.tema
+      });
 
       // Update last recommendation date
       if (userPrefs) {

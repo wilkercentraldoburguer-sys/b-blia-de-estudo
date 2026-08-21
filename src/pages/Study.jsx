@@ -14,6 +14,7 @@ import ChapterNavigation from "../components/bible/ChapterNavigation";
 import DevotionalSection from "../components/study/DevotionalSection";
 import StudyGenerator from "../components/study/StudyGenerator";
 import StudyViewer from "../components/study/StudyViewer";
+import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
 
 export default function Study() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -149,29 +150,20 @@ export default function Study() {
     for (const versionSigla of selectedVersions) {
       const version = BIBLE_VERSIONS.find(v => v.sigla === versionSigla);
       if (!version) continue;
-      
-      try {
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Retorne o texto de ${currentBook} ${currentChapter}:${selectedVerse} na versão ${version.nome} da Bíblia.
 
-Retorne apenas um JSON:
-{
-  "texto": "texto exato do versículo nesta versão"
-}`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              texto: { type: "string" }
-            },
-            required: ["texto"]
-          }
-        });
-        
-        comparisons.push({
-          sigla: versionSigla,
-          nome: version.nome,
-          texto: response.texto
-        });
+      try {
+        // Busca o texto real do versículo nessa versão em vez de pedir
+        // pra uma IA "lembrar" o texto.
+        const data = await fetchChapterFromJSON(versionSigla, currentBook, currentChapter);
+        const verseData = data?.verses?.[selectedVerse - 1];
+
+        if (verseData) {
+          comparisons.push({
+            sigla: versionSigla,
+            nome: version.nome,
+            texto: verseData.text
+          });
+        }
       } catch (error) {
         console.error(`Erro ao carregar versão ${versionSigla}:`, error);
       }
@@ -198,29 +190,39 @@ Retorne apenas um JSON:
   const loadStudy = async () => {
     setIsLoading(true);
     try {
+      // 1) Busca o texto REAL do versículo primeiro - nunca é gerado por IA.
+      const chapterData = await fetchChapterFromJSON("ARA", currentBook, currentChapter);
+      const versiculoTexto = chapterData?.verses?.[selectedVerse - 1]?.text || "";
+
+      // 2) A IA só é usada para o material interpretativo (contexto,
+      // palavras-chave, comentário e sugestão de referências cruzadas) -
+      // nunca para "gerar" o texto bíblico em si.
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Crie um estudo bíblico completo para ${currentBook} ${currentChapter}:${selectedVerse}.
+        prompt: `Considere ${currentBook} ${currentChapter}:${selectedVerse}, cujo texto bíblico real (ARA) é:
+"${versiculoTexto}"
+
+Crie o material de apoio para o estudo deste versículo.
 
 Retorne um JSON com esta estrutura:
 
 {
-  "versiculo_texto": "texto do versículo em português (ARA)",
   "explicacao_basica": {
     "contexto_historico": "breve contexto histórico da passagem",
     "palavras_chave": ["palavra1", "palavra2", "palavra3"],
     "mapa_contexto": "descrição geográfica se aplicável, senão null"
   },
   "comentario_ryrie": {
-    "texto": "comentário no estilo Ryrie Study Bible: simples, teológico, objetivo, fiel ao texto, sem floreios"
+    "texto": "comentário devocional próprio, simples, teológico, objetivo e fiel ao texto acima"
   },
   "referencias_cruzadas": [
-    {"referencia": "Livro cap:vers", "texto": "texto do versículo", "explicacao": "breve explicação da conexão"},
-    {"referencia": "Livro cap:vers", "texto": "texto do versículo", "explicacao": "breve explicação da conexão"}
+    {"referencia": "Livro cap:vers", "explicacao": "breve explicação da conexão"},
+    {"referencia": "Livro cap:vers", "explicacao": "breve explicação da conexão"}
   ]
 }
 
-IMPORTANTE sobre o comentário Ryrie:
-- Mantenha o estilo Ryrie: conciso, teológico, objetivo
+IMPORTANTE:
+- NÃO invente ou reescreva o texto do versículo, use apenas o texto fornecido acima como base
+- Nas referências cruzadas, retorne SOMENTE a referência e a explicação da conexão - NÃO escreva o texto do versículo referenciado (ele será buscado de uma fonte real depois)
 - Explique o significado literal e teológico
 - Evite especulações
 - Seja fiel ao texto bíblico
@@ -230,7 +232,6 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
         response_json_schema: {
           type: "object",
           properties: {
-            versiculo_texto: { type: "string" },
             explicacao_basica: {
               type: "object",
               properties: {
@@ -239,7 +240,7 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
                   type: "array",
                   items: { type: "string" }
                 },
-                mapa_contexto: { 
+                mapa_contexto: {
                   type: ["string", "null"]
                 }
               },
@@ -258,20 +259,46 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
                 type: "object",
                 properties: {
                   referencia: { type: "string" },
-                  texto: { type: "string" },
                   explicacao: { type: "string" }
                 },
-                required: ["referencia", "texto", "explicacao"]
+                required: ["referencia", "explicacao"]
               }
             }
           },
-          required: ["versiculo_texto", "explicacao_basica", "comentario_ryrie", "referencias_cruzadas"]
+          required: ["explicacao_basica", "comentario_ryrie", "referencias_cruzadas"]
         }
       });
-      
-      setStudyData(response);
-      setCrossReferences(response.referencias_cruzadas || []);
-      
+
+      // 3) Busca o texto REAL de cada referência cruzada sugerida pela IA
+      // (a IA só escolhe QUAIS referências são relevantes, o texto vem
+      // sempre de uma fonte bíblica real).
+      const referenciasComTexto = await Promise.all(
+        (response.referencias_cruzadas || []).map(async (ref) => {
+          const match = ref.referencia?.match(/^(.+?)\s+(\d+):(\d+)$/);
+          if (!match) return null;
+          const [, refBook, refChapterStr, refVerseStr] = match;
+          try {
+            const refData = await fetchChapterFromJSON("ARA", refBook.trim(), parseInt(refChapterStr, 10));
+            const refVerseData = refData?.verses?.[parseInt(refVerseStr, 10) - 1];
+            if (!refVerseData) return null;
+            return { ...ref, texto: refVerseData.text };
+          } catch (refError) {
+            console.error(`Erro ao buscar referência cruzada ${ref.referencia}:`, refError);
+            return null;
+          }
+        })
+      );
+      const referenciasValidas = referenciasComTexto.filter(Boolean);
+
+      const fullStudyData = {
+        ...response,
+        versiculo_texto: versiculoTexto,
+        referencias_cruzadas: referenciasValidas
+      };
+
+      setStudyData(fullStudyData);
+      setCrossReferences(referenciasValidas);
+
       // Carregar comentários opcionais se usuário tem preferências
       if (preferences?.comentaristas_ativos) {
         loadOptionalCommentaries(preferences.comentaristas_ativos);

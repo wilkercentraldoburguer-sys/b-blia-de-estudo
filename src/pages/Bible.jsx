@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Menu, Loader2, Moon, Sun, MessageSquare, Search, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import BookSelector, { OLD_TESTAMENT, NEW_TESTAMENT } from "../components/bible/BookSelector";
 import ChapterNavigation from "../components/bible/ChapterNavigation";
+import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
+import { searchVerses } from "../components/bible/abibliaBibleProvider";
 
 const BIBLE_VERSIONS = [
   { sigla: "ARA", nome: "Almeida Revista e Atualizada" },
@@ -158,48 +160,19 @@ export default function Bible() {
     setIsLoading(true);
 
     try {
-      const versionName = BIBLE_VERSIONS.find(v => v.sigla === selectedVersion)?.nome || "Almeida Revista e Atualizada";
-      
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne o texto completo de ${currentBook} capítulo ${currentChapter} da Bíblia em português, versão ${versionName}.
+      // Busca o texto real do capítulo (dataset local -> ABíbliaDigital com
+      // token, se houver -> getbible.net como fallback público). Nunca pede
+      // para uma IA "gerar" o texto bíblico - o texto sagrado sempre vem de
+      // uma fonte real.
+      const data = await fetchChapterFromJSON(selectedVersion, currentBook, currentChapter, controller.signal);
 
-Formato JSON:
-{
-  "verses": [
-    {"number": 1, "text": "texto do versículo 1"},
-    {"number": 2, "text": "texto do versículo 2"}
-  ]
-}
-
-IMPORTANTE:
-- Retorne TODOS os versículos do capítulo
-- Não inclua comentários ou explicações
-- Apenas o texto bíblico puro`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            verses: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  number: { type: "integer" },
-                  text: { type: "string" }
-                },
-                required: ["number", "text"]
-              }
-            }
-          },
-          required: ["verses"]
-        }
-      });
-      
       // Verificar se não foi cancelado
       if (controller.signal.aborted) return;
-      
-      if (response?.verses) {
-        setVerses(response.verses);
-        saveToCache(cacheKey, response.verses);
+
+      if (data?.verses) {
+        const formattedVerses = data.verses.map(v => ({ number: v.n, text: v.text }));
+        setVerses(formattedVerses);
+        saveToCache(cacheKey, formattedVerses);
         // Prefetch próximos capítulos
         schedulePrefetch();
       }
@@ -280,44 +253,11 @@ IMPORTANTE:
     if (chapterCache[cacheKey]) return;
 
     try {
-      const versionName = BIBLE_VERSIONS.find(v => v.sigla === selectedVersion)?.nome || "Almeida Revista e Atualizada";
-      
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne o texto completo de ${currentBook} capítulo ${chapterNumber} da Bíblia em português, versão ${versionName}.
+      const data = await fetchChapterFromJSON(selectedVersion, currentBook, chapterNumber);
 
-Formato JSON:
-{
-  "verses": [
-    {"number": 1, "text": "texto do versículo 1"},
-    {"number": 2, "text": "texto do versículo 2"}
-  ]
-}
-
-IMPORTANTE:
-- Retorne TODOS os versículos do capítulo
-- Não inclua comentários ou explicações
-- Apenas o texto bíblico puro`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            verses: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  number: { type: "integer" },
-                  text: { type: "string" }
-                },
-                required: ["number", "text"]
-              }
-            }
-          },
-          required: ["verses"]
-        }
-      });
-      
-      if (response?.verses) {
-        saveToCache(cacheKey, response.verses);
+      if (data?.verses) {
+        const formattedVerses = data.verses.map(v => ({ number: v.n, text: v.text }));
+        saveToCache(cacheKey, formattedVerses);
       }
     } catch (error) {
       // Silenciar erros de prefetch
@@ -378,49 +318,19 @@ IMPORTANTE:
     
     setIsSearching(true);
     try {
-      let filterText = "";
+      // Busca real na ABíbliaDigital - retorna apenas versículos que
+      // realmente contêm o termo buscado, nunca resultados "inventados".
+      let results = await searchVerses(selectedVersion, searchTerm);
+
       if (searchFilter === "ot") {
-        filterText = " APENAS no Antigo Testamento";
+        const otNames = new Set(OLD_TESTAMENT.map(b => b.name));
+        results = results.filter(r => otNames.has(r.book));
       } else if (searchFilter === "nt") {
-        filterText = " APENAS no Novo Testamento";
+        const ntNames = new Set(NEW_TESTAMENT.map(b => b.name));
+        results = results.filter(r => ntNames.has(r.book));
       }
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Busque na Bíblia (versão ${BIBLE_VERSIONS.find(v => v.sigla === selectedVersion)?.nome}) todos os versículos que contêm "${searchTerm}"${filterText}.
-
-Retorne até 20 resultados mais relevantes:
-{
-  "results": [
-    {
-      "book": "nome do livro",
-      "chapter": número,
-      "verse": número,
-      "text": "texto do versículo"
-    }
-  ]
-}`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            results: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  book: { type: "string" },
-                  chapter: { type: "integer" },
-                  verse: { type: "integer" },
-                  text: { type: "string" }
-                },
-                required: ["book", "chapter", "verse", "text"]
-              }
-            }
-          },
-          required: ["results"]
-        }
-      });
-      
-      setSearchResults(response.results || []);
+      setSearchResults(results.slice(0, 20));
       setSearchDialogOpen(false);
     } catch (error) {
       console.error("Erro ao buscar:", error);

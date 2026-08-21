@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Heart, BookOpen, Loader2, Plus, Edit2, CheckCircle2 } from "lucide-react";
+import { fetchChapterFromJSON } from "@/components/bible/bibleLoader";
 
 const BIBLE_BOOKS = [
   "Gênesis", "Êxodo", "Levítico", "Números", "Deuteronômio", "Josué", "Juízes", "Rute",
@@ -83,13 +84,13 @@ Retorne um JSON com:
   "tema": "tema principal",
   "livro_referencia": "livro bíblico usado",
   "versiculo_principal": "Livro cap:vers",
-  "texto_versiculo": "texto do versículo",
   "conteudo": "conteúdo do devocional (2-3 parágrafos edificantes e práticos)",
   "reflexao": "pergunta ou ponto de reflexão pessoal",
   "oracao_sugerida": "oração curta e significativa"
 }
 
 IMPORTANTE:
+- NÃO escreva o texto do versículo - apenas a referência (ele será buscado de uma fonte bíblica real)
 - Seja prático e aplicável à vida diária
 - Use linguagem acessível e inspiradora
 - Mantenha fidelidade bíblica
@@ -101,17 +102,31 @@ IMPORTANTE:
             tema: { type: "string" },
             livro_referencia: { type: "string" },
             versiculo_principal: { type: "string" },
-            texto_versiculo: { type: "string" },
             conteudo: { type: "string" },
             reflexao: { type: "string" },
             oracao_sugerida: { type: "string" }
           },
-          required: ["titulo", "conteudo", "versiculo_principal", "texto_versiculo"]
+          required: ["titulo", "conteudo", "versiculo_principal"]
         }
       });
 
+      // Busca o texto REAL do versículo principal escolhido pela IA - o
+      // texto sagrado nunca é gerado, apenas a referência é sugerida.
+      let textoVersiculo = "";
+      const match = response.versiculo_principal?.match(/^(.+?)\s+(\d+):(\d+)$/);
+      if (match) {
+        const [, refBook, refChapterStr, refVerseStr] = match;
+        try {
+          const data = await fetchChapterFromJSON("ARA", refBook.trim(), parseInt(refChapterStr, 10));
+          textoVersiculo = data?.verses?.[parseInt(refVerseStr, 10) - 1]?.text || "";
+        } catch (fetchError) {
+          console.error("Erro ao buscar texto real do versículo do devocional:", fetchError);
+        }
+      }
+
       createDevotionalMutation.mutate({
         ...response,
+        texto_versiculo: textoVersiculo,
         data_devocional: new Date().toISOString().split('T')[0],
         lido: false
       });

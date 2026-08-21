@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageSquare, BookOpenCheck, StickyNote } from "lucide-react";
 import { motion } from "framer-motion";
+import { fetchChapterFromJSON } from "./bibleLoader";
 
 export default function VerseCard({ 
   verse, 
@@ -31,16 +31,11 @@ export default function VerseCard({
   const loadCompareVerse = async () => {
     setLoadingCompare(true);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne APENAS o texto de ${bookName} ${chapter}:${verseNumber} na versão ${compareVersion}.
-JSON: {"text": "texto do versículo"}`,
-        response_json_schema: {
-          type: "object",
-          properties: { text: { type: "string" } },
-          required: ["text"]
-        }
-      });
-      setCompareText(response.text);
+      // Busca o texto real do versículo na versão escolhida em vez de
+      // pedir para uma IA "lembrar" o texto.
+      const data = await fetchChapterFromJSON(compareVersion, bookName, chapter);
+      const verseData = data?.verses?.[verseNumber - 1];
+      setCompareText(verseData?.text || null);
     } catch (error) {
       console.error("Erro ao carregar comparação:", error);
     }

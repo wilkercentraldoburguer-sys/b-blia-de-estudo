@@ -149,13 +149,102 @@ export async function fetchBookInfo(versionCode, bookKey) {
  */
 export async function fetchAvailableVersions() {
   const url = `${API_BASE}/versions`;
-  
+
   const response = await fetch(url);
-  
+
   if (!response.ok) {
     throw new Error('Erro ao buscar versões disponíveis');
   }
-  
+
   const data = await response.json();
   return data;
+}
+
+/**
+ * Monta os headers da requisição, incluindo o token quando configurado.
+ * A busca e o versículo aleatório funcionam mesmo sem token (limitado a
+ * 20 requisições/hora pela própria ABíbliaDigital); com token, o limite
+ * é removido.
+ */
+function buildHeaders() {
+  const headers = { 'Accept': 'application/json' };
+  if (hasAPIToken()) {
+    headers['Authorization'] = `Bearer ${getAPIToken()}`;
+  }
+  return headers;
+}
+
+/**
+ * Busca REAL de versículos por palavra/termo na ABíbliaDigital.
+ * Nunca "inventa" resultados - retorna apenas o que a API encontrar de fato
+ * no texto bíblico real.
+ * https://www.abibliadigital.com.br/api/verses/search
+ */
+export async function searchVerses(versionCode, searchTerm) {
+  const apiVersion = getAPIVersionCode(versionCode);
+  const url = `${API_BASE}/verses/search`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      ...buildHeaders(),
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ version: apiVersion, search: searchTerm })
+  });
+
+  if (response.status === 429) {
+    const error = new Error('Limite de requisicoes excedido, tente novamente em alguns minutos');
+    error.code = 'RATE_LIMIT';
+    throw error;
+  }
+
+  if (!response.ok) {
+    const error = new Error(`Erro na busca (status ${response.status})`);
+    error.code = 'HTTP_ERROR';
+    throw error;
+  }
+
+  const data = await response.json();
+
+  // Normaliza para o formato usado pela UI: { book, chapter, verse, text }
+  const verses = data?.verses || [];
+  return verses.map(v => ({
+    book: v.book?.name || v.book,
+    chapter: v.chapter,
+    verse: v.number,
+    text: v.text
+  }));
+}
+
+/**
+ * Busca um versículo REAL aleatório (para "versículo do dia" etc.).
+ * https://www.abibliadigital.com.br/api/verses/:version/random
+ */
+export async function fetchRandomVerse(versionCode) {
+  const apiVersion = getAPIVersionCode(versionCode);
+  const url = `${API_BASE}/verses/${apiVersion}/random`;
+
+  const response = await fetch(url, { headers: buildHeaders() });
+
+  if (response.status === 429) {
+    const error = new Error('Limite de requisicoes excedido, tente novamente em alguns minutos');
+    error.code = 'RATE_LIMIT';
+    throw error;
+  }
+
+  if (!response.ok) {
+    const error = new Error(`Erro ao buscar versiculo aleatorio (status ${response.status})`);
+    error.code = 'HTTP_ERROR';
+    throw error;
+  }
+
+  const data = await response.json();
+
+  return {
+    book: data.book?.name || data.book,
+    chapter: data.chapter,
+    verse: data.number,
+    text: data.text
+  };
 }

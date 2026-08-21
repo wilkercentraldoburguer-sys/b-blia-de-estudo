@@ -1,13 +1,14 @@
 import { getBasePath } from './DatasetPathDetector';
+import { BOOK_ABBREV_MAP } from './bookCodes';
 
 /**
  * BibleRepository - Sistema cache-first APENAS LOCAL
- * 
+ *
  * Prioridades:
  * 1. Memória (LRU últimos 3 capítulos)
  * 2. IndexedDB persistente
  * 3. Fetch de /bible/{version}/{book}/{chapter}.json
- * 
+ *
  * NUNCA chama API externa ou LLM.
  */
 
@@ -48,24 +49,8 @@ class LRUCache {
 
 const memoryCache = new LRUCache(3);
 
-// Mapeamento de nomes para bookKeys
-const BOOK_KEY_MAP = {
-  'genesis': 'gn', 'exodo': 'ex', 'levitico': 'lv', 'numeros': 'nm', 'deuteronomio': 'dt',
-  'josue': 'js', 'juizes': 'jz', 'rute': 'rt', '1samuel': '1sm', '2samuel': '2sm',
-  '1reis': '1rs', '2reis': '2rs', '1cronicas': '1cr', '2cronicas': '2cr',
-  'esdras': 'ed', 'neemias': 'ne', 'ester': 'et', 'jo': 'job', 'salmos': 'sl',
-  'proverbios': 'pv', 'eclesiastes': 'ec', 'canticos': 'ct', 'isaias': 'is',
-  'jeremias': 'jr', 'lamentacoes': 'lm', 'ezequiel': 'ez', 'daniel': 'dn',
-  'oseias': 'os', 'joel': 'jl', 'amos': 'am', 'obadias': 'ob', 'jonas': 'jn',
-  'miqueias': 'mq', 'naum': 'na', 'habacuque': 'hc', 'sofonias': 'sf',
-  'ageu': 'ag', 'zacarias': 'zc', 'malaquias': 'ml', 'mateus': 'mt',
-  'marcos': 'mc', 'lucas': 'lc', 'joao': 'jo', 'atos': 'at', 'romanos': 'rm',
-  '1corintios': '1co', '2corintios': '2co', 'galatas': 'gl', 'efesios': 'ef',
-  'filipenses': 'fp', 'colossenses': 'cl', '1tessalonicenses': '1ts',
-  '2tessalonicenses': '2ts', '1timoteo': '1tm', '2timoteo': '2tm', 'tito': 'tt',
-  'filemom': 'fm', 'hebreus': 'hb', 'tiago': 'tg', '1pedro': '1pe', '2pedro': '2pe',
-  '1joao': '1jo', '2joao': '2jo', '3joao': '3jo', 'judas': 'jd', 'apocalipse': 'ap'
-};
+// Mapeamento de nomes para bookKeys (fonte única em ./bookCodes.jsx)
+const BOOK_KEY_MAP = BOOK_ABBREV_MAP;
 
 const VERSION_MAP = {
   'ARA': 'ra', 'ARC': 'arc', 'NVI': 'nvi', 'ACF': 'acf', 'KJV': 'kjv'

@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Loader2, BookOpen, MessageSquare, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { searchVerses } from "./abibliaBibleProvider";
 
 export default function AdvancedSearch({ open, onOpenChange, onSelectVerse }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,44 +65,17 @@ JSON:
 
       setCommentaryResults(response.results || []);
 
-      // Buscar versículos
-      const versePrompt = `Encontre versículos bíblicos relacionados a: "${searchTerm}".
-Retorne até 5 versículos mais relevantes com seus textos.
-
-JSON:
-{
-  "verses": [
-    {
-      "livro": "livro",
-      "capitulo": número,
-      "versiculo": número,
-      "texto": "texto do versículo"
-    }
-  ]
-}`;
-
-      const verseResponse = await base44.integrations.Core.InvokeLLM({
-        prompt: versePrompt,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            verses: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  livro: { type: "string" },
-                  capitulo: { type: "integer" },
-                  versiculo: { type: "integer" },
-                  texto: { type: "string" }
-                }
-              }
-            }
-          }
-        }
-      });
-
-      setVerseResults(verseResponse.verses || []);
+      // Busca REAL de versículos que contêm o termo (ABíbliaDigital) - nunca
+      // resultados "inventados" por IA.
+      const verses = await searchVerses("ARA", searchTerm);
+      setVerseResults(
+        verses.slice(0, 5).map(v => ({
+          livro: v.book,
+          capitulo: v.chapter,
+          versiculo: v.verse,
+          texto: v.text
+        }))
+      );
     } catch (error) {
       console.error("Erro na busca:", error);
     }

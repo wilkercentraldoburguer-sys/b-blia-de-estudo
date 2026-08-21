@@ -18,6 +18,7 @@ import UpdateNotificationBanner from "../components/settings/UpdateNotificationB
 import CommentaryPanel from "../components/bible/CommentaryPanel";
 import AdvancedSearch from "../components/bible/AdvancedSearch";
 import { useTheme } from "../components/personalization/ThemeProvider";
+import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
 
 const ALL_BOOKS = [...OLD_TESTAMENT, ...NEW_TESTAMENT];
 
@@ -163,39 +164,15 @@ export default function Reader() {
     setIsLoading(true);
     setIsOffline(false);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Retorne APENAS o texto bíblico de ${book} ${chapter} em português (Almeida Revista e Atualizada).
+      // Busca o texto real do capítulo (dataset -> ABíbliaDigital com token,
+      // se houver -> getbible.net) em vez de pedir para uma IA "gerar" o
+      // texto bíblico.
+      const data = await fetchChapterFromJSON("ARA", book, chapter);
 
-JSON exato:
-{
-  "verses": [
-    {"text": "verso 1"},
-    {"text": "verso 2"}
-  ]
-}
-
-SEM números, SEM comentários, APENAS texto.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            verses: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  text: { type: "string" }
-                },
-                required: ["text"]
-              }
-            }
-          },
-          required: ["verses"]
-        }
-      });
-      
-      if (response && response.verses && Array.isArray(response.verses)) {
-        setVerses(response.verses);
-        setCache(prev => ({ ...prev, [cacheKey]: response.verses }));
+      if (data && Array.isArray(data.verses) && data.verses.length > 0) {
+        const formattedVerses = data.verses.map(v => ({ text: v.text }));
+        setVerses(formattedVerses);
+        setCache(prev => ({ ...prev, [cacheKey]: formattedVerses }));
       } else {
         setVerses([]);
       }
@@ -363,16 +340,13 @@ SEM números, SEM comentários, APENAS texto.`,
 
     for (const version of versions) {
       try {
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Retorne APENAS ${currentBook} ${currentChapter}:${verseNumber} na versão ${version}.
-JSON: {"text": "texto do versículo"}`,
-          response_json_schema: {
-            type: "object",
-            properties: { text: { type: "string" } },
-            required: ["text"]
-          }
-        });
-        comparisons.push({ version, text: response.text });
+        // Busca o capítulo real na versão escolhida e extrai o versículo -
+        // nunca pede pra IA "lembrar" o texto de uma versão específica.
+        const data = await fetchChapterFromJSON(version, currentBook, currentChapter);
+        const verseData = data?.verses?.[verseNumber - 1];
+        if (verseData) {
+          comparisons.push({ version, text: verseData.text });
+        }
       } catch (error) {
         console.error(`Erro versão ${version}:`, error);
       }

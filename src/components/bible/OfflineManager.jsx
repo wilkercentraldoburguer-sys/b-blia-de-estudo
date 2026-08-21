@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, Check, Loader2, RefreshCw, Clock } from "lucide-react";
 import { OLD_TESTAMENT, NEW_TESTAMENT } from "./BookSelector";
-import { base44 } from "@/api/base44Client";
+import { fetchChapterFromJSON } from "./bibleLoader";
 
 const ALL_BOOKS = [...OLD_TESTAMENT, ...NEW_TESTAMENT];
 
@@ -46,44 +46,23 @@ export default function OfflineManager({ selectedVersion, onClose }) {
 
     for (let chapter = 1; chapter <= book.chapters; chapter++) {
       try {
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Retorne o texto completo de ${book.name} capítulo ${chapter} da Bíblia em português (versão ARA).
-
-JSON:
-{
-  "verses": [
-    {"number": 1, "text": "verso 1"},
-    {"number": 2, "text": "verso 2"}
-  ]
-}`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              verses: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    number: { type: "integer" },
-                    text: { type: "string" }
-                  },
-                  required: ["number", "text"]
-                }
-              }
-            },
-            required: ["verses"]
-          }
-        });
+        // Busca o texto real do capítulo (dataset -> ABíbliaDigital com
+        // token, se houver -> getbible.net) para salvar offline - nunca
+        // pede pra uma IA "gerar" o texto bíblico.
+        const data = await fetchChapterFromJSON(selectedVersion, book.name, chapter);
 
         bookData.chapters.push({
           chapter,
-          verses: response.verses || []
+          verses: (data?.verses || []).map(v => ({ number: v.n, text: v.text }))
         });
 
         setProgress(Math.round((chapter / book.chapters) * 100));
       } catch (error) {
         console.error(`Erro ao baixar ${book.name} ${chapter}:`, error);
       }
+
+      // Pequena pausa para não sobrecarregar as APIs públicas
+      await new Promise(resolve => setTimeout(resolve, 80));
     }
 
     const updated = [...downloadedBooks.filter(b => !(b.book === book.name && b.version === selectedVersion)), bookData];
