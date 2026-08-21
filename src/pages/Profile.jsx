@@ -14,10 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const BIBLE_VERSIONS = ["ARA", "ARC", "NVI", "NVT", "ACF", "KJV", "NAA"];
-// IMPORTANTE: todo comentário exibido aqui é uma reflexão gerada por IA
-// "inspirada no estilo" de cada nome abaixo - nunca uma citação literal
-// de algo que a pessoa realmente escreveu (ver Study.jsx/getCommentatorStyle
-// e o aviso exibido na UI ao lado de cada nome).
+// IMPORTANTE: por padrão, o comentário exibido pra cada nome abaixo é uma
+// reflexão gerada por IA "inspirada no estilo" da pessoa - nunca uma
+// citação literal do que ela realmente escreveu (ver
+// Study.jsx/getCommentatorStyle e o aviso exibido na UI ao lado do nome).
+// Exceção: "Matthew Henry" já busca comentário REAL e literal, de domínio
+// público (ver matthewHenryProvider.jsx) - é a primeira fonte real
+// integrada, com mais planejadas para o futuro.
 const COMMENTATORS = ["Ryrie", "Hernandes Dias Lopes", "Matthew Henry", "Spurgeon", "John Stott", "MacArthur", "Pastor Local"];
 
 export default function Profile() {
@@ -292,7 +295,7 @@ export default function Profile() {
               Comentaristas Ativos
             </CardTitle>
             <p className="text-xs text-slate-500">
-              Cada reflexão abaixo é gerada por IA "inspirada no estilo de" o nome indicado - não é uma citação literal de nenhuma obra ou autor.
+              Por padrão, cada reflexão é gerada por IA "inspirada no estilo de" o nome indicado - não é uma citação literal de nenhuma obra ou autor. Exceção: Matthew Henry já traz citação real e literal.
             </p>
           </CardHeader>
           <CardContent>
@@ -300,7 +303,14 @@ export default function Profile() {
               {COMMENTATORS.map(commentator => (
                 <div key={commentator} className="flex items-center justify-between">
                   <div>
-                    <span className="text-slate-700">Inspirado em {commentator}</span>
+                    <span className="text-slate-700">
+                      {commentator === "Matthew Henry" ? commentator : `Inspirado em ${commentator}`}
+                    </span>
+                    {commentator === "Matthew Henry" && (
+                      <span className="ml-2 text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded">
+                        Citação Real
+                      </span>
+                    )}
                     {commentator === "Ryrie" && (
                       <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                         Sempre ativo

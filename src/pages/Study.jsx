@@ -15,6 +15,7 @@ import DevotionalSection from "../components/study/DevotionalSection";
 import StudyGenerator from "../components/study/StudyGenerator";
 import StudyViewer from "../components/study/StudyViewer";
 import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
+import { fetchMatthewHenryCommentary } from "../components/bible/matthewHenryProvider";
 
 export default function Study() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -322,6 +323,25 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
 
     for (const commentator of optionalCommentators) {
       try {
+        // Matthew Henry: comentário REAL e literal (domínio público), busca
+        // direta na fonte - nunca passa pela IA. Se não houver comentário
+        // exato pra esse versículo, simplesmente não mostra nada pra ele
+        // (não cai pra IA "preencher a lacuna").
+        if (commentator === "Matthew Henry") {
+          const real = await fetchMatthewHenryCommentary(currentBook, currentChapter, selectedVerse);
+          if (real) {
+            commentaries.push({
+              name: commentator,
+              text: real.texto,
+              isReal: true,
+              fonte: real.fonte,
+              fonteUrl: real.url,
+              versiculoInicioBloco: real.versiculoInicioBloco
+            });
+          }
+          continue;
+        }
+
         const styleGuide = getCommentatorStyle(commentator);
         // Deixamos claro pra IA (e depois pro usuário, via badge na tela)
         // que isto é uma reflexão ORIGINAL gerada por IA "inspirada no
@@ -350,7 +370,8 @@ Retorne apenas um JSON:
 
         commentaries.push({
           name: commentator,
-          text: response.texto
+          text: response.texto,
+          isReal: false
         });
       } catch (error) {
         console.error(`Erro ao carregar comentário de ${commentator}:`, error);
@@ -360,16 +381,20 @@ Retorne apenas um JSON:
     setOptionalCommentaries(commentaries);
   };
 
-  // Linhas teológicas usadas para variar o "tom" da reflexão gerada por IA.
-  // IMPORTANTE: o texto gerado é sempre uma reflexão NOVA "inspirada no
-  // estilo" de cada nome abaixo - nunca uma citação literal de algo que a
-  // pessoa realmente escreveu (isso é reforçado no prompt da IA e sinalizado
-  // na tela via badge de aviso, para os vivos/falecidos recentemente e para
-  // as figuras históricas de domínio público como Matthew Henry e Spurgeon).
+  // Linhas teológicas usadas para variar o "tom" da reflexão gerada por IA
+  // para os comentaristas que AINDA não têm fonte real integrada. Matthew
+  // Henry não usa mais isso - ele já busca comentário real e literal (ver
+  // fetchMatthewHenryCommentary acima). IMPORTANTE: pros nomes abaixo, o
+  // texto gerado é sempre uma reflexão NOVA "inspirada no estilo" - nunca
+  // uma citação literal de algo que a pessoa realmente escreveu (isso é
+  // reforçado no prompt da IA e sinalizado na tela via badge de aviso).
+  // Spurgeon segue nesse grupo por enquanto porque ele não escreveu um
+  // comentário verso-a-verso da Bíblia inteira (só Salmos, no "Tesouro
+  // de Davi", e sermões avulsos) - integrar uma fonte real pra ele exige
+  // mais trabalho e fica como próximo passo.
   const getCommentatorStyle = (commentator) => {
     const styles = {
       "Hernandes Dias Lopes": "Estilo: pastoral, prático, aplicação contemporânea, linguagem brasileira acessível, foco em transformação de vida",
-      "Matthew Henry": "Estilo inspirado na tradição devocional clássica: rico em aplicações práticas, piedoso, equilibrado, observações profundas mas acessíveis",
       "Spurgeon": "Estilo inspirado na tradição de pregação clássica: eloquente, cristocêntrico, evangelístico, rico em ilustrações, apaixonado pela pregação do evangelho",
       "John Stott": "Estilo: equilibrado, exegético, apologético, claro, focado na relevância contemporânea com solidez bíblica",
       "MacArthur": "Estilo: expositivo, teologicamente preciso, doutrinal, direto, fiel ao texto original, sem concessões"
@@ -623,18 +648,34 @@ Retorne apenas um JSON:
 
             {/* Comentários Opcionais */}
             {optionalCommentaries.map((commentary, idx) => (
-              <Card key={idx} className="border-l-4 border-purple-400 bg-purple-50/30">
+              <Card
+                key={idx}
+                className={commentary.isReal
+                  ? "border-l-4 border-emerald-400 bg-emerald-50/30"
+                  : "border-l-4 border-purple-400 bg-purple-50/30"}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <User className="w-5 h-5 text-purple-700" />
-                    Inspirado em {commentary.name}
-                    <span className="ml-auto text-xs bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
-                      Opcional
+                    <User className={commentary.isReal ? "w-5 h-5 text-emerald-700" : "w-5 h-5 text-purple-700"} />
+                    {commentary.isReal ? commentary.name : `Inspirado em ${commentary.name}`}
+                    <span className={commentary.isReal
+                      ? "ml-auto text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full"
+                      : "ml-auto text-xs bg-purple-100 text-purple-800 px-3 py-1 rounded-full"}
+                    >
+                      {commentary.isReal ? "Citação Real" : "Opcional"}
                     </span>
                   </CardTitle>
-                  <p className="text-xs text-purple-700/70 flex items-center gap-1">
-                    ✦ Reflexão original gerada por IA no estilo de {commentary.name} - não é uma citação literal do que essa pessoa escreveu
-                  </p>
+                  {commentary.isReal ? (
+                    <p className="text-xs text-emerald-700/70 flex items-center gap-1">
+                      ✦ Citação literal, fonte: {commentary.fonte}
+                      {commentary.versiculoInicioBloco != null && commentary.versiculoInicioBloco !== selectedVerse &&
+                        ` (comentário cobre o trecho a partir do v. ${commentary.versiculoInicioBloco})`}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-purple-700/70 flex items-center gap-1">
+                      ✦ Reflexão original gerada por IA no estilo de {commentary.name} - não é uma citação literal do que essa pessoa escreveu
+                    </p>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <p className="text-slate-800 leading-relaxed whitespace-pre-line">
