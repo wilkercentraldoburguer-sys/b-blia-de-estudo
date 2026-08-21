@@ -28,6 +28,9 @@ export default function CommentaryPanel({ book, chapter, verse, activeCommentato
     enabled: !!book && !!chapter,
   });
 
+  // Mesmos nomes usados em Profile.jsx/Study.jsx. Lembrete: em todo lugar
+  // que exibe esses nomes, o texto é uma reflexão gerada por IA "inspirada
+  // no estilo" da pessoa - nunca uma citação literal (ver aviso na UI).
   const commentatorColors = {
     "Ryrie": "from-blue-500 to-blue-600",
     "Hernandes Dias Lopes": "from-purple-500 to-purple-600",

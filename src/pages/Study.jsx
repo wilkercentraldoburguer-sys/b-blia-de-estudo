@@ -211,7 +211,7 @@ Retorne um JSON com esta estrutura:
     "palavras_chave": ["palavra1", "palavra2", "palavra3"],
     "mapa_contexto": "descrição geográfica se aplicável, senão null"
   },
-  "comentario_ryrie": {
+  "comentario_principal": {
     "texto": "comentário devocional próprio, simples, teológico, objetivo e fiel ao texto acima"
   },
   "referencias_cruzadas": [
@@ -246,7 +246,7 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
               },
               required: ["contexto_historico", "palavras_chave"]
             },
-            comentario_ryrie: {
+            comentario_principal: {
               type: "object",
               properties: {
                 texto: { type: "string" }
@@ -265,7 +265,7 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
               }
             }
           },
-          required: ["explicacao_basica", "comentario_ryrie", "referencias_cruzadas"]
+          required: ["explicacao_basica", "comentario_principal", "referencias_cruzadas"]
         }
       });
 
@@ -310,27 +310,34 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
   };
 
   const loadOptionalCommentaries = async (activeCommentators) => {
-    // Remove Ryrie da lista (já é obrigatório)
+    // Remove o comentário principal da lista (já é obrigatório e carregado em loadStudy)
     const optionalCommentators = activeCommentators.filter(c => c !== "Ryrie");
-    
+
     if (optionalCommentators.length === 0) {
       setOptionalCommentaries([]);
       return;
     }
 
     const commentaries = [];
-    
+
     for (const commentator of optionalCommentators) {
       try {
         const styleGuide = getCommentatorStyle(commentator);
+        // Deixamos claro pra IA (e depois pro usuário, via badge na tela)
+        // que isto é uma reflexão ORIGINAL gerada por IA "inspirada no
+        // estilo" do nome indicado - nunca uma citação literal de algo que
+        // essa pessoa (viva, falecida, ou uma obra protegida por direitos
+        // autorais) realmente escreveu.
         const response = await base44.integrations.Core.InvokeLLM({
-          prompt: `Escreva um comentário bíblico para ${currentBook} ${currentChapter}:${selectedVerse} no estilo de ${commentator}.
+          prompt: `Escreva uma reflexão bíblica ORIGINAL para ${currentBook} ${currentChapter}:${selectedVerse}, inspirada no estilo teológico de ${commentator}, descrito abaixo.
 
 ${styleGuide}
 
+IMPORTANTE: esta é uma reflexão nova, escrita por você agora, apenas INSPIRADA no estilo de ${commentator} - NÃO é uma citação de nenhuma obra ou texto que ${commentator} realmente escreveu. Nunca afirme ou sugira que é uma citação literal.
+
 Retorne apenas um JSON:
 {
-  "texto": "comentário no estilo do autor"
+  "texto": "reflexão original inspirada nesse estilo"
 }`,
           response_json_schema: {
             type: "object",
@@ -340,7 +347,7 @@ Retorne apenas um JSON:
             required: ["texto"]
           }
         });
-        
+
         commentaries.push({
           name: commentator,
           text: response.texto
@@ -349,15 +356,21 @@ Retorne apenas um JSON:
         console.error(`Erro ao carregar comentário de ${commentator}:`, error);
       }
     }
-    
+
     setOptionalCommentaries(commentaries);
   };
 
+  // Linhas teológicas usadas para variar o "tom" da reflexão gerada por IA.
+  // IMPORTANTE: o texto gerado é sempre uma reflexão NOVA "inspirada no
+  // estilo" de cada nome abaixo - nunca uma citação literal de algo que a
+  // pessoa realmente escreveu (isso é reforçado no prompt da IA e sinalizado
+  // na tela via badge de aviso, para os vivos/falecidos recentemente e para
+  // as figuras históricas de domínio público como Matthew Henry e Spurgeon).
   const getCommentatorStyle = (commentator) => {
     const styles = {
       "Hernandes Dias Lopes": "Estilo: pastoral, prático, aplicação contemporânea, linguagem brasileira acessível, foco em transformação de vida",
-      "Matthew Henry": "Estilo: devocional clássico, rico em aplicações práticas, piedoso, equilibrado, observações profundas mas acessíveis",
-      "Spurgeon": "Estilo: eloquente, cristocêntrico, evangelístico, rico em ilustrações, apaixonado pela pregação do evangelho",
+      "Matthew Henry": "Estilo inspirado na tradição devocional clássica: rico em aplicações práticas, piedoso, equilibrado, observações profundas mas acessíveis",
+      "Spurgeon": "Estilo inspirado na tradição de pregação clássica: eloquente, cristocêntrico, evangelístico, rico em ilustrações, apaixonado pela pregação do evangelho",
       "John Stott": "Estilo: equilibrado, exegético, apologético, claro, focado na relevância contemporânea com solidez bíblica",
       "MacArthur": "Estilo: expositivo, teologicamente preciso, doutrinal, direto, fiel ao texto original, sem concessões"
     };
@@ -587,20 +600,23 @@ Retorne apenas um JSON:
               </CardContent>
             </Card>
 
-            {/* Comentário Ryrie - FIXO E OBRIGATÓRIO */}
+            {/* Comentário principal - FIXO E OBRIGATÓRIO */}
             <Card className="border-2 border-indigo-300 bg-indigo-50/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookMarked className="w-5 h-5 text-indigo-700" />
-                  Comentário Ryrie
+                  Inspirado em Ryrie
                   <span className="ml-auto text-xs bg-indigo-600 text-white px-3 py-1 rounded-full">
                     Base Principal
                   </span>
                 </CardTitle>
+                <p className="text-xs text-indigo-700/70 flex items-center gap-1">
+                  ✦ Reflexão gerada por IA inspirada no estilo de Ryrie - não é uma citação da Bíblia de Estudo Ryrie nem de nenhuma outra obra
+                </p>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-800 leading-relaxed whitespace-pre-line">
-                  {studyData.comentario_ryrie.texto}
+                  {studyData.comentario_principal.texto}
                 </p>
               </CardContent>
             </Card>
@@ -611,11 +627,14 @@ Retorne apenas um JSON:
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <User className="w-5 h-5 text-purple-700" />
-                    {commentary.name}
+                    Inspirado em {commentary.name}
                     <span className="ml-auto text-xs bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
                       Opcional
                     </span>
                   </CardTitle>
+                  <p className="text-xs text-purple-700/70 flex items-center gap-1">
+                    ✦ Reflexão original gerada por IA no estilo de {commentary.name} - não é uma citação literal do que essa pessoa escreveu
+                  </p>
                 </CardHeader>
                 <CardContent>
                   <p className="text-slate-800 leading-relaxed whitespace-pre-line">
