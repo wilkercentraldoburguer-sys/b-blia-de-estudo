@@ -1,6 +1,7 @@
 import { getBookKey } from './bibleUtils';
 import { fetchChapterFromAPI } from './abibliaBibleProvider';
-import { getChapter } from './BibleRepository';
+import { fetchChapterFromGetBible } from './getBibleProvider';
+import { getChapter, saveChapterToCache } from './BibleRepository';
 
 // Cache em memória (LRU - últimos 3 capítulos)
 let memoryCache = {};
@@ -216,11 +217,28 @@ export function getCacheStats() {
 
 /**
  * Carrega capítulo com estratégia cache-first
- * REGRA: NUNCA usa LLM - apenas cache ou API
+ * REGRA: NUNCA usa LLM - apenas cache local, dataset estático ou API pública (getbible.net)
+ *
+ * Ordem: memória -> localStorage -> dataset estático (/bible/...) -> getbible.net (sem token)
+ * Quando vem do getbible.net, o resultado é salvo no cache local para as próximas leituras.
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
-  // Usar apenas BibleRepository (sem API, sem LLM)
-  return await getChapter(version, bookName, chapter);
+  try {
+    return await getChapter(version, bookName, chapter);
+  } catch (repositoryError) {
+    // Dataset estático não tem esse capítulo (ou rota não servida) - buscar na API pública
+    const bookKey = getBookKey(bookName);
+
+    try {
+      const data = await fetchChapterFromGetBible(bookKey, chapter, signal);
+      saveChapterToCache(version, bookName, chapter, data);
+      return data;
+    } catch (apiError) {
+      // Se a API também falhar, propaga o erro original do dataset (mais informativo)
+      // a menos que o erro da API seja mais específico (ex: capítulo inexistente)
+      throw apiError.code && apiError.code !== 'ERR_NETWORK' ? apiError : repositoryError;
+    }
+  }
 }
 
 /**

@@ -84,7 +84,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Reader",
+    mainPage: "BibliaLeitura",
     Pages: PAGES,
     Layout: __Layout,
 };
