@@ -1,0 +1,38 @@
+{
+  "name": "QuizProgress",
+  "type": "object",
+  "properties": {
+    "nivel": {
+      "type": "string",
+      "enum": [
+        "facil",
+        "intermediario",
+        "dificil",
+        "expert"
+      ],
+      "description": "N\u00edvel jogado"
+    },
+    "pontuacao": {
+      "type": "integer",
+      "description": "Pontos obtidos"
+    },
+    "total_perguntas": {
+      "type": "integer",
+      "description": "Total de perguntas respondidas"
+    },
+    "acertos": {
+      "type": "integer",
+      "description": "N\u00famero de acertos"
+    },
+    "tempo_gasto": {
+      "type": "integer",
+      "description": "Tempo em segundos"
+    }
+  },
+  "required": [
+    "nivel",
+    "pontuacao",
+    "total_perguntas",
+    "acertos"
+  ]
+}

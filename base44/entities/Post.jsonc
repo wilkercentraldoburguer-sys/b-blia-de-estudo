@@ -1,0 +1,45 @@
+{
+  "name": "Post",
+  "type": "object",
+  "properties": {
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "anotacao",
+        "destaque",
+        "insight",
+        "reflexao"
+      ],
+      "description": "Tipo de postagem"
+    },
+    "conteudo": {
+      "type": "string",
+      "description": "Conte\u00fado da postagem"
+    },
+    "versiculo_referencia": {
+      "type": "string",
+      "description": "Refer\u00eancia b\u00edblica (Ex: Jo\u00e3o 3:16)"
+    },
+    "versiculo_texto": {
+      "type": "string",
+      "description": "Texto do vers\u00edculo"
+    },
+    "likes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Emails dos usu\u00e1rios que curtiram"
+    },
+    "comentarios_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "Contador de coment\u00e1rios"
+    }
+  },
+  "required": [
+    "tipo",
+    "conteudo"
+  ]
+}

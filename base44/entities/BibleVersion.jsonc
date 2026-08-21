@@ -1,0 +1,28 @@
+{
+  "name": "BibleVersion",
+  "type": "object",
+  "properties": {
+    "sigla": {
+      "type": "string",
+      "description": "Sigla da vers\u00e3o (ARA, ARC, NVI, etc)"
+    },
+    "nome": {
+      "type": "string",
+      "description": "Nome completo da vers\u00e3o"
+    },
+    "idioma": {
+      "type": "string",
+      "default": "pt",
+      "description": "C\u00f3digo do idioma"
+    },
+    "ativa": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se a vers\u00e3o est\u00e1 ativa no sistema"
+    }
+  },
+  "required": [
+    "sigla",
+    "nome"
+  ]
+}

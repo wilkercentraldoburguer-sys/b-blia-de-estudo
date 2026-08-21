@@ -1,0 +1,23 @@
+{
+  "name": "Comment",
+  "type": "object",
+  "properties": {
+    "post_id": {
+      "type": "string",
+      "description": "ID do post relacionado"
+    },
+    "conteudo": {
+      "type": "string",
+      "description": "Conte\u00fado do coment\u00e1rio"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Nome do autor"
+    }
+  },
+  "required": [
+    "post_id",
+    "conteudo",
+    "author_name"
+  ]
+}

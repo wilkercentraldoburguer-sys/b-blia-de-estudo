@@ -1,0 +1,37 @@
+{
+  "name": "QuizQuestion",
+  "type": "object",
+  "properties": {
+    "pergunta": {
+      "type": "string",
+      "description": "Texto da pergunta"
+    },
+    "resposta": {
+      "type": "string",
+      "description": "Resposta correta"
+    },
+    "nivel": {
+      "type": "string",
+      "enum": [
+        "facil",
+        "intermediario",
+        "dificil",
+        "expert"
+      ],
+      "description": "N\u00edvel de dificuldade"
+    },
+    "referencia_biblica": {
+      "type": "string",
+      "description": "Refer\u00eancia b\u00edblica da resposta"
+    },
+    "numero": {
+      "type": "integer",
+      "description": "N\u00famero da pergunta no PDF original"
+    }
+  },
+  "required": [
+    "pergunta",
+    "resposta",
+    "nivel"
+  ]
+}

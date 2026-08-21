@@ -1,0 +1,56 @@
+{
+  "name": "Devotional",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do devocional"
+    },
+    "tema": {
+      "type": "string",
+      "description": "Tema do devocional"
+    },
+    "livro_referencia": {
+      "type": "string",
+      "description": "Livro b\u00edblico de refer\u00eancia"
+    },
+    "versiculo_principal": {
+      "type": "string",
+      "description": "Refer\u00eancia do vers\u00edculo principal"
+    },
+    "texto_versiculo": {
+      "type": "string",
+      "description": "Texto do vers\u00edculo"
+    },
+    "conteudo": {
+      "type": "string",
+      "description": "Conte\u00fado do devocional"
+    },
+    "reflexao": {
+      "type": "string",
+      "description": "Ponto de reflex\u00e3o"
+    },
+    "oracao_sugerida": {
+      "type": "string",
+      "description": "Ora\u00e7\u00e3o sugerida"
+    },
+    "anotacao_pessoal": {
+      "type": "string",
+      "description": "Anota\u00e7\u00e3o pessoal do usu\u00e1rio"
+    },
+    "data_devocional": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do devocional"
+    },
+    "lido": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se o devocional foi lido"
+    }
+  },
+  "required": [
+    "titulo",
+    "conteudo"
+  ]
+}

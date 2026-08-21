@@ -1,0 +1,78 @@
+{
+  "name": "ReadingPlan",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do plano de leitura"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do plano"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "diario",
+        "semanal",
+        "mensal",
+        "personalizado"
+      ],
+      "default": "diario",
+      "description": "Tipo de frequ\u00eancia do plano"
+    },
+    "passagens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "livro": {
+            "type": "string"
+          },
+          "capitulo": {
+            "type": "integer"
+          },
+          "versiculo_inicio": {
+            "type": "integer"
+          },
+          "versiculo_fim": {
+            "type": "integer"
+          },
+          "concluido": {
+            "type": "boolean",
+            "default": false
+          },
+          "data_leitura": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "description": "Lista de passagens do plano"
+    },
+    "data_inicio": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de in\u00edcio do plano"
+    },
+    "data_fim": {
+      "type": "string",
+      "format": "date",
+      "description": "Data prevista de conclus\u00e3o"
+    },
+    "progresso": {
+      "type": "number",
+      "default": 0,
+      "description": "Porcentagem de conclus\u00e3o (0-100)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o plano est\u00e1 ativo"
+    }
+  },
+  "required": [
+    "nome",
+    "tipo"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "StudyGroup",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do grupo de estudo"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do grupo"
+    },
+    "tema": {
+      "type": "string",
+      "description": "Tema principal do grupo"
+    },
+    "privacidade": {
+      "type": "string",
+      "enum": [
+        "publico",
+        "privado"
+      ],
+      "default": "publico",
+      "description": "Tipo de privacidade"
+    },
+    "membros": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Emails dos membros"
+    },
+    "admin": {
+      "type": "string",
+      "description": "Email do administrador"
+    }
+  },
+  "required": [
+    "nome",
+    "descricao",
+    "admin"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "Commentary",
+  "type": "object",
+  "properties": {
+    "comentarista": {
+      "type": "string",
+      "enum": [
+        "Ryrie",
+        "Hernandes Dias Lopes",
+        "Matthew Henry",
+        "Spurgeon",
+        "John Stott",
+        "MacArthur",
+        "Pastor Local"
+      ],
+      "description": "Nome do comentarista"
+    },
+    "livro": {
+      "type": "string",
+      "description": "Livro b\u00edblico"
+    },
+    "capitulo": {
+      "type": "integer",
+      "description": "Cap\u00edtulo"
+    },
+    "versiculo_inicio": {
+      "type": "integer",
+      "description": "Vers\u00edculo inicial"
+    },
+    "versiculo_fim": {
+      "type": "integer",
+      "description": "Vers\u00edculo final (opcional)"
+    },
+    "comentario": {
+      "type": "string",
+      "description": "Texto do coment\u00e1rio"
+    }
+  },
+  "required": [
+    "comentarista",
+    "livro",
+    "capitulo",
+    "versiculo_inicio",
+    "comentario"
+  ]
+}

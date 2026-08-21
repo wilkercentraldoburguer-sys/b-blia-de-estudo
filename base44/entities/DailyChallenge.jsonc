@@ -1,0 +1,69 @@
+{
+  "name": "DailyChallenge",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do desafio"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "diario",
+        "semanal"
+      ],
+      "default": "diario",
+      "description": "Tipo de desafio"
+    },
+    "nivel": {
+      "type": "string",
+      "enum": [
+        "facil",
+        "intermediario",
+        "dificil",
+        "expert"
+      ],
+      "description": "N\u00edvel de dificuldade"
+    },
+    "perguntas_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs das perguntas do desafio"
+    },
+    "participantes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "pontuacao": {
+            "type": "integer"
+          },
+          "acertos": {
+            "type": "integer"
+          },
+          "concluido": {
+            "type": "boolean"
+          }
+        }
+      },
+      "default": [],
+      "description": "Lista de participantes e suas pontua\u00e7\u00f5es"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o desafio est\u00e1 ativo"
+    }
+  },
+  "required": [
+    "data",
+    "tipo",
+    "nivel"
+  ]
+}

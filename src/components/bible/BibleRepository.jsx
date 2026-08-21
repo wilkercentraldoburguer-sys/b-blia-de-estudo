@@ -1,3 +1,5 @@
+import { getBasePath } from './DatasetPathDetector';
+
 /**
  * BibleRepository - Sistema cache-first APENAS LOCAL
  * 

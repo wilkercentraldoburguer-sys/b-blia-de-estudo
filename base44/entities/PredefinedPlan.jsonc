@@ -1,0 +1,57 @@
+{
+  "name": "PredefinedPlan",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do plano"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do plano"
+    },
+    "duracao_dias": {
+      "type": "integer",
+      "description": "Dura\u00e7\u00e3o em dias"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "novo_testamento_90",
+        "biblia_1_ano",
+        "biblia_misto_1_ano",
+        "biblia_180_dias",
+        "biblia_90_dias",
+        "novo_testamento_60",
+        "evangelhos_15",
+        "proverbios_31"
+      ],
+      "description": "Tipo do plano"
+    },
+    "leituras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dia": {
+            "type": "integer"
+          },
+          "leitura": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Lista de leituras di\u00e1rias"
+    },
+    "recomendado_para": {
+      "type": "string",
+      "description": "Para quem \u00e9 recomendado"
+    }
+  },
+  "required": [
+    "nome",
+    "tipo",
+    "duracao_dias",
+    "leituras"
+  ]
+}

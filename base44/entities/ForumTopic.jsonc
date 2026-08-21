@@ -1,0 +1,41 @@
+{
+  "name": "ForumTopic",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do t\u00f3pico"
+    },
+    "conteudo": {
+      "type": "string",
+      "description": "Conte\u00fado inicial do t\u00f3pico"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "doutrina",
+        "vida_crista",
+        "duvidas",
+        "testemunhos",
+        "oracao",
+        "geral"
+      ],
+      "description": "Categoria do t\u00f3pico"
+    },
+    "respostas_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "Contador de respostas"
+    },
+    "visualizacoes": {
+      "type": "integer",
+      "default": 0,
+      "description": "N\u00famero de visualiza\u00e7\u00f5es"
+    }
+  },
+  "required": [
+    "titulo",
+    "conteudo",
+    "categoria"
+  ]
+}

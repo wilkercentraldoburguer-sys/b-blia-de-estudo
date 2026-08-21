@@ -51,6 +51,13 @@ export default function Quiz() {
     enabled: !!user,
   });
 
+  const { data: completedStudies = [] } = useQuery({
+    queryKey: ['completed-studies', user?.id],
+    queryFn: () => base44.entities.BiblicalStudy.filter({ concluido: true }),
+    initialData: [],
+    enabled: !!user,
+  });
+
   const saveProgressMutation = useMutation({
     mutationFn: (data) => base44.entities.QuizProgress.create(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['quiz-progress'] }),

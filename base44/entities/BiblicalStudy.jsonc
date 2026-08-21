@@ -1,0 +1,136 @@
+{
+  "name": "BiblicalStudy",
+  "type": "object",
+  "properties": {
+    "referencia": {
+      "type": "string",
+      "description": "Refer\u00eancia completa (ex: Jo\u00e3o 3:16-17)"
+    },
+    "livro": {
+      "type": "string",
+      "description": "Nome do livro"
+    },
+    "capitulo": {
+      "type": "integer",
+      "description": "N\u00famero do cap\u00edtulo"
+    },
+    "versiculo_inicio": {
+      "type": "integer",
+      "description": "Vers\u00edculo inicial"
+    },
+    "versiculo_fim": {
+      "type": "integer",
+      "description": "Vers\u00edculo final (pode ser igual ao in\u00edcio)"
+    },
+    "versao": {
+      "type": "string",
+      "default": "ARA",
+      "description": "Vers\u00e3o da B\u00edblia"
+    },
+    "profundidade": {
+      "type": "string",
+      "enum": [
+        "basico",
+        "medio",
+        "avancado"
+      ],
+      "default": "medio",
+      "description": "N\u00edvel de profundidade"
+    },
+    "contexto": {
+      "type": "string",
+      "description": "Contexto hist\u00f3rico e liter\u00e1rio"
+    },
+    "explicacao": {
+      "type": "string",
+      "description": "Explica\u00e7\u00e3o verso a verso ou por blocos"
+    },
+    "aplicacao_pratica": {
+      "type": "string",
+      "description": "Aplica\u00e7\u00e3o nos dias de hoje com exemplos reais"
+    },
+    "comparacao_visoes": {
+      "type": "string",
+      "description": "Vis\u00e3o b\u00edblica x vis\u00e3o atual"
+    },
+    "comparacao_versoes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "versao": {
+            "type": "string"
+          },
+          "diferenca_chave": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Diferen\u00e7as entre vers\u00f5es b\u00edblicas"
+    },
+    "referencias_estudo": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "referencia": {
+            "type": "string"
+          },
+          "relacao": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Refer\u00eancias cruzadas e linhas teol\u00f3gicas"
+    },
+    "quiz": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pergunta": {
+            "type": "string"
+          },
+          "opcoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resposta_correta": {
+            "type": "integer"
+          },
+          "explicacao": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Quiz com m\u00ednimo 5 perguntas"
+    },
+    "reflexao": {
+      "type": "string",
+      "description": "Reflex\u00e3o final guiada"
+    },
+    "oracao": {
+      "type": "string",
+      "description": "Ora\u00e7\u00e3o guiada baseada no texto"
+    },
+    "concluido": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se o usu\u00e1rio completou o estudo"
+    },
+    "progresso": {
+      "type": "integer",
+      "default": 0,
+      "description": "Porcentagem de conclus\u00e3o (0-100)"
+    }
+  },
+  "required": [
+    "referencia",
+    "livro",
+    "capitulo",
+    "versiculo_inicio",
+    "versiculo_fim"
+  ]
+}

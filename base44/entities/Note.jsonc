@@ -1,0 +1,33 @@
+{
+  "name": "Note",
+  "type": "object",
+  "properties": {
+    "book": {
+      "type": "string",
+      "description": "Nome do livro b\u00edblico"
+    },
+    "chapter": {
+      "type": "integer",
+      "description": "N\u00famero do cap\u00edtulo"
+    },
+    "verse": {
+      "type": "integer",
+      "description": "N\u00famero do vers\u00edculo"
+    },
+    "note_text": {
+      "type": "string",
+      "description": "Texto da anota\u00e7\u00e3o pessoal"
+    },
+    "verse_text": {
+      "type": "string",
+      "description": "Texto do vers\u00edculo"
+    }
+  },
+  "required": [
+    "book",
+    "chapter",
+    "verse",
+    "note_text",
+    "verse_text"
+  ]
+}
