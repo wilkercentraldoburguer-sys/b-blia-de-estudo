@@ -44,8 +44,7 @@ export default function OfflineDownloader({ currentBook, totalChapters, selected
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(true)}
-        className="gap-2"
-        style={{ borderColor: '#722f37', color: '#722f37' }}
+        className="gap-2 border-accent text-accent hover:bg-accent/10"
       >
         <Download className="w-4 h-4" />
         Baixar para Offline
@@ -62,11 +61,11 @@ export default function OfflineDownloader({ currentBook, totalChapters, selected
 
           <div className="space-y-4">
             {!downloading && !result && (
-              <div className="text-sm text-slate-600">
+              <div className="text-sm text-muted-foreground">
                 <p className="mb-2">
                   Isso irá baixar todos os capítulos e salvá-los localmente para acesso rápido sem internet.
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   Tempo estimado: ~{Math.ceil(totalChapters * 0.2)} segundos
                 </p>
               </div>
@@ -75,7 +74,7 @@ export default function OfflineDownloader({ currentBook, totalChapters, selected
             {downloading && (
               <div className="space-y-3">
                 <Progress value={progress} className="h-2" />
-                <p className="text-sm text-center text-slate-600">
+                <p className="text-sm text-center text-muted-foreground">
                   Baixando... {Math.round(progress)}%
                 </p>
               </div>
@@ -89,11 +88,11 @@ export default function OfflineDownloader({ currentBook, totalChapters, selected
                   ) : (
                     <XCircle className="w-5 h-5 text-amber-600" />
                   )}
-                  <p className="font-semibold text-slate-800">
+                  <p className="font-semibold text-foreground">
                     {result.failed === 0 ? 'Download Completo!' : 'Download Parcial'}
                   </p>
                 </div>
-                <div className="text-sm text-slate-700">
+                <div className="text-sm text-foreground">
                   <p>✓ {result.success} capítulos baixados com sucesso</p>
                   {result.failed > 0 && (
                     <p className="text-amber-700">✗ {result.failed} falharam</p>
@@ -113,8 +112,7 @@ export default function OfflineDownloader({ currentBook, totalChapters, selected
                 <Button
                   onClick={handleDownload}
                   disabled={downloading}
-                  className="text-white"
-                  style={{ backgroundColor: '#722f37' }}
+                  className="bg-accent text-accent-foreground hover:bg-accent/90"
                 >
                   {downloading ? 'Baixando...' : 'Iniciar Download'}
                 </Button>

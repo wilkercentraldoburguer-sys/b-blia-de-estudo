@@ -17,13 +17,13 @@ export default function ReadingSettings({
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle style={{ color: '#722f37' }}>Configurações de Leitura</DialogTitle>
+          <DialogTitle className="text-primary">Configurações de Leitura</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
           {/* Tamanho da Fonte */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold" style={{ color: '#722f37' }}>
+            <Label className="text-base font-semibold text-primary">
               Tamanho da Fonte
             </Label>
             <RadioGroup value={fontSize} onValueChange={onFontSizeChange}>
@@ -48,7 +48,7 @@ export default function ReadingSettings({
 
           {/* Espaçamento de Linhas */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold" style={{ color: '#722f37' }}>
+            <Label className="text-base font-semibold text-primary">
               Espaçamento de Linhas
             </Label>
             <RadioGroup value={lineSpacing} onValueChange={onLineSpacingChange}>
@@ -69,7 +69,7 @@ export default function ReadingSettings({
 
           {/* Tema */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold" style={{ color: '#722f37' }}>
+            <Label className="text-base font-semibold text-primary">
               Tema de Leitura
             </Label>
             <RadioGroup value={theme} onValueChange={onThemeChange}>

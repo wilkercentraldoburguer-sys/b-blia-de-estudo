@@ -75,7 +75,7 @@ export default function ShareCard({ verse, book, chapter, onClose }) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle style={{ color: '#722f37' }}>Compartilhar Versículo</DialogTitle>
+          <DialogTitle className="text-primary">Compartilhar Versículo</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -84,7 +84,7 @@ export default function ShareCard({ verse, book, chapter, onClose }) {
             ref={cardRef}
             className="relative w-full aspect-square rounded-xl overflow-hidden shadow-2xl"
             style={{
-              backgroundImage: `linear-gradient(rgba(114, 47, 55, 0.7), rgba(114, 47, 55, 0.8)), url(${backgroundImage})`,
+              backgroundImage: `linear-gradient(rgba(35, 42, 69, 0.7), rgba(35, 42, 69, 0.8)), url(${backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}
@@ -95,8 +95,8 @@ export default function ShareCard({ verse, book, chapter, onClose }) {
                   "{verse.text}"
                 </p>
                 <div className="space-y-2">
-                  <div className="w-16 h-1 bg-amber-400 mx-auto"></div>
-                  <p className="text-amber-400 text-xl font-semibold">
+                  <div className="w-16 h-1 bg-accent mx-auto"></div>
+                  <p className="text-accent text-xl font-semibold">
                     {book} {chapter}:{verse.number}
                   </p>
                 </div>
@@ -114,8 +114,7 @@ export default function ShareCard({ verse, book, chapter, onClose }) {
             <Button
               onClick={handleDownload}
               disabled={isGenerating}
-              className="flex-1"
-              style={{ backgroundColor: '#722f37' }}
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Download className="w-4 h-4 mr-2" />
               {isGenerating ? 'Gerando...' : 'Baixar Imagem'}
@@ -124,8 +123,7 @@ export default function ShareCard({ verse, book, chapter, onClose }) {
               onClick={handleShare}
               disabled={isGenerating}
               variant="outline"
-              className="flex-1"
-              style={{ borderColor: '#722f37', color: '#722f37' }}
+              className="flex-1 border-primary text-primary"
             >
               <Share2 className="w-4 h-4 mr-2" />
               Compartilhar

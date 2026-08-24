@@ -53,7 +53,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
       <SpiritualDisclaimer context="estudo" />
 
       {/* Header do Estudo */}
-      <Card className="border-2" style={{ borderColor: '#722f37' }}>
+      <Card className="border-2 border-primary">
         <CardContent className="pt-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
@@ -61,7 +61,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
                 {study.referencia}
               </h2>
               <div className="flex gap-2 flex-wrap">
-                <Badge style={{ backgroundColor: '#722f37' }} className="text-white">
+                <Badge className="bg-primary text-primary-foreground">
                   {study.versao}
                 </Badge>
                 <Badge variant="outline" className="capitalize">
@@ -112,7 +112,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" style={{ color: '#722f37' }} />
+                <BookOpen className="w-5 h-5 text-primary" />
                 Contexto Histórico e Literário
               </CardTitle>
             </CardHeader>
@@ -128,7 +128,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="w-5 h-5" style={{ color: '#722f37' }} />
+                <Lightbulb className="w-5 h-5 text-primary" />
                 Explicação Detalhada
               </CardTitle>
             </CardHeader>
@@ -144,7 +144,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" style={{ color: '#722f37' }} />
+                <Calendar className="w-5 h-5 text-primary" />
                 Aplicação Prática Hoje
               </CardTitle>
             </CardHeader>
@@ -160,7 +160,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <GitCompare className="w-5 h-5" style={{ color: '#722f37' }} />
+                <GitCompare className="w-5 h-5 text-primary" />
                 Visão Bíblica vs Visão Atual
               </CardTitle>
             </CardHeader>
@@ -178,7 +178,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
               <Card key={idx}>
                 <CardHeader>
                   <CardTitle className="text-base">
-                    <Badge style={{ backgroundColor: '#722f37' }} className="text-white">
+                    <Badge className="bg-primary text-primary-foreground">
                       {versao.versao}
                     </Badge>
                   </CardTitle>
@@ -194,7 +194,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
         <TabsContent value="referencias" className="mt-6">
           <div className="space-y-4">
             {study.referencias_estudo?.map((ref, idx) => (
-              <Card key={idx} className="border-l-4" style={{ borderLeftColor: '#722f37' }}>
+              <Card key={idx} className="border-l-4 border-primary">
                 <CardContent className="pt-4">
                   <p className="font-semibold text-stone-800 mb-2">{ref.referencia}</p>
                   <p className="text-stone-600 text-sm">{ref.relacao}</p>
@@ -208,13 +208,13 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Brain className="w-5 h-5" style={{ color: '#722f37' }} />
+                <Brain className="w-5 h-5 text-primary" />
                 Teste seu conhecimento
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {study.quiz?.map((question, qIdx) => (
-                <div key={qIdx} className="p-4 bg-stone-50 rounded-lg">
+                <div key={qIdx} className="p-4 bg-secondary rounded-lg">
                   <p className="font-semibold text-stone-800 mb-3">
                     {qIdx + 1}. {question.pergunta}
                   </p>
@@ -235,8 +235,8 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
                               : showResult && isSelected && !isCorrect
                               ? 'bg-red-100 border-red-600'
                               : isSelected
-                              ? 'bg-blue-100 border-blue-600'
-                              : 'bg-white border-stone-200 hover:border-stone-400'
+                              ? 'bg-primary/10 border-primary'
+                              : 'bg-white border-border hover:border-primary/50'
                           }`}
                         >
                           {opcao}
@@ -245,8 +245,8 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
                     })}
                   </div>
                   {quizSubmitted && (
-                    <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-900">
+                    <div className="mt-3 p-3 bg-primary/5 rounded-lg">
+                      <p className="text-sm text-primary">
                         <strong>Explicação:</strong> {question.explicacao}
                       </p>
                     </div>
@@ -258,13 +258,12 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
                 <Button
                   onClick={submitQuiz}
                   disabled={Object.keys(quizAnswers).length < study.quiz?.length}
-                  className="w-full text-white"
-                  style={{ backgroundColor: '#722f37' }}
+                  className="w-full bg-primary text-primary-foreground"
                 >
                   Enviar Respostas
                 </Button>
               ) : (
-                <Card className="bg-gradient-to-r from-amber-50 to-stone-50">
+                <Card className="bg-card">
                   <CardContent className="pt-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-stone-800 mb-2">
@@ -287,7 +286,7 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Heart className="w-5 h-5" style={{ color: '#722f37' }} />
+                <Heart className="w-5 h-5 text-primary" />
                 Reflexão Pessoal
               </CardTitle>
             </CardHeader>
@@ -303,12 +302,12 @@ export default function StudyViewer({ study, onUpdateProgress, onComplete }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MessageCircle className="w-5 h-5" style={{ color: '#722f37' }} />
+                <MessageCircle className="w-5 h-5 text-primary" />
                 Oração Guiada
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="p-6 bg-gradient-to-br from-amber-50 to-stone-50 rounded-lg">
+              <div className="p-6 bg-background rounded-lg">
                 <p className="text-stone-700 leading-relaxed whitespace-pre-line italic">
                   {study.oracao}
                 </p>

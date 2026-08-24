@@ -95,7 +95,7 @@ export default function BookSelector({ onSelect, currentBook }) {
       <div>
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
           <Book className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
-          <h3 className="font-semibold text-base sm:text-lg text-slate-800">Antigo Testamento</h3>
+          <h3 className="font-semibold text-base sm:text-lg text-foreground">Antigo Testamento</h3>
         </div>
         <ScrollArea className="h-64 sm:h-72">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-4">
@@ -105,8 +105,8 @@ export default function BookSelector({ onSelect, currentBook }) {
                 variant={currentBook === book.name ? "default" : "outline"}
                 className={`justify-start text-sm ${
                   currentBook === book.name 
-                    ? "bg-blue-900 text-white hover:bg-blue-800" 
-                    : "hover:bg-slate-100"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "hover:bg-secondary"
                 }`}
                 onClick={() => onSelect(book.name, book.chapters)}
               >
@@ -123,7 +123,7 @@ export default function BookSelector({ onSelect, currentBook }) {
       <div>
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
           <Book className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
-          <h3 className="font-semibold text-base sm:text-lg text-slate-800">Novo Testamento</h3>
+          <h3 className="font-semibold text-base sm:text-lg text-foreground">Novo Testamento</h3>
         </div>
         <ScrollArea className="h-64 sm:h-72">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-4">
@@ -133,8 +133,8 @@ export default function BookSelector({ onSelect, currentBook }) {
                 variant={currentBook === book.name ? "default" : "outline"}
                 className={`justify-start text-sm ${
                   currentBook === book.name 
-                    ? "bg-blue-900 text-white hover:bg-blue-800" 
-                    : "hover:bg-slate-100"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "hover:bg-secondary"
                 }`}
                 onClick={() => onSelect(book.name, book.chapters)}
               >

@@ -100,7 +100,7 @@ JSON:
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Search className="w-6 h-6 text-blue-600" />
+            <Search className="w-6 h-6 text-primary" />
             Busca Avançada
           </DialogTitle>
         </DialogHeader>
@@ -108,7 +108,7 @@ JSON:
         <div className="space-y-4">
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar versículos ou temas nos comentários..."
                 value={searchTerm}
@@ -119,7 +119,7 @@ JSON:
               {searchTerm && (
                 <button
                   onClick={clearSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -128,7 +128,7 @@ JSON:
             <Button 
               onClick={handleSearch}
               disabled={isSearching || searchTerm.length < 3}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isSearching ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -139,7 +139,7 @@ JSON:
           </div>
 
           {searchTerm.length > 0 && searchTerm.length < 3 && (
-            <p className="text-xs text-slate-500">Digite pelo menos 3 caracteres para buscar</p>
+            <p className="text-xs text-muted-foreground">Digite pelo menos 3 caracteres para buscar</p>
           )}
 
           {(verseResults.length > 0 || commentaryResults.length > 0) && (
@@ -169,10 +169,10 @@ JSON:
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
-                            <Badge className="mb-2 bg-blue-600">
+                            <Badge className="mb-2 bg-primary text-primary-foreground">
                               {verse.livro} {verse.capitulo}:{verse.versiculo}
                             </Badge>
-                            <p className="text-slate-700 leading-relaxed">
+                            <p className="text-foreground leading-relaxed">
                               {verse.texto}
                             </p>
                           </div>
@@ -200,14 +200,14 @@ JSON:
                             <Badge variant="outline">
                               {comment.livro} {comment.capitulo}:{comment.versiculo}
                             </Badge>
-                            <Badge className="bg-purple-600">
+                            <Badge className="bg-brand-clay text-white">
                               {comment.comentarista}
                             </Badge>
                             {comment.relevancia === 'alta' && (
                               <Badge className="bg-green-600 text-xs">Alta relevância</Badge>
                             )}
                           </div>
-                          <p className="text-sm text-slate-600 italic">
+                          <p className="text-sm text-muted-foreground italic">
                             {comment.trecho}...
                           </p>
                         </div>
@@ -221,9 +221,9 @@ JSON:
 
           {!isSearching && searchTerm.length >= 3 && verseResults.length === 0 && commentaryResults.length === 0 && (
             <div className="text-center py-12">
-              <Search className="w-16 h-16 mx-auto text-slate-300 mb-3" />
-              <p className="text-slate-500">Nenhum resultado encontrado</p>
-              <p className="text-sm text-slate-400 mt-1">Tente usar termos diferentes</p>
+              <Search className="w-16 h-16 mx-auto text-muted-foreground/40 mb-3" />
+              <p className="text-muted-foreground">Nenhum resultado encontrado</p>
+              <p className="text-sm text-muted-foreground mt-1">Tente usar termos diferentes</p>
             </div>
           )}
         </div>

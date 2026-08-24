@@ -56,7 +56,7 @@ export default function VerseCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={`group relative py-3 px-3 sm:py-4 sm:px-6 hover:shadow-sm rounded-lg transition-all duration-200 cursor-pointer ${
-        highlight ? colorClasses[highlight.color] : 'hover:bg-slate-50'
+        highlight ? colorClasses[highlight.color] : 'hover:bg-secondary'
       }`}
       onClick={onVerseClick}
     >
@@ -66,35 +66,35 @@ export default function VerseCard({
             {verseNumber}
           </span>
           {hasNote && (
-            <StickyNote className="w-3 h-3 text-blue-500 fill-blue-100" />
+            <StickyNote className="w-3 h-3 text-primary fill-primary/10" />
           )}
           {isFavorite && (
             <Heart className="w-3 h-3 text-red-500 fill-current" />
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-slate-700 text-base sm:text-lg leading-relaxed break-words">
+          <p className="text-foreground text-base sm:text-lg leading-relaxed break-words">
             {verse}
           </p>
           
           {hasNote && notePreview && (
-            <div className="mt-2 p-2 bg-blue-50 border-l-2 border-blue-300 rounded text-sm">
-              <p className="text-blue-900 italic line-clamp-2">💭 {notePreview}</p>
+            <div className="mt-2 p-2 bg-primary/10 border-l-2 border-primary/30 rounded text-sm">
+              <p className="text-primary italic line-clamp-2">💭 {notePreview}</p>
             </div>
           )}
-          
+
           {showCompare && compareText && (
-            <div className="mt-2 p-2 bg-slate-100 border-l-2 border-slate-400 rounded text-sm">
+            <div className="mt-2 p-2 bg-secondary border-l-2 border-border rounded text-sm">
               <div className="flex items-center gap-1 mb-1">
-                <BookOpenCheck className="w-3 h-3 text-slate-600" />
-                <span className="text-xs font-semibold text-slate-600">{compareVersion}</span>
+                <BookOpenCheck className="w-3 h-3 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground">{compareVersion}</span>
               </div>
-              <p className="text-slate-700 italic">{compareText}</p>
+              <p className="text-foreground italic">{compareText}</p>
             </div>
           )}
           {showCompare && loadingCompare && (
-            <div className="mt-2 p-2 bg-slate-50 rounded text-sm">
-              <p className="text-slate-500 text-xs">Carregando...</p>
+            <div className="mt-2 p-2 bg-secondary rounded text-sm">
+              <p className="text-muted-foreground text-xs">Carregando...</p>
             </div>
           )}
           <div className="flex flex-wrap gap-2 mt-3 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
@@ -106,9 +106,9 @@ export default function VerseCard({
                 onToggleFavorite();
               }}
               className={`gap-1 sm:gap-2 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 ${
-                isFavorite 
-                  ? "text-red-500 hover:text-red-600" 
-                  : "text-slate-400 hover:text-red-500"
+                isFavorite
+                  ? "text-red-500 hover:text-red-600"
+                  : "text-muted-foreground hover:text-red-500"
               }`}
             >
               <Heart className={`w-3 h-3 sm:w-4 sm:h-4 ${isFavorite ? "fill-current" : ""}`} />
@@ -122,9 +122,9 @@ export default function VerseCard({
                 onAddNote();
               }}
               className={`gap-1 sm:gap-2 text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 ${
-                hasNote 
-                  ? "text-blue-600 hover:text-blue-700" 
-                  : "text-slate-400 hover:text-blue-600"
+                hasNote
+                  ? "text-primary hover:text-primary/80"
+                  : "text-muted-foreground hover:text-primary"
               }`}
             >
               <MessageSquare className={`w-3 h-3 sm:w-4 sm:h-4 ${hasNote ? "fill-current" : ""}`} />

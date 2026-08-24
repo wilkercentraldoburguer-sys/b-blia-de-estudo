@@ -105,17 +105,17 @@ export default function BibleValidator() {
       <CardContent className="space-y-6">
         {/* Estatísticas do Cache */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-blue-700">{BIBLE_META.totalBooks}</div>
-            <div className="text-sm text-blue-600">Livros</div>
+          <div className="bg-primary/10 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-primary">{BIBLE_META.totalBooks}</div>
+            <div className="text-sm text-primary/80">Livros</div>
           </div>
           <div className="bg-green-50 p-4 rounded-lg">
             <div className="text-2xl font-bold text-green-700">{BIBLE_META.totalChapters}</div>
             <div className="text-sm text-green-600">Capítulos</div>
           </div>
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <div className="text-2xl font-bold text-purple-700">{cacheStats.cachedChapters || 0}</div>
-            <div className="text-sm text-purple-600">Em Cache</div>
+          <div className="bg-brand-clay/10 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-brand-clay">{cacheStats.cachedChapters || 0}</div>
+            <div className="text-sm text-brand-clay/80">Em Cache</div>
           </div>
           <div className="bg-amber-50 p-4 rounded-lg">
             <div className="text-2xl font-bold text-amber-700">
@@ -127,7 +127,7 @@ export default function BibleValidator() {
 
         {/* Estatísticas de Fonte */}
         {cacheStats.total && (
-          <div className="bg-slate-50 p-4 rounded-lg">
+          <div className="bg-secondary p-4 rounded-lg">
             <h3 className="font-semibold mb-2">Estatísticas de Carregamento</h3>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
@@ -175,7 +175,7 @@ export default function BibleValidator() {
         {isValidating && (
           <div className="space-y-2">
             <Progress value={progress} />
-            <p className="text-sm text-center text-slate-600">{Math.round(progress)}%</p>
+            <p className="text-sm text-center text-muted-foreground">{Math.round(progress)}%</p>
           </div>
         )}
 
@@ -250,7 +250,7 @@ Data: ${new Date().toISOString()}
                     </h4>
                     <div className="space-y-2 text-sm font-mono">
                       {report.first20Missing.map((missing, i) => (
-                        <div key={i} className="bg-white p-2 rounded border border-red-200">
+                        <div key={i} className="bg-card p-2 rounded border border-red-200">
                           <div className="text-red-800 font-semibold">{i + 1}. {missing.path}</div>
                           <div className="text-red-600 text-xs mt-1">{missing.book} {missing.chapter} - {missing.error}</div>
                         </div>
@@ -270,7 +270,7 @@ Data: ${new Date().toISOString()}
                     <h4 className="font-semibold mb-2 text-green-900">Amostras Encontradas:</h4>
                     <div className="space-y-1 text-sm font-mono">
                       {report.samples.map((sample, i) => (
-                        <div key={i} className="flex justify-between bg-white p-2 rounded">
+                        <div key={i} className="flex justify-between bg-card p-2 rounded">
                           <span className="text-green-800">{sample.path}</span>
                           <span className="text-green-600">{sample.verses} versículos</span>
                         </div>
@@ -293,8 +293,8 @@ Data: ${new Date().toISOString()}
         )}
 
         {/* Informação */}
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-sm">
-          <p className="text-blue-900">
+        <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg text-sm">
+          <p className="text-primary">
             <strong>Sistema Híbrido:</strong> João 1-4 inline (instantâneo), demais capítulos via LLM com cache permanente.
             Primeiro acesso pode demorar 5-15s, acessos posteriores &lt; 2s (cache).
           </p>

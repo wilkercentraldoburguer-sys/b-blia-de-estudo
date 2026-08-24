@@ -16,20 +16,20 @@ export default function ChapterNavigation({
         variant="ghost"
         onClick={onPrevious}
         disabled={chapter === 1}
-        className="flex items-center gap-2 text-blue-900 hover:bg-blue-50 w-full sm:w-auto order-2 sm:order-1"
+        className="flex items-center gap-2 text-primary hover:bg-primary/10 w-full sm:w-auto order-2 sm:order-1"
       >
         <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         <span className="text-sm sm:text-base">Anterior</span>
       </Button>
 
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 flex-wrap justify-center order-1 sm:order-2 w-full sm:w-auto">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 text-center">{book}</h2>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground text-center">{book}</h2>
         <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm text-slate-500">Cap.</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">Cap.</span>
           <select
             value={chapter}
             onChange={(e) => onChapterSelect(parseInt(e.target.value))}
-            className="px-2 py-1 sm:px-3 sm:py-2 border border-slate-300 rounded-lg bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            className="px-2 py-1 sm:px-3 sm:py-2 border border-border rounded-lg bg-card text-foreground font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-sm sm:text-base"
           >
             {Array.from({ length: totalChapters }, (_, i) => i + 1).map((ch) => (
               <option key={ch} value={ch}>
@@ -44,7 +44,7 @@ export default function ChapterNavigation({
         variant="ghost"
         onClick={onNext}
         disabled={chapter === totalChapters}
-        className="flex items-center gap-2 text-blue-900 hover:bg-blue-50 w-full sm:w-auto order-3"
+        className="flex items-center gap-2 text-primary hover:bg-primary/10 w-full sm:w-auto order-3"
       >
         <span className="text-sm sm:text-base">Próximo</span>
         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />

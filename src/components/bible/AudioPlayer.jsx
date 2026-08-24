@@ -111,13 +111,13 @@ export default function AudioPlayer({ verses, bookName, chapter }) {
   if (!verses || verses.length === 0) return null;
 
   return (
-    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 p-4 sm:p-6 mb-6">
+    <Card className="bg-card border-border p-4 sm:p-6 mb-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Button
               onClick={isPlaying ? handlePause : handlePlay}
-              className="bg-blue-900 hover:bg-blue-800"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
               size="lg"
             >
               {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
@@ -156,8 +156,8 @@ export default function AudioPlayer({ verses, bookName, chapter }) {
         </div>
 
         {isPlaying && (
-          <div className="bg-white rounded-lg p-3 border border-blue-200">
-            <p className="text-sm text-blue-900 font-semibold">
+          <div className="bg-secondary rounded-lg p-3 border border-border">
+            <p className="text-sm text-primary font-semibold">
               Lendo versículo {currentVerseIndex + 1} de {verses.length}
             </p>
           </div>
@@ -166,11 +166,11 @@ export default function AudioPlayer({ verses, bookName, chapter }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {voices.length > 0 && (
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">
+              <label className="text-sm font-medium text-muted-foreground">
                 Voz:
               </label>
               <Select value={selectedVoice} onValueChange={setSelectedVoice}>
-                <SelectTrigger className="bg-white">
+                <SelectTrigger className="bg-card">
                   <SelectValue placeholder="Selecionar voz" />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,7 +185,7 @@ export default function AudioPlayer({ verses, bookName, chapter }) {
           )}
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-muted-foreground">
               Velocidade: {rate[0].toFixed(1)}x
             </label>
             <Slider
@@ -196,7 +196,7 @@ export default function AudioPlayer({ verses, bookName, chapter }) {
               step={0.1}
               className="flex-1"
             />
-            <div className="flex justify-between text-xs text-slate-500">
+            <div className="flex justify-between text-xs text-muted-foreground">
               <span>0.5x (Lento)</span>
               <span>1x (Normal)</span>
               <span>2x (Rápido)</span>

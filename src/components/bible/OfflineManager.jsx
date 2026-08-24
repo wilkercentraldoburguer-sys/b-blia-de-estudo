@@ -127,12 +127,12 @@ export default function OfflineManager({ selectedVersion, onClose }) {
       <div className="space-y-4">
         {/* Progresso de Download */}
         {downloading && currentDownload && (
-          <Card className="bg-blue-50 border-blue-200">
+          <Card className="bg-accent/10 border-accent/30">
             <CardContent className="pt-6">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-slate-800">Baixando: {currentDownload}</p>
-                  <p className="text-sm text-slate-600">{progress}%</p>
+                  <p className="font-semibold text-foreground">Baixando: {currentDownload}</p>
+                  <p className="text-sm text-muted-foreground">{progress}%</p>
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
@@ -149,14 +149,14 @@ export default function OfflineManager({ selectedVersion, onClose }) {
               return (
                 <div
                   key={book.name}
-                  className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-sm transition-shadow"
+                  className="flex items-center justify-between p-4 bg-card rounded-lg border hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-center gap-3">
                     <div>
-                      <p className="font-medium text-slate-800">{book.name}</p>
-                      <p className="text-xs text-slate-500">{book.chapters} capítulos</p>
+                      <p className="font-medium text-foreground">{book.name}</p>
+                      <p className="text-xs text-muted-foreground">{book.chapters} capítulos</p>
                       {isDownloaded && downloadedBooks.find(b => b.book === book.name)?.downloadedAt && (
-                        <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                           <Clock className="w-3 h-3" />
                           <span>
                             {new Date(downloadedBooks.find(b => b.book === book.name).downloadedAt).toLocaleDateString('pt-BR')}
@@ -221,27 +221,27 @@ export default function OfflineManager({ selectedVersion, onClose }) {
   return (
     <div className="space-y-6">
       {/* Card da Bíblia Completa */}
-      <Card className={isFullBibleDownloaded ? "bg-green-50 border-green-300" : "bg-white"}>
+      <Card className={isFullBibleDownloaded ? "bg-green-50 border-green-300" : "bg-card"}>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className={`w-16 h-16 rounded-lg flex items-center justify-center ${
-                isFullBibleDownloaded ? "bg-green-100" : "bg-blue-100"
+                isFullBibleDownloaded ? "bg-green-100" : "bg-primary/10"
               }`}>
                 {isFullBibleDownloaded ? (
                   <Check className="w-8 h-8 text-green-600" />
                 ) : (
-                  <Download className="w-8 h-8 text-blue-600" />
+                  <Download className="w-8 h-8 text-primary" />
                 )}
               </div>
               <div>
-                <h3 className="font-bold text-lg text-slate-800">Bíblia Completa</h3>
-                <p className="text-sm text-slate-600">
-                  {isFullBibleDownloaded 
-                    ? "66 livros disponíveis offline" 
+                <h3 className="font-bold text-lg text-foreground">Bíblia Completa</h3>
+                <p className="text-sm text-muted-foreground">
+                  {isFullBibleDownloaded
+                    ? "66 livros disponíveis offline"
                     : `${downloadedCount} de 66 livros`}
                 </p>
-                <p className="text-xs text-slate-500 mt-1">{getStorageSize()}</p>
+                <p className="text-xs text-muted-foreground mt-1">{getStorageSize()}</p>
               </div>
             </div>
             <div>
@@ -257,7 +257,7 @@ export default function OfflineManager({ selectedVersion, onClose }) {
                 <Button
                   onClick={downloadAllBible}
                   disabled={downloading}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground"
                 >
                   {downloading ? (
                     <>
@@ -279,12 +279,12 @@ export default function OfflineManager({ selectedVersion, onClose }) {
 
       {/* Progresso de Download */}
       {downloading && currentDownload && (
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-accent/10 border-accent/30">
           <CardContent className="pt-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="font-semibold text-slate-800">Baixando: {currentDownload}</p>
-                <p className="text-sm text-slate-600">{progress}%</p>
+                <p className="font-semibold text-foreground">Baixando: {currentDownload}</p>
+                <p className="text-sm text-muted-foreground">{progress}%</p>
               </div>
               <Progress value={progress} className="h-2" />
             </div>

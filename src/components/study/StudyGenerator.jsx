@@ -209,7 +209,7 @@ NUNCA FAÇA:
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2" style={{ color: '#722f37' }}>
+          <DialogTitle className="flex items-center gap-2 text-primary">
             <Sparkles className="w-5 h-5" />
             Gerar Estudo Bíblico
           </DialogTitle>
@@ -304,10 +304,9 @@ NUNCA FAÇA:
               <Button variant="outline" onClick={onClose}>
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 onClick={generateStudy}
-                className="text-white"
-                style={{ backgroundColor: '#722f37' }}
+                className="bg-primary text-primary-foreground"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Gerar Estudo

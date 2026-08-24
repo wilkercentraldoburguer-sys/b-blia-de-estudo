@@ -206,7 +206,7 @@ IMPORTANTE:
                   <p className="text-sm text-slate-600">
                     <strong>Tema:</strong> {devotional.tema}
                   </p>
-                  <p className="text-sm text-blue-900 font-semibold">
+                  <p className="text-sm text-primary font-semibold">
                     {devotional.versiculo_principal}
                   </p>
                   <p className="text-sm text-slate-500 italic">
@@ -307,7 +307,7 @@ IMPORTANTE:
           {selectedDevotional && (
             <div className="space-y-6">
               {/* Versículo Principal */}
-              <Card className="bg-gradient-to-r from-rose-600 to-pink-600 text-white border-none">
+              <Card className="bg-card text-card-foreground border-none">
                 <CardContent className="p-6">
                   <p className="text-lg leading-relaxed mb-3">
                     "{selectedDevotional.texto_versiculo}"
@@ -347,9 +347,9 @@ IMPORTANTE:
 
               {/* Oração Sugerida */}
               {selectedDevotional.oracao_sugerida && (
-                <Card className="border-l-4 border-blue-400 bg-blue-50/30">
+                <Card className="border-l-4 border-primary bg-primary/5">
                   <CardContent className="p-4">
-                    <p className="font-semibold text-blue-900 mb-2">
+                    <p className="font-semibold text-primary mb-2">
                       Oração:
                     </p>
                     <p className="text-slate-700 italic">
@@ -363,7 +363,7 @@ IMPORTANTE:
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Edit2 className="w-5 h-5 text-indigo-600" />
+                    <Edit2 className="w-5 h-5 text-primary" />
                     Minha Reflexão Pessoal
                   </CardTitle>
                 </CardHeader>
@@ -376,7 +376,7 @@ IMPORTANTE:
                   />
                   <Button
                     onClick={handleSaveNote}
-                    className="mt-3 bg-indigo-600 hover:bg-indigo-700"
+                    className="mt-3 bg-primary hover:bg-primary/90"
                   >
                     Salvar Reflexão
                   </Button>

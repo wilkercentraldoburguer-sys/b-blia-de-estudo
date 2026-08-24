@@ -44,22 +44,21 @@ export default function VerseActions({
     <>
       {/* Menu Flutuante */}
       <div
-        className="fixed z-50 bg-white rounded-lg shadow-2xl p-2 border-2"
+        className="fixed z-50 bg-card rounded-lg shadow-2xl p-2 border-2 border-primary"
         style={{
           left: `${Math.min(position.x, window.innerWidth - 250)}px`,
-          top: `${Math.min(position.y, window.innerHeight - 300)}px`,
-          borderColor: '#722f37'
+          top: `${Math.min(position.y, window.innerHeight - 300)}px`
         }}
       >
         {/* Botões de Ação */}
-        <div className="flex gap-1 mb-2 p-2 border-b" style={{ borderColor: '#e5ddd5' }}>
+        <div className="flex gap-1 mb-2 p-2 border-b border-border">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowColorPicker(!showColorPicker)}
             className="flex-1"
           >
-            <Palette className="w-4 h-4 mr-1" style={{ color: '#722f37' }} />
+            <Palette className="w-4 h-4 mr-1 text-primary" />
             Destacar
           </Button>
           <Button
@@ -68,7 +67,7 @@ export default function VerseActions({
             onClick={() => setShowNoteDialog(true)}
             className="flex-1"
           >
-            <MessageSquare className="w-4 h-4 mr-1" style={{ color: '#722f37' }} />
+            <MessageSquare className="w-4 h-4 mr-1 text-primary" />
             Anotar
           </Button>
           <Button
@@ -77,7 +76,7 @@ export default function VerseActions({
             onClick={handleCopy}
             className="flex-1"
           >
-            <Copy className="w-4 h-4 mr-1" style={{ color: '#722f37' }} />
+            <Copy className="w-4 h-4 mr-1 text-primary" />
             Copiar
           </Button>
           <Button
@@ -86,7 +85,7 @@ export default function VerseActions({
             onClick={onShare}
             className="flex-1"
           >
-            <Share2 className="w-4 h-4 mr-1" style={{ color: '#722f37' }} />
+            <Share2 className="w-4 h-4 mr-1 text-primary" />
             Compartilhar
           </Button>
         </div>
@@ -94,7 +93,7 @@ export default function VerseActions({
         {/* Cores de Destaque */}
         {showColorPicker && (
           <div className="p-2">
-            <p className="text-xs font-semibold mb-2" style={{ color: '#722f37' }}>
+            <p className="text-xs font-semibold mb-2 text-primary">
               Escolha a cor:
             </p>
             <div className="flex gap-2 flex-wrap">
@@ -106,7 +105,7 @@ export default function VerseActions({
                     setShowColorPicker(false);
                   }}
                   className={`w-10 h-10 rounded-full ${color.class} hover:scale-110 transition-transform border-2 ${
-                    existingHighlight?.color === color.value ? 'border-stone-800' : 'border-transparent'
+                    existingHighlight?.color === color.value ? 'border-primary' : 'border-transparent'
                   }`}
                   title={color.name}
                 />
@@ -140,18 +139,17 @@ export default function VerseActions({
       <Dialog open={showNoteDialog} onOpenChange={setShowNoteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle style={{ color: '#722f37' }}>Anotação Pessoal</DialogTitle>
+            <DialogTitle className="text-primary">Anotação Pessoal</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-3 bg-amber-50 rounded-lg border" style={{ borderColor: '#e5ddd5' }}>
+            <div className="p-3 bg-secondary rounded-lg border border-border">
               <p className="text-sm text-stone-700 italic">"{verse?.text}"</p>
             </div>
             <Textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               placeholder="Escreva sua anotação aqui..."
-              className="min-h-32"
-              style={{ borderColor: '#e5ddd5' }}
+              className="min-h-32 border-border"
             />
             <div className="flex justify-end gap-2">
               <Button
@@ -165,8 +163,7 @@ export default function VerseActions({
               </Button>
               <Button
                 onClick={handleSaveNote}
-                style={{ backgroundColor: '#722f37' }}
-                className="text-white hover:opacity-90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Salvar
               </Button>

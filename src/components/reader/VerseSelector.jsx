@@ -25,11 +25,11 @@ export default function VerseSelector({
           }
         }}
       >
-        <SelectTrigger className="border-2" style={{ borderColor: '#722f37' }}>
+        <SelectTrigger className="border-2 border-primary">
           <SelectValue placeholder="Livro" />
         </SelectTrigger>
         <SelectContent className="max-h-80">
-          <div className="px-2 py-1 text-xs font-semibold" style={{ color: '#722f37' }}>
+          <div className="px-2 py-1 text-xs font-semibold text-primary">
             Antigo Testamento
           </div>
           {OLD_TESTAMENT.map((book) => (
@@ -37,7 +37,7 @@ export default function VerseSelector({
               {book.name}
             </SelectItem>
           ))}
-          <div className="px-2 py-1 text-xs font-semibold mt-2" style={{ color: '#722f37' }}>
+          <div className="px-2 py-1 text-xs font-semibold mt-2 text-primary">
             Novo Testamento
           </div>
           {NEW_TESTAMENT.map((book) => (
@@ -53,7 +53,7 @@ export default function VerseSelector({
         value={currentChapter.toString()} 
         onValueChange={(ch) => onChapterChange(parseInt(ch))}
       >
-        <SelectTrigger className="border-2" style={{ borderColor: '#722f37' }}>
+        <SelectTrigger className="border-2 border-primary">
           <SelectValue placeholder="Cap." />
         </SelectTrigger>
         <SelectContent className="max-h-80">
@@ -67,7 +67,7 @@ export default function VerseSelector({
 
       {/* Seletor de Versão */}
       <Select value={selectedVersion} onValueChange={onVersionChange}>
-        <SelectTrigger className="border-2" style={{ borderColor: '#722f37' }}>
+        <SelectTrigger className="border-2 border-primary">
           <SelectValue placeholder="Versão" />
         </SelectTrigger>
         <SelectContent>
