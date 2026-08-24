@@ -10,10 +10,10 @@ export default function StudyBasedQuiz({ completedStudies }) {
   const studiesWithQuiz = completedStudies.filter(s => s.quiz && s.quiz.length > 0);
 
   return (
-    <Card className="border-2" style={{ borderColor: '#722f37' }}>
+    <Card className="border-2 border-brand-clay">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Brain className="w-5 h-5" style={{ color: '#722f37' }} />
+          <Brain className="w-5 h-5 text-brand-clay" />
           Quiz dos Estudos Concluídos
         </CardTitle>
       </CardHeader>
@@ -25,7 +25,7 @@ export default function StudyBasedQuiz({ completedStudies }) {
               Complete estudos para desbloquear quizzes personalizados
             </p>
             <Link to={createPageUrl('Study')}>
-              <Button size="sm" className="text-white" style={{ backgroundColor: '#722f37' }}>
+              <Button size="sm" className="text-white bg-brand-clay">
                 Ir para Estudos
               </Button>
             </Link>
@@ -33,26 +33,26 @@ export default function StudyBasedQuiz({ completedStudies }) {
         ) : (
           <div className="space-y-3">
             {studiesWithQuiz.map((study) => (
-              <Link 
+              <Link
                 key={study.id}
                 to={`${createPageUrl('Study')}?study=${study.id}`}
                 className="block"
               >
-                <div className="p-4 bg-gradient-to-r from-amber-50 to-stone-50 rounded-lg hover:shadow-md transition-all">
+                <div className="p-4 bg-secondary rounded-lg hover:shadow-md transition-all">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="font-semibold text-stone-800 mb-2">
                         {study.referencia}
                       </p>
                       <div className="flex items-center gap-2">
-                        <Badge className="text-xs" style={{ backgroundColor: '#722f37' }}>
+                        <Badge className="text-xs bg-brand-clay">
                           {study.quiz.length} perguntas
                         </Badge>
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
                         <span className="text-xs text-green-600">Estudo concluído</span>
                       </div>
                     </div>
-                    <Button size="sm" className="text-white" style={{ backgroundColor: '#722f37' }}>
+                    <Button size="sm" className="text-white bg-brand-clay">
                       Fazer Quiz
                     </Button>
                   </div>

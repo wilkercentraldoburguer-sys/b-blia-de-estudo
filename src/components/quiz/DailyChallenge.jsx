@@ -55,19 +55,19 @@ export default function DailyChallenge({ user, onStartChallenge }) {
 
   const getLevelColor = (nivel) => {
     const colors = {
-      facil: 'from-green-400 to-green-600',
-      intermediario: 'from-blue-400 to-blue-600',
-      dificil: 'from-orange-400 to-orange-600',
-      expert: 'from-purple-400 to-purple-600'
+      facil: 'bg-gradient-to-r from-green-400 to-green-600',
+      intermediario: 'bg-primary',
+      dificil: 'bg-gradient-to-r from-orange-400 to-orange-600',
+      expert: 'bg-brand-clay'
     };
-    return colors[nivel] || 'from-slate-400 to-slate-600';
+    return colors[nivel] || 'bg-secondary';
   };
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
       {/* Desafio Diário */}
       <Card className="border-2 hover:shadow-xl transition-all">
-        <CardHeader className={`bg-gradient-to-r ${getLevelColor(todayChallenge?.nivel)} text-white rounded-t-lg`}>
+        <CardHeader className={`${getLevelColor(todayChallenge?.nivel)} text-white rounded-t-lg`}>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-6 h-6" />
             Desafio Diário
@@ -81,12 +81,12 @@ export default function DailyChallenge({ user, onStartChallenge }) {
                   <Target className="w-5 h-5 text-slate-600" />
                   <span className="font-semibold text-slate-700">Nível:</span>
                 </div>
-                <Badge className={`bg-gradient-to-r ${getLevelColor(todayChallenge.nivel)} text-white`}>
+                <Badge className={`${getLevelColor(todayChallenge.nivel)} text-white`}>
                   {todayChallenge.nivel.charAt(0).toUpperCase() + todayChallenge.nivel.slice(1)}
                 </Badge>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-slate-600" />
                   <span className="text-sm text-slate-700">Participantes</span>
@@ -108,9 +108,9 @@ export default function DailyChallenge({ user, onStartChallenge }) {
                   </p>
                 </div>
               ) : (
-                <Button 
+                <Button
                   onClick={() => onStartChallenge(todayChallenge)}
-                  className={`w-full bg-gradient-to-r ${getLevelColor(todayChallenge.nivel)} text-white shadow-lg hover:shadow-xl`}
+                  className={`w-full ${getLevelColor(todayChallenge.nivel)} text-white shadow-lg hover:shadow-xl`}
                 >
                   Iniciar Desafio
                 </Button>
@@ -127,7 +127,7 @@ export default function DailyChallenge({ user, onStartChallenge }) {
 
       {/* Desafio Semanal */}
       <Card className="border-2 hover:shadow-xl transition-all">
-        <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
+        <CardHeader className="bg-primary text-white rounded-t-lg">
           <CardTitle className="flex items-center gap-2">
             <Trophy className="w-6 h-6" />
             Desafio Semanal
@@ -141,21 +141,21 @@ export default function DailyChallenge({ user, onStartChallenge }) {
                   <Target className="w-5 h-5 text-slate-600" />
                   <span className="font-semibold text-slate-700">Nível:</span>
                 </div>
-                <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+                <Badge className="bg-primary text-white">
                   {weeklyChallenge.nivel.charAt(0).toUpperCase() + weeklyChallenge.nivel.slice(1)}
                 </Badge>
               </div>
 
-              <div className="p-3 bg-slate-50 rounded-lg">
+              <div className="p-3 bg-secondary rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-slate-700">Recompensa Extra</span>
-                  <span className="text-lg font-bold text-purple-600">+50 pontos</span>
+                  <span className="text-lg font-bold text-accent">+50 pontos</span>
                 </div>
               </div>
 
-              <Button 
+              <Button
                 onClick={() => onStartChallenge(weeklyChallenge)}
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl"
+                className="w-full bg-primary text-white shadow-lg hover:shadow-xl"
               >
                 Participar do Desafio
               </Button>

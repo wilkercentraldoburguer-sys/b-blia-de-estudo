@@ -25,12 +25,12 @@ export default function ContinueReading({ user }) {
   if (!lastReading) return null;
 
   return (
-    <Card className="border-2 hover:shadow-lg transition-all" style={{ borderColor: '#722f37' }}>
+    <Card className="border-2 border-accent hover:shadow-lg transition-all">
       <CardContent className="pt-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-5 h-5" style={{ color: '#722f37' }} />
+              <BookOpen className="w-5 h-5 text-accent" />
               <h3 className="font-semibold text-stone-800">Continue sua leitura</h3>
             </div>
             <p className="text-stone-600 text-sm mb-3">
@@ -44,10 +44,9 @@ export default function ContinueReading({ user }) {
             )}
           </div>
           <Link to={createPageUrl('BibliaLeitura')}>
-            <Button 
+            <Button
               size="sm"
-              className="text-white"
-              style={{ backgroundColor: '#722f37' }}
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
             >
               Continuar
               <ArrowRight className="w-4 h-4 ml-1" />

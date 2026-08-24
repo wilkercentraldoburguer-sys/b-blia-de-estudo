@@ -11,10 +11,10 @@ export default function Champions() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-primary">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto"></div>
-        <p className="text-white mt-4">Redirecionando...</p>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-foreground mx-auto"></div>
+        <p className="text-primary-foreground mt-4">Redirecionando...</p>
       </div>
     </div>
   );

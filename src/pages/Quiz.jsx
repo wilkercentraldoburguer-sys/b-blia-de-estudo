@@ -73,13 +73,13 @@ export default function Quiz() {
       textColor: 'text-green-700',
       description: 'Perguntas básicas sobre a Bíblia'
     },
-    { 
-      id: 'intermediario', 
-      name: 'Intermediário', 
-      icon: Brain, 
-      color: 'from-blue-400 to-blue-600',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-700',
+    {
+      id: 'intermediario',
+      name: 'Intermediário',
+      icon: Brain,
+      color: 'from-brand-night to-brand-night-light',
+      bgColor: 'bg-primary/10',
+      textColor: 'text-primary',
       description: 'Teste seu conhecimento bíblico'
     },
     { 
@@ -91,13 +91,13 @@ export default function Quiz() {
       textColor: 'text-orange-700',
       description: 'Para estudiosos da Palavra'
     },
-    { 
-      id: 'expert', 
-      name: 'Expert', 
-      icon: Trophy, 
-      color: 'from-purple-400 to-purple-600',
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-700',
+    {
+      id: 'expert',
+      name: 'Expert',
+      icon: Trophy,
+      color: 'from-brand-clay to-brand-night',
+      bgColor: 'bg-brand-clay/10',
+      textColor: 'text-brand-clay',
       description: 'Desafio máximo de conhecimento'
     }
   ];
@@ -166,13 +166,13 @@ export default function Quiz() {
 
   if (!selectedLevel) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50 px-4 py-8 pb-24">
+      <div className="min-h-screen bg-background px-4 py-8 pb-24">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 pt-4">
-            <div className="inline-block p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl shadow-2xl mb-6">
-              <Brain className="w-16 h-16 text-white" />
+            <div className="inline-block p-4 bg-primary rounded-3xl shadow-2xl mb-6">
+              <Brain className="w-16 h-16 text-primary-foreground" />
             </div>
-            <h1 className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            <h1 className="text-5xl sm:text-6xl font-bold text-primary mb-4">
               Quiz Bíblico
             </h1>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -236,7 +236,7 @@ export default function Quiz() {
                   <CardContent>
                     <div className="space-y-3">
                       {progress.slice(0, 5).map((p, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-all">
+                        <div key={idx} className="flex items-center justify-between p-3 bg-secondary rounded-lg hover:bg-secondary/80 transition-all">
                           <div>
                             <p className="font-semibold capitalize">{p.nivel}</p>
                             <p className="text-sm text-slate-600">
@@ -284,19 +284,19 @@ export default function Quiz() {
     const timeSeconds = Math.floor(((Date.now() - startTime) % 60000) / 1000);
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50 px-4 py-8 pb-24">
+      <div className="min-h-screen bg-background px-4 py-8 pb-24">
         <div className="max-w-2xl mx-auto">
           <Card className="text-center shadow-2xl border-2">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+            <CardHeader className="bg-primary text-white rounded-t-lg">
               <Trophy className="w-20 h-20 mx-auto mb-4 animate-bounce" />
               <CardTitle className="text-3xl">Quiz Completo!</CardTitle>
-              <p className="text-blue-100 mt-2">Nível: {currentLevel.name}</p>
+              <p className="text-white/80 mt-2">Nível: {currentLevel.name}</p>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-                  <p className="text-4xl font-bold text-blue-900 mb-1">{score}</p>
-                  <p className="text-sm text-blue-700 font-semibold">Pontos</p>
+                <div className="p-4 bg-primary/10 rounded-xl">
+                  <p className="text-4xl font-bold text-primary mb-1">{score}</p>
+                  <p className="text-sm text-primary font-semibold">Pontos</p>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
                   <p className="text-4xl font-bold text-green-900 mb-1">{percentage}%</p>
@@ -313,11 +313,11 @@ export default function Quiz() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="p-3 bg-slate-50 rounded-lg">
+                <div className="p-3 bg-secondary rounded-lg">
                   <p className="text-slate-600">Tempo gasto</p>
                   <p className="font-bold text-slate-800">{timeMinutes}:{timeSeconds.toString().padStart(2, '0')}</p>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-lg">
+                <div className="p-3 bg-secondary rounded-lg">
                   <p className="text-slate-600">Média por questão</p>
                   <p className="font-bold text-slate-800">
                     {Math.round((Date.now() - startTime) / currentQuestions.length / 1000)}s
@@ -339,10 +339,10 @@ export default function Quiz() {
               </div>
 
               <div className="flex gap-3">
-                <Button onClick={() => startQuiz(selectedLevel)} className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg">
+                <Button onClick={() => startQuiz(selectedLevel)} className="flex-1 bg-primary hover:bg-primary/90 hover:shadow-lg">
                   Jogar Novamente
                 </Button>
-                <Button onClick={resetQuiz} variant="outline" className="flex-1 hover:bg-slate-100">
+                <Button onClick={resetQuiz} variant="outline" className="flex-1 hover:bg-secondary">
                   Escolher Nível
                 </Button>
               </div>
@@ -358,7 +358,7 @@ export default function Quiz() {
   const isCorrect = userAnswer.toLowerCase().trim() === currentQuestion.resposta.toLowerCase().trim();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 px-4 py-8 pb-24">
+    <div className="min-h-screen bg-background px-4 py-8 pb-24">
       <div className="max-w-3xl mx-auto">
         <div className="mb-6 flex items-center justify-between">
           <Badge className={`${currentLevel.bgColor} ${currentLevel.textColor} text-lg px-4 py-2`}>
@@ -366,7 +366,7 @@ export default function Quiz() {
           </Badge>
           <div className="text-right">
             <p className="text-sm text-slate-600">Pontuação</p>
-            <p className="text-2xl font-bold text-blue-900">{score}</p>
+            <p className="text-2xl font-bold text-primary">{score}</p>
           </div>
         </div>
 
@@ -389,13 +389,13 @@ export default function Quiz() {
                   onChange={(e) => setUserAnswer(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && userAnswer && handleSubmitAnswer()}
                   placeholder="Digite sua resposta..."
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   autoFocus
                 />
-                <Button 
-                  onClick={handleSubmitAnswer} 
+                <Button
+                  onClick={handleSubmitAnswer}
                   disabled={!userAnswer.trim()}
-                  className="w-full bg-blue-900 hover:bg-blue-800"
+                  className="w-full bg-primary hover:bg-primary/90"
                 >
                   Responder
                 </Button>
@@ -427,13 +427,13 @@ export default function Quiz() {
                   </div>
                   
                   {currentQuestion.referencia_biblica && (
-                    <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <BookOpen className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                      <BookOpen className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm font-semibold text-blue-900 mb-1">Referência Bíblica</p>
-                        <p className="text-sm text-blue-700">{currentQuestion.referencia_biblica}</p>
+                        <p className="text-sm font-semibold text-primary mb-1">Referência Bíblica</p>
+                        <p className="text-sm text-primary/80">{currentQuestion.referencia_biblica}</p>
                         {!isCorrect && (
-                          <p className="text-xs text-blue-600 mt-2 italic">
+                          <p className="text-xs text-primary/80 mt-2 italic">
                             💡 Leia esta passagem para aprender mais sobre o tema
                           </p>
                         )}
@@ -441,9 +441,9 @@ export default function Quiz() {
                     </div>
                   )}
                 </div>
-                <Button 
+                <Button
                   onClick={handleNextQuestion}
-                  className="w-full bg-blue-900 hover:bg-blue-800"
+                  className="w-full bg-primary hover:bg-primary/90"
                 >
                   {currentQuestionIndex + 1 < currentQuestions.length ? 'Próxima Pergunta' : 'Ver Resultado'}
                 </Button>

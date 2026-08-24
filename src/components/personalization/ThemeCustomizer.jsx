@@ -44,7 +44,7 @@ export default function ThemeCustomizer({ preferences, onUpdate }) {
                   />
                   <Label
                     htmlFor={theme.value}
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-slate-200 p-4 hover:bg-slate-50 peer-data-[state=checked]:border-blue-600 cursor-pointer"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-border p-4 hover:bg-secondary peer-data-[state=checked]:border-primary cursor-pointer"
                   >
                     <div className={`w-full h-16 rounded ${theme.bg} border mb-2`}>
                       <div className={`p-2 ${theme.text} text-xs`}>Aa</div>
@@ -81,10 +81,10 @@ export default function ThemeCustomizer({ preferences, onUpdate }) {
                   />
                   <Label
                     htmlFor={size.value}
-                    className="flex items-center justify-between rounded-md border-2 border-slate-200 p-4 hover:bg-slate-50 peer-data-[state=checked]:border-blue-600 cursor-pointer"
+                    className="flex items-center justify-between rounded-md border-2 border-border p-4 hover:bg-secondary peer-data-[state=checked]:border-primary cursor-pointer"
                   >
                     <span className={`font-medium ${size.size}`}>{size.label}</span>
-                    <span className={`text-slate-600 ${size.size}`}>
+                    <span className={`text-muted-foreground ${size.size}`}>
                       O Senhor é meu pastor
                     </span>
                   </Label>

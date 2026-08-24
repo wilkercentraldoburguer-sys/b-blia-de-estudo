@@ -138,7 +138,7 @@ JSON:
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-600" />
+          <Sparkles className="w-5 h-5 text-accent" />
           Gerar Plano Personalizado
         </CardTitle>
         <CardDescription>
@@ -155,7 +155,7 @@ JSON:
                   <RadioGroupItem value={obj.value} id={obj.value} />
                   <Label htmlFor={obj.value} className="cursor-pointer">
                     <span className="font-medium">{obj.label}</span>
-                    <span className="text-sm text-slate-600"> - {obj.desc}</span>
+                    <span className="text-sm text-muted-foreground"> - {obj.desc}</span>
                   </Label>
                 </div>
               ))}
@@ -172,7 +172,7 @@ JSON:
                   <RadioGroupItem value={tempo.value} id={tempo.value} />
                   <Label htmlFor={tempo.value} className="cursor-pointer">
                     <span className="font-medium">{tempo.label}</span>
-                    <span className="text-sm text-slate-600"> - {tempo.passagens}</span>
+                    <span className="text-sm text-muted-foreground"> - {tempo.passagens}</span>
                   </Label>
                 </div>
               ))}
@@ -201,7 +201,7 @@ JSON:
         <Button
           onClick={generatePlan}
           disabled={generating}
-          className="w-full bg-purple-600 hover:bg-purple-700"
+          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
         >
           {generating ? (
             <>

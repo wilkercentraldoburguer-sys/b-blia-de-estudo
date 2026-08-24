@@ -28,21 +28,21 @@ export default function Favorites() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-red-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 fill-current" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800">Meus Favoritos</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">Meus Favoritos</h1>
         </div>
 
         {favorites.length === 0 ? (
-          <Card className="bg-white shadow-lg">
+          <Card className="bg-card shadow-lg">
             <CardContent className="py-12 sm:py-16 md:py-20 text-center px-4">
-              <Heart className="w-12 h-12 sm:w-16 sm:h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500 text-base sm:text-lg">
+              <Heart className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground text-base sm:text-lg">
                 Você ainda não tem versículos favoritos.
               </p>
-              <p className="text-slate-400 text-xs sm:text-sm mt-2">
+              <p className="text-muted-foreground text-xs sm:text-sm mt-2">
                 Comece marcando versículos especiais durante sua leitura!
               </p>
             </CardContent>
@@ -58,10 +58,10 @@ export default function Favorites() {
                   exit={{ opacity: 0, x: -100 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
+                  <Card className="bg-card shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader className="pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
                       <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-amber-600 font-bold text-base sm:text-lg">
+                        <CardTitle className="text-accent font-bold text-base sm:text-lg">
                           {favorite.book} {favorite.chapter}:{favorite.verse}
                         </CardTitle>
                         <Button
@@ -75,7 +75,7 @@ export default function Favorites() {
                       </div>
                     </CardHeader>
                     <CardContent className="px-4 sm:px-6">
-                      <p className="text-slate-700 text-sm sm:text-base md:text-lg leading-relaxed italic break-words">
+                      <p className="text-card-foreground text-sm sm:text-base md:text-lg leading-relaxed italic break-words">
                         "{favorite.text}"
                       </p>
                     </CardContent>

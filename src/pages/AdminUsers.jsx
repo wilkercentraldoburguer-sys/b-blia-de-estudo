@@ -64,18 +64,18 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-stone-900">Gerenciar Usuários</h1>
-          <p className="text-stone-600">Convide usuários para acessar o aplicativo</p>
+          <h1 className="text-3xl font-bold text-foreground">Gerenciar Usuários</h1>
+          <p className="text-muted-foreground">Convide usuários para acessar o aplicativo</p>
         </div>
 
         {/* Convite Individual */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5" style={{ color: "#722f37" }} />
+              <UserPlus className="w-5 h-5 text-primary" />
               Convidar Usuário
             </CardTitle>
             <CardDescription>Envie um convite para um único usuário</CardDescription>
@@ -105,8 +105,7 @@ export default function AdminUsers() {
               <Button
                 type="submit"
                 disabled={inviteMutation.isPending}
-                className="w-full text-white"
-                style={{ backgroundColor: "#722f37" }}
+                className="w-full"
               >
                 {inviteMutation.isPending ? (
                   <>
@@ -125,7 +124,7 @@ export default function AdminUsers() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5" style={{ color: "#722f37" }} />
+              <UserPlus className="w-5 h-5 text-primary" />
               Convite em Massa
             </CardTitle>
             <CardDescription>Cole uma lista de emails (um por linha)</CardDescription>
@@ -150,8 +149,7 @@ export default function AdminUsers() {
               <Button
                 onClick={handleInviteBulk}
                 disabled={inviteMutation.isPending}
-                className="flex-1 text-white"
-                style={{ backgroundColor: "#722f37" }}
+                className="flex-1"
               >
                 Enviar Todos os Convites
               </Button>
@@ -207,24 +205,24 @@ export default function AdminUsers() {
           <CardContent>
             {isLoading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-stone-400" />
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
               </div>
             ) : (
               <div className="space-y-2">
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-center justify-between p-3 bg-stone-50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-secondary rounded-lg"
                   >
                     <div>
-                      <div className="font-semibold text-stone-900">{user.full_name}</div>
-                      <div className="text-sm text-stone-600">{user.email}</div>
+                      <div className="font-semibold text-foreground">{user.full_name}</div>
+                      <div className="text-sm text-muted-foreground">{user.email}</div>
                     </div>
                     <div
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         user.role === "admin"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-blue-100 text-blue-800"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-accent text-accent-foreground"
                       }`}
                     >
                       {user.role === "admin" ? "Administrador" : "Usuário"}
@@ -236,8 +234,8 @@ export default function AdminUsers() {
           </CardContent>
         </Card>
 
-        <Alert className="border-blue-200 bg-blue-50">
-          <AlertDescription className="text-blue-800 text-sm">
+        <Alert className="border-border bg-brand-tint">
+          <AlertDescription className="text-foreground text-sm">
             <strong>Nota:</strong> Os usuários receberão um email de convite com link para
             criar senha. Após a publicação, a confirmação por email pode ser desativada nas
             configurações do dashboard Base44.

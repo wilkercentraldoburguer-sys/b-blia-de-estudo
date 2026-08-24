@@ -26,13 +26,13 @@ export default function Community() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 pb-24">
+    <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-stone-800 mb-2" style={{ color: '#722f37' }}>Comunidade</h1>
-          <p className="text-stone-600">Conecte-se, compartilhe reflexões e cresça na fé com outros irmãos</p>
-          <div className="mt-3 p-3 bg-amber-50 rounded-lg border" style={{ borderColor: '#e5ddd5' }}>
-            <p className="text-sm text-stone-700">
+          <h1 className="text-4xl font-bold text-primary mb-2">Comunidade</h1>
+          <p className="text-muted-foreground">Conecte-se, compartilhe reflexões e cresça na fé com outros irmãos</p>
+          <div className="mt-3 p-3 bg-brand-tint rounded-lg border border-border">
+            <p className="text-sm text-foreground">
               💡 <strong>Dica:</strong> Compartilhe reflexões, versículos e testemunhos. Evite debates doutrinários complexos.
             </p>
           </div>

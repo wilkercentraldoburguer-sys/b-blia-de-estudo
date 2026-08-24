@@ -28,7 +28,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Complete todo o Novo Testamento em 3 meses',
       duracao: 90,
       icon: BookOpen,
-      color: 'from-blue-400 to-blue-600',
+      color: 'from-primary to-brand-night-light',
       recomendado: 'Iniciantes ou foco no Novo Testamento',
       categoria: 'popular'
     },
@@ -38,7 +38,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Leia toda a Bíblia de capa a capa em ordem sequencial',
       duracao: 365,
       icon: Calendar,
-      color: 'from-green-400 to-green-600',
+      color: 'from-accent to-brand-clay',
       recomendado: 'Visão geral completa com tempo para meditação',
       categoria: 'popular'
     },
@@ -48,7 +48,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Alterna Antigo e Novo Testamento para experiência equilibrada',
       duracao: 365,
       icon: Target,
-      color: 'from-purple-400 to-purple-600',
+      color: 'from-brand-clay to-primary',
       recomendado: 'Leitura dinâmica e variada',
       categoria: 'popular'
     },
@@ -58,7 +58,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Visão geral completa em ritmo acelerado',
       duracao: 180,
       icon: Zap,
-      color: 'from-orange-400 to-orange-600',
+      color: 'from-accent to-primary',
       recomendado: 'Quem deseja imersão mais rápida',
       categoria: 'intensivo'
     },
@@ -68,7 +68,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Desafio intensivo de leitura completa',
       duracao: 90,
       icon: Zap,
-      color: 'from-red-400 to-red-600',
+      color: 'from-primary to-accent',
       recomendado: 'Desafio para quem tem mais tempo disponível',
       categoria: 'intensivo'
     },
@@ -78,7 +78,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Foco intensivo no Novo Testamento',
       duracao: 60,
       icon: BookOpen,
-      color: 'from-cyan-400 to-cyan-600',
+      color: 'from-brand-night-light to-primary',
       recomendado: 'Estudo focado nos Evangelhos e Epístolas',
       categoria: 'tematico'
     },
@@ -88,7 +88,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Conheça a vida e ensinamentos de Jesus',
       duracao: 15,
       icon: BookOpen,
-      color: 'from-amber-400 to-amber-600',
+      color: 'from-accent to-accent/80',
       recomendado: 'Iniciantes ou foco em Jesus',
       categoria: 'tematico'
     },
@@ -98,7 +98,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Sabedoria diária para sua vida',
       duracao: 31,
       icon: Target,
-      color: 'from-indigo-400 to-indigo-600',
+      color: 'from-primary to-brand-clay',
       recomendado: 'Reflexões práticas e sabedoria',
       categoria: 'tematico'
     },
@@ -108,7 +108,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Mergulhe na poesia e louvor',
       duracao: 30,
       icon: BookOpen,
-      color: 'from-pink-400 to-pink-600',
+      color: 'from-brand-clay to-accent',
       recomendado: 'Para momentos de reflexão',
       categoria: 'tematico'
     },
@@ -118,7 +118,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Estudo profundo das epístolas de Paulo',
       duracao: 45,
       icon: Target,
-      color: 'from-teal-400 to-teal-600',
+      color: 'from-primary to-brand-night-light',
       recomendado: 'Aprofundamento teológico',
       categoria: 'tematico'
     },
@@ -128,7 +128,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Isaías, Jeremias, Ezequiel e Daniel',
       duracao: 60,
       icon: BookOpen,
-      color: 'from-violet-400 to-violet-600',
+      color: 'from-brand-night-light to-brand-clay',
       recomendado: 'Compreensão profética',
       categoria: 'tematico'
     },
@@ -138,7 +138,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       descricao: 'Os cinco primeiros livros da Bíblia',
       duracao: 50,
       icon: Calendar,
-      color: 'from-rose-400 to-rose-600',
+      color: 'from-brand-clay to-primary',
       recomendado: 'Fundamentos da fé',
       categoria: 'tematico'
     }
@@ -182,10 +182,10 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+        <h2 className="text-3xl font-bold text-primary mb-2">
           Planos de Leitura
         </h2>
-        <p className="text-slate-600">Escolha um plano estruturado para sua jornada bíblica</p>
+        <p className="text-muted-foreground">Escolha um plano estruturado para sua jornada bíblica</p>
       </div>
 
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -195,7 +195,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
             variant={selectedCategory === cat.id ? "default" : "outline"}
             size="sm"
             onClick={() => setSelectedCategory(cat.id)}
-            className={selectedCategory === cat.id ? "bg-gradient-to-r from-blue-600 to-purple-600" : ""}
+            className={selectedCategory === cat.id ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""}
           >
             {cat.label}
           </Button>
@@ -208,7 +208,7 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
           return (
             <Card 
               key={plan.id}
-              className="hover:shadow-2xl hover:scale-105 transition-all cursor-pointer border-2 hover:border-blue-300"
+              className="hover:shadow-2xl hover:scale-105 transition-all cursor-pointer border-2 hover:border-primary/40"
               onClick={() => handleSelectPlan(plan)}
             >
               <CardHeader>
@@ -237,8 +237,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
             <DialogTitle>{selectedPlan?.nome}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-slate-600">{selectedPlan?.descricao}</p>
-            <div className="bg-slate-50 p-4 rounded-lg space-y-2">
+            <p className="text-muted-foreground">{selectedPlan?.descricao}</p>
+            <div className="bg-secondary p-4 rounded-lg space-y-2">
               <p><span className="font-semibold">Duração:</span> {selectedPlan?.duracao} dias</p>
               <p><span className="font-semibold">Recomendado para:</span> {selectedPlan?.recomendado}</p>
               <p><span className="font-semibold">Data de início:</span> Hoje</p>
@@ -248,8 +248,8 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
                 Cancelar
               </Button>
               <Button 
-                onClick={handleConfirmCreate} 
-                className="flex-1 bg-blue-900 hover:bg-blue-800"
+                onClick={handleConfirmCreate}
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={createPlanMutation.isPending}
               >
                 Criar Plano

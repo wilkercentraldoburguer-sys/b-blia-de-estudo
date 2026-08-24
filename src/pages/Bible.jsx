@@ -19,7 +19,10 @@ const BIBLE_VERSIONS = [
   { sigla: "ARA", nome: "Almeida Revista e Atualizada" },
   { sigla: "ARC", nome: "Almeida Revista e Corrigida" },
   { sigla: "NVI", nome: "Nova Versão Internacional" },
-  { sigla: "NVT", nome: "Nova Versão Transformadora" },
+  // NVT (Nova Versão Transformadora) é uma tradução comercial, sem fonte
+  // gratuita/legal conhecida. Fica listada (o usuário pediu por ela), mas
+  // desabilitada, em vez de silenciosamente mostrar outra versão no lugar.
+  { sigla: "NVT", nome: "Nova Versão Transformadora", indisponivel: true },
   { sigla: "ACF", nome: "Almeida Corrigida Fiel" },
   { sigla: "KJV", nome: "King James Version" },
   { sigla: "NAA", nome: "Nova Almeida Atualizada" }
@@ -32,6 +35,7 @@ export default function Bible() {
   const [selectedVersion, setSelectedVersion] = useState("ARA");
   const [verses, setVerses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [fontSize, setFontSize] = useState("media");
   const [searchTerm, setSearchTerm] = useState("");
@@ -172,6 +176,7 @@ export default function Bible() {
       if (data?.verses) {
         const formattedVerses = data.verses.map(v => ({ number: v.n, text: v.text }));
         setVerses(formattedVerses);
+        setLoadError(null);
         saveToCache(cacheKey, formattedVerses);
         // Prefetch próximos capítulos
         schedulePrefetch();
@@ -182,6 +187,15 @@ export default function Bible() {
         return;
       }
       console.error("Erro ao carregar capítulo:", error);
+      setVerses([]);
+      // Mensagem honesta pro usuário quando a versão pedida não tem fonte
+      // real disponível (ex: NVT) - nunca mostramos outro texto no lugar
+      // sem avisar.
+      setLoadError(
+        error.code === 'VERSION_UNAVAILABLE'
+          ? error.message
+          : 'Não foi possível carregar este capítulo agora. Tente novamente em instantes.'
+      );
     } finally {
       if (!controller.signal.aborted) {
         setIsLoading(false);
@@ -431,7 +445,7 @@ export default function Bible() {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-slate-900' : 'bg-gradient-to-br from-slate-50 via-white to-blue-50'}`}>
+    <div className={`min-h-screen ${darkMode ? 'bg-brand-night' : 'bg-background'}`}>
       <div className="max-w-5xl mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -458,8 +472,13 @@ export default function Bible() {
               </SelectTrigger>
               <SelectContent>
                 {BIBLE_VERSIONS.map(version => (
-                  <SelectItem key={version.sigla} value={version.sigla}>
-                    {version.sigla}
+                  <SelectItem
+                    key={version.sigla}
+                    value={version.sigla}
+                    disabled={version.indisponivel}
+                    title={version.indisponivel ? 'Indisponível: sem fonte gratuita/legal para esta tradução' : undefined}
+                  >
+                    {version.sigla}{version.indisponivel ? ' (indisponível)' : ''}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -486,7 +505,7 @@ export default function Bible() {
         </div>
 
         {/* Conteúdo */}
-        <Card className={darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white'}>
+        <Card className={darkMode ? 'bg-brand-night-light border-brand-night' : 'bg-card'}>
           <CardContent className="p-6">
             <ChapterNavigation
               book={currentBook}
@@ -497,16 +516,16 @@ export default function Bible() {
               onChapterSelect={setCurrentChapter}
             />
 
-            <div className="border-t border-slate-200 mt-6 pt-6">
+            <div className="border-t border-border mt-6 pt-6">
               {/* Resultados de Busca */}
               {searchResults.length > 0 && (
-                <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                <div className="mb-6 p-4 bg-brand-tint rounded-lg border border-border">
                   <div className="flex justify-between items-center mb-4">
                     <div>
-                      <h3 className="font-bold text-slate-800 text-lg">
+                      <h3 className="font-bold text-foreground text-lg">
                         {searchResults.length} resultado(s)
                       </h3>
-                      <p className="text-sm text-slate-600">
+                      <p className="text-sm text-muted-foreground">
                         {searchFilter === "ot" && "Antigo Testamento • "}
                         {searchFilter === "nt" && "Novo Testamento • "}
                         Versão {selectedVersion}
@@ -527,18 +546,18 @@ export default function Bible() {
                     {searchResults.map((result, idx) => (
                       <div
                         key={idx}
-                        className="p-4 bg-white rounded-lg cursor-pointer hover:shadow-md transition-all border border-transparent hover:border-blue-400"
+                        className="p-4 bg-card rounded-lg cursor-pointer hover:shadow-md transition-all border border-transparent hover:border-accent"
                         onClick={() => navigateToVerse(result.book, result.chapter, result.verse)}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <p className="font-bold text-blue-900">
+                          <p className="font-bold text-primary">
                             {result.book} {result.chapter}:{result.verse}
                           </p>
                           <Button size="sm" variant="ghost" className="text-xs">
                             Ir para versículo →
                           </Button>
                         </div>
-                        <p className="text-slate-700 leading-relaxed">{result.text}</p>
+                        <p className="text-card-foreground leading-relaxed">{result.text}</p>
                       </div>
                     ))}
                   </div>
@@ -547,16 +566,16 @@ export default function Bible() {
 
               {isSearching && (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-blue-900 mr-2" />
-                  <span className="text-slate-600">Buscando...</span>
+                  <Loader2 className="w-6 h-6 animate-spin text-primary mr-2" />
+                  <span className="text-muted-foreground">Buscando...</span>
                 </div>
               )}
 
               {isLoading ? (
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 mb-6">
-                    <Loader2 className="w-5 h-5 animate-spin text-blue-900" />
-                    <p className={`font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    <p className={`font-medium ${darkMode ? 'text-brand-bone' : 'text-foreground'}`}>
                       Preparando {currentBook} {currentChapter}...
                     </p>
                   </div>
@@ -572,8 +591,10 @@ export default function Bible() {
                   ))}
                 </div>
               ) : verses.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 gap-3">
-                  <p className={darkMode ? 'text-slate-300' : 'text-slate-600'}>Nenhum versículo carregado</p>
+                <div className="flex flex-col items-center justify-center py-20 gap-3 text-center px-6">
+                  <p className={darkMode ? 'text-brand-bone' : 'text-muted-foreground'}>
+                    {loadError || 'Nenhum versículo carregado'}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -589,7 +610,7 @@ export default function Bible() {
                           >
                             <ChevronLeft className="w-4 h-4" />
                           </Button>
-                          <span className={`font-bold ${darkMode ? 'text-amber-400' : 'text-amber-600'} flex-shrink-0 ${fontSizeClasses[fontSize]}`}>
+                          <span className={`font-bold text-accent flex-shrink-0 ${fontSizeClasses[fontSize]}`}>
                             {verse.number}
                           </span>
                           <Button
@@ -602,7 +623,7 @@ export default function Bible() {
                           </Button>
                         </div>
                         <div className="flex-1">
-                          <p className={`leading-relaxed ${darkMode ? 'text-slate-200' : 'text-slate-700'} ${fontSizeClasses[fontSize]}`}>
+                          <p className={`leading-relaxed ${darkMode ? 'text-brand-bone' : 'text-foreground'} ${fontSizeClasses[fontSize]}`}>
                             {verse.text}
                           </p>
                           <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -618,7 +639,7 @@ export default function Bible() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className={`h-7 ${hasNote(verse.number) ? 'text-blue-600' : ''}`}
+                              className={`h-7 ${hasNote(verse.number) ? 'text-primary' : ''}`}
                               onClick={() => handleOpenNote(verse.number, verse.text)}
                             >
                               <MessageSquare className={`w-3 h-3 mr-1 ${hasNote(verse.number) ? 'fill-current' : ''}`} />
@@ -636,10 +657,10 @@ export default function Bible() {
         </Card>
 
         {/* Controles de Fonte */}
-        <Card className={`mt-4 ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white'}`}>
+        <Card className={`mt-4 ${darkMode ? 'bg-brand-night-light border-brand-night' : 'bg-card'}`}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <span className={`text-sm font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+              <span className={`text-sm font-medium ${darkMode ? 'text-brand-bone' : 'text-foreground'}`}>
                 Tamanho da Fonte:
               </span>
               <div className="flex gap-2">
@@ -680,7 +701,7 @@ export default function Bible() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
+              <label className="text-sm font-medium text-foreground mb-2 block">
                 Termo de Busca
               </label>
               <Input
@@ -690,13 +711,13 @@ export default function Bible() {
                 placeholder='Ex: "amor" ou "João 3:16"'
                 className="text-base"
               />
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Dica: Digite uma referência (Ex: João 3:16) para ir direto ao versículo
               </p>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
+              <label className="text-sm font-medium text-foreground mb-2 block">
                 Filtrar por:
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -724,9 +745,9 @@ export default function Bible() {
               </div>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-slate-800 mb-2 text-sm">Exemplos de busca:</h4>
-              <ul className="text-sm text-slate-600 space-y-1">
+            <div className="bg-brand-tint p-4 rounded-lg">
+              <h4 className="font-semibold text-foreground mb-2 text-sm">Exemplos de busca:</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• <strong>Palavra:</strong> "amor", "fé", "esperança"</li>
                 <li>• <strong>Referência:</strong> "João 3:16", "Salmos 23:1"</li>
                 <li>• <strong>Frase:</strong> "Deus amou o mundo"</li>
@@ -737,10 +758,9 @@ export default function Bible() {
               <Button variant="outline" onClick={() => setSearchDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button 
+              <Button
                 onClick={handleSearch}
                 disabled={!searchTerm.trim() || isSearching}
-                className="bg-blue-900 hover:bg-blue-800"
               >
                 {isSearching ? (
                   <>
@@ -768,7 +788,7 @@ export default function Bible() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-slate-600 italic">"{selectedVerse?.text}"</p>
+            <p className="text-sm text-muted-foreground italic">"{selectedVerse?.text}"</p>
             <Textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
@@ -779,7 +799,7 @@ export default function Bible() {
               <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleSaveNote} className="bg-blue-900 hover:bg-blue-800">
+              <Button onClick={handleSaveNote}>
                 Salvar
               </Button>
             </div>

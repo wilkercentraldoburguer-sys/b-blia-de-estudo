@@ -57,21 +57,21 @@ export default function Notes() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800">Minhas Anotações</h1>
+          <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">Minhas Anotações</h1>
         </div>
 
         {notes.length === 0 ? (
-          <Card className="bg-white shadow-lg">
+          <Card className="bg-card shadow-lg">
             <CardContent className="py-12 sm:py-16 md:py-20 text-center px-4">
-              <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500 text-base sm:text-lg">
+              <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground text-base sm:text-lg">
                 Você ainda não tem anotações.
               </p>
-              <p className="text-slate-400 text-xs sm:text-sm mt-2">
+              <p className="text-muted-foreground text-xs sm:text-sm mt-2">
                 Adicione reflexões e pensamentos aos versículos durante sua leitura!
               </p>
             </CardContent>
@@ -87,10 +87,10 @@ export default function Notes() {
                   exit={{ opacity: 0, x: -100 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="bg-white shadow-lg hover:shadow-xl transition-shadow">
+                  <Card className="bg-card shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader className="pb-3 px-4 sm:px-6 pt-4 sm:pt-6">
                       <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-amber-600 font-bold text-base sm:text-lg">
+                        <CardTitle className="text-accent font-bold text-base sm:text-lg">
                           {note.book} {note.chapter}:{note.verse}
                         </CardTitle>
                         <div className="flex gap-1 sm:gap-2 flex-shrink-0">
@@ -98,7 +98,7 @@ export default function Notes() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEdit(note)}
-                            className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-8 w-8 sm:h-10 sm:w-10"
+                            className="text-primary hover:text-primary hover:bg-secondary h-8 w-8 sm:h-10 sm:w-10"
                           >
                             <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                           </Button>
@@ -114,13 +114,13 @@ export default function Notes() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
-                      <div className="bg-slate-50 rounded-lg p-3 sm:p-4 border-l-4 border-amber-500">
-                        <p className="text-slate-600 italic text-xs sm:text-sm md:text-base break-words">
+                      <div className="bg-secondary rounded-lg p-3 sm:p-4 border-l-4 border-accent">
+                        <p className="text-secondary-foreground italic text-xs sm:text-sm md:text-base break-words">
                           "{note.verse_text}"
                         </p>
                       </div>
                       <div className="pl-2 sm:pl-4">
-                        <p className="text-slate-700 leading-relaxed text-sm sm:text-base break-words">
+                        <p className="text-card-foreground leading-relaxed text-sm sm:text-base break-words">
                           {note.note_text}
                         </p>
                       </div>
@@ -141,7 +141,7 @@ export default function Notes() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-slate-600 italic">"{selectedNote?.verse_text}"</p>
+            <p className="text-sm text-muted-foreground italic">"{selectedNote?.verse_text}"</p>
             <Textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
@@ -152,7 +152,7 @@ export default function Notes() {
               <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleSave} className="bg-blue-900 hover:bg-blue-800">
+              <Button onClick={handleSave}>
                 Salvar
               </Button>
             </div>

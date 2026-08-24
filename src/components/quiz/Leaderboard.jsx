@@ -55,7 +55,7 @@ export default function Leaderboard({ currentUser }) {
 
   return (
     <Card className="shadow-xl border-2">
-      <CardHeader className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-t-lg">
+      <CardHeader className="bg-primary text-white rounded-t-lg">
         <CardTitle className="flex items-center gap-2">
           <Trophy className="w-6 h-6" />
           Ranking de Campeões
@@ -83,9 +83,9 @@ export default function Leaderboard({ currentUser }) {
                     <div
                       key={player.email}
                       className={`p-4 rounded-xl transition-all ${
-                        isCurrentUser 
-                          ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300' 
-                          : 'bg-slate-50 hover:bg-slate-100'
+                        isCurrentUser
+                          ? 'bg-accent/10 border-2 border-accent'
+                          : 'bg-secondary hover:bg-secondary/80'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -94,9 +94,9 @@ export default function Leaderboard({ currentUser }) {
                             {getMedalIcon(index)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`font-semibold truncate ${isCurrentUser ? 'text-blue-900' : 'text-slate-800'}`}>
+                            <p className={`font-semibold truncate ${isCurrentUser ? 'text-accent' : 'text-slate-800'}`}>
                               {player.email.split('@')[0]}
-                              {isCurrentUser && <span className="ml-2 text-xs text-blue-600">(Você)</span>}
+                              {isCurrentUser && <span className="ml-2 text-xs text-accent">(Você)</span>}
                             </p>
                             <div className="flex items-center gap-2 text-xs text-slate-600 mt-1">
                               <span>{player.quizCompletos} quiz</span>
@@ -123,13 +123,13 @@ export default function Leaderboard({ currentUser }) {
         </Tabs>
 
         {userRank > 0 && userRank > 10 && (
-          <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+          <div className="mt-4 p-4 bg-accent/10 border-2 border-accent rounded-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-blue-600" />
-                <p className="text-sm font-semibold text-blue-900">Sua Posição: #{userRank}</p>
+                <TrendingUp className="w-5 h-5 text-accent" />
+                <p className="text-sm font-semibold">Sua Posição: #{userRank}</p>
               </div>
-              <Badge className="bg-blue-600">Continue jogando!</Badge>
+              <Badge className="bg-accent text-accent-foreground">Continue jogando!</Badge>
             </div>
           </div>
         )}

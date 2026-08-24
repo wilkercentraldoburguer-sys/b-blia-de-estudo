@@ -431,15 +431,15 @@ export default function SystemAnalysisReport() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-6 pb-24">
+    <div className="min-h-screen bg-background p-6 pb-24">
       <div className="max-w-4xl mx-auto">
         <Card className="shadow-2xl">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <CardHeader className="bg-primary text-primary-foreground">
             <div className="flex items-center gap-4">
               <FileText className="w-12 h-12" />
               <div>
                 <CardTitle className="text-2xl">Relatório de Análise do Sistema</CardTitle>
-                <p className="text-blue-100 text-sm mt-1">Diagnóstico Completo e Sugestões de Melhorias</p>
+                <p className="text-primary-foreground/80 text-sm mt-1">Diagnóstico Completo e Sugestões de Melhorias</p>
               </div>
             </div>
           </CardHeader>
@@ -485,12 +485,12 @@ export default function SystemAnalysisReport() {
             </div>
 
             {/* Descrição */}
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <div className="bg-secondary p-4 rounded-lg border border-border">
               <div className="flex gap-3">
-                <Info className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                <Info className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-blue-900 mb-2">O que está incluído neste relatório:</h3>
-                  <ul className="text-sm text-blue-800 space-y-1">
+                  <h3 className="font-semibold text-foreground mb-2">O que está incluído neste relatório:</h3>
+                  <ul className="text-sm text-secondary-foreground space-y-1">
                     <li>✓ Análise completa de todos os arquivos do sistema</li>
                     <li>✓ Identificação de erros reais vs. reportados</li>
                     <li>✓ Críticas fundamentadas sobre arquitetura</li>
@@ -542,9 +542,9 @@ export default function SystemAnalysisReport() {
 
             {/* Botão Download */}
             <div className="pt-4 border-t">
-              <Button 
+              <Button
                 onClick={generatePDF}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-xl text-lg py-6"
+                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground hover:shadow-xl text-lg py-6"
                 size="lg"
               >
                 <Download className="w-5 h-5 mr-3" />
