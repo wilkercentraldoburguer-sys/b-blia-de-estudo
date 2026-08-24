@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, UserPlus, Trash2, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, UserPlus, Trash2, CheckCircle2, XCircle, BookOpen } from "lucide-react";
+import QuizQuestionImporter from "@/components/quiz/QuizQuestionImporter";
 
 export default function AdminUsers() {
   const [email, setEmail] = useState("");
@@ -231,6 +232,23 @@ export default function AdminUsers() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Importar Perguntas do Quiz */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary" />
+              Importar Perguntas do Quiz Bíblico
+            </CardTitle>
+            <CardDescription>
+              Popula a aba Quiz com o banco de 200 perguntas (50 por nível: Fácil,
+              Intermediário, Difícil, Expert)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <QuizQuestionImporter />
           </CardContent>
         </Card>
 
