@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Menu, Loader2, Download, BookOpenCheck, StickyNote } from "lucide-react";
+import { Menu, Loader2, Download, BookOpenCheck, StickyNote, Lightbulb } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,8 @@ import CommentaryPanel from "../components/bible/CommentaryPanel";
 import AdvancedSearch from "../components/bible/AdvancedSearch";
 import { useTheme } from "../components/personalization/ThemeProvider";
 import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
+import EntendaCapituloDrawer from "../components/reader/EntendaCapituloDrawer";
+import { getManualContexto } from "../components/reader/manualContextoData";
 
 const ALL_BOOKS = [...OLD_TESTAMENT, ...NEW_TESTAMENT];
 
@@ -46,6 +48,7 @@ export default function Reader() {
   const [selectedVerseForCommentary, setSelectedVerseForCommentary] = useState(null);
   const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [userPreferences, setUserPreferences] = useState(null);
+  const [entendaCapituloOpen, setEntendaCapituloOpen] = useState(false);
 
   const queryClient = useQueryClient();
   const { theme, fontSize } = useTheme();
@@ -409,6 +412,16 @@ export default function Reader() {
               <StickyNote className="w-4 h-4" />
               <span className="hidden sm:inline">Comentários</span>
             </Button>
+            {getManualContexto(currentBook, currentChapter) && (
+              <Button
+                variant="outline"
+                className="gap-2 border-primary/40 text-primary hover:bg-primary/10"
+                onClick={() => setEntendaCapituloOpen(true)}
+              >
+                <Lightbulb className="w-4 h-4" />
+                <span className="hidden sm:inline">Entenda esse capítulo</span>
+              </Button>
+            )}
             <Button
               variant="outline"
               className="gap-2"
@@ -679,6 +692,14 @@ export default function Reader() {
           setSelectedVerseForCommentary(verse);
           setShowCommentaries(true);
         }}
+      />
+
+      {/* Painel "Entenda esse capítulo" */}
+      <EntendaCapituloDrawer
+        open={entendaCapituloOpen}
+        onOpenChange={setEntendaCapituloOpen}
+        livro={currentBook}
+        capitulo={currentChapter}
       />
       </div>
       );
