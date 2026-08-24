@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "./utils";
-import { Home, BookOpen, BookMarked, Video, User, Users, Settings, Brain } from "lucide-react";
+import { Home, BookOpen, BookMarked, Video, User, Users, Settings, Brain, CalendarCheck } from "lucide-react";
 import { ThemeProvider } from "./components/personalization/ThemeProvider";
 
 export default function Layout({ children, currentPageName }) {
@@ -9,6 +9,7 @@ export default function Layout({ children, currentPageName }) {
     { name: "Home", label: "Início", icon: Home },
     { name: "BibliaLeitura", label: "Leitura", icon: BookOpen },
     { name: "Reader", label: "Estudo", icon: BookMarked },
+    { name: "PlanoLeitura", label: "Plano de Leitura", icon: CalendarCheck },
     { name: "Quiz", label: "Quiz", icon: Brain },
     { name: "Community", label: "Comunidade", icon: Users },
     { name: "Sermons", label: "Ministrações", icon: Video },

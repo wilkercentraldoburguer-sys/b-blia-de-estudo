@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Calendar, Target, Zap } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PREDEFINED_PLANS_DATA } from "./predefinedPlansData";
 
 export default function PredefinedPlansLibrary({ onPlanCreated }) {
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -101,48 +102,13 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
       color: 'from-primary to-brand-clay',
       recomendado: 'Reflexões práticas e sabedoria',
       categoria: 'tematico'
-    },
-    {
-      id: 'salmos_30',
-      nome: 'Salmos em 30 Dias',
-      descricao: 'Mergulhe na poesia e louvor',
-      duracao: 30,
-      icon: BookOpen,
-      color: 'from-brand-clay to-accent',
-      recomendado: 'Para momentos de reflexão',
-      categoria: 'tematico'
-    },
-    {
-      id: 'paulinas_45',
-      nome: 'Cartas Paulinas em 45 Dias',
-      descricao: 'Estudo profundo das epístolas de Paulo',
-      duracao: 45,
-      icon: Target,
-      color: 'from-primary to-brand-night-light',
-      recomendado: 'Aprofundamento teológico',
-      categoria: 'tematico'
-    },
-    {
-      id: 'profetas_60',
-      nome: 'Profetas Maiores em 60 Dias',
-      descricao: 'Isaías, Jeremias, Ezequiel e Daniel',
-      duracao: 60,
-      icon: BookOpen,
-      color: 'from-brand-night-light to-brand-clay',
-      recomendado: 'Compreensão profética',
-      categoria: 'tematico'
-    },
-    {
-      id: 'pentateuco_50',
-      nome: 'Pentateuco em 50 Dias',
-      descricao: 'Os cinco primeiros livros da Bíblia',
-      duracao: 50,
-      icon: Calendar,
-      color: 'from-brand-clay to-primary',
-      recomendado: 'Fundamentos da fé',
-      categoria: 'tematico'
     }
   ];
+  // Nota: os planos "Salmos em 30 Dias", "Cartas Paulinas em 45 Dias",
+  // "Profetas Maiores em 60 Dias" e "Pentateuco em 50 Dias" foram removidos
+  // daqui - não fazem parte do material licenciado (PDF "Planos de Leitura
+  // da Bíblia") e não tinham nenhum dia de leitura real por trás, apenas o
+  // nome. Só listamos planos com conteúdo de verdade.
 
   const handleSelectPlan = async (plan) => {
     setSelectedPlan(plan);
@@ -154,13 +120,26 @@ export default function PredefinedPlansLibrary({ onPlanCreated }) {
     const endDate = new Date(today);
     endDate.setDate(endDate.getDate() + selectedPlan.duracao);
 
+    // Puxa o conteúdo real (dia a dia) do plano escolhido, transcrito do
+    // PDF licenciado, em vez de criar um plano vazio (passagens: []).
+    const leituras = PREDEFINED_PLANS_DATA[selectedPlan.id] || [];
+    const passagens = leituras.map(({ dia, leitura }) => {
+      const dataLeitura = new Date(today);
+      dataLeitura.setDate(dataLeitura.getDate() + (dia - 1));
+      return {
+        livro: leitura,
+        concluido: false,
+        data_leitura: dataLeitura.toISOString().split('T')[0]
+      };
+    });
+
     createPlanMutation.mutate({
       nome: selectedPlan.nome,
       descricao: selectedPlan.descricao,
       tipo: 'personalizado',
       data_inicio: today.toISOString().split('T')[0],
       data_fim: endDate.toISOString().split('T')[0],
-      passagens: [],
+      passagens,
       progresso: 0,
       ativo: true
     });
