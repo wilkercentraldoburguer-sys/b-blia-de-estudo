@@ -44,12 +44,16 @@ const TRANSLATION_MAP = {
  * (até onde pesquisamos) nenhuma fonte gratuita e legal de texto completo.
  * NVT (Nova Versão Transformadora) é uma tradução comercial licenciada
  * (Mundo Cristão / Tyndale House) - não está na ABíbliaDigital nem em
- * nenhuma API pública de domínio público que encontramos. Em vez de
- * substituir silenciosamente por outra versão, bloqueamos aqui com um
- * erro claro.
+ * nenhuma API pública de domínio público que encontramos.
+ * NTLH (Nova Tradução na Linguagem de Hoje) é publicada e licenciada pela
+ * Sociedade Bíblica do Brasil - mesma situação: não está na getbible.net
+ * (que só tem "almeida" em português) nem na ABíbliaDigital.
+ * Em vez de substituir silenciosamente por outra versão, bloqueamos aqui
+ * com um erro claro.
  */
 const KNOWN_UNAVAILABLE_VERSIONS = {
   'NVT': 'A NVT (Nova Versão Transformadora) é uma tradução comercial protegida por direitos autorais. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - para não arriscar mostrar outra versão com a etiqueta "NVT" sem avisar você.',
+  'NTLH': 'A NTLH (Nova Tradução na Linguagem de Hoje) é publicada pela Sociedade Bíblica do Brasil e protegida por direitos autorais. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - para não arriscar mostrar outra versão com a etiqueta "NTLH" sem avisar você.',
 };
 
 /**

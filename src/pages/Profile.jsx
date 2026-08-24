@@ -13,12 +13,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const BIBLE_VERSIONS = ["ARA", "ARC", "NVI", "NVT", "ACF", "KJV", "NAA"];
-// NVT (Nova Versão Transformadora) é uma tradução comercial sem fonte
-// gratuita/legal conhecida - fica na lista (o usuário pediu por ela), mas
-// marcada como indisponível em vez de silenciosamente carregar outra
-// versão sob esse rótulo (ver getBibleProvider.jsx).
-const UNAVAILABLE_VERSIONS = ["NVT"];
+const BIBLE_VERSIONS = ["ARA", "ARC", "NVI", "NVT", "ACF", "KJV", "NAA", "NTLH"];
+// NVT (Nova Versão Transformadora) e NTLH (Nova Tradução na Linguagem de
+// Hoje) são traduções comerciais sem fonte gratuita/legal conhecida -
+// ficam na lista (o usuário pediu por elas), mas marcadas como
+// indisponíveis em vez de silenciosamente carregar outra versão sob esse
+// rótulo (ver getBibleProvider.jsx).
+const UNAVAILABLE_VERSIONS = ["NVT", "NTLH"];
 // IMPORTANTE: por padrão, o comentário exibido pra cada nome abaixo é uma
 // reflexão gerada por IA "inspirada no estilo" da pessoa - nunca uma
 // citação literal do que ela realmente escreveu (ver

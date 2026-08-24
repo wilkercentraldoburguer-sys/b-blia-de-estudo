@@ -25,7 +25,10 @@ const BIBLE_VERSIONS = [
   { sigla: "NVT", nome: "Nova Versão Transformadora", indisponivel: true },
   { sigla: "ACF", nome: "Almeida Corrigida Fiel" },
   { sigla: "KJV", nome: "King James Version" },
-  { sigla: "NAA", nome: "Nova Almeida Atualizada" }
+  { sigla: "NAA", nome: "Nova Almeida Atualizada" },
+  // NTLH também é uma tradução comercial (Sociedade Bíblica do Brasil),
+  // sem fonte gratuita/legal conhecida - mesmo tratamento da NVT.
+  { sigla: "NTLH", nome: "Nova Tradução na Linguagem de Hoje", indisponivel: true }
 ];
 
 export default function Bible() {

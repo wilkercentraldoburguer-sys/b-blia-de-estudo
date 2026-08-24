@@ -4,6 +4,21 @@ import { OLD_TESTAMENT, NEW_TESTAMENT } from "../bible/BookSelector";
 
 const ALL_BOOKS = [...OLD_TESTAMENT, ...NEW_TESTAMENT];
 
+// Mesma lista de versões usada em Bible.jsx/Study.jsx/Profile.jsx. NVT e
+// NTLH são traduções comerciais sem fonte gratuita/legal conhecida - ficam
+// na lista, mas desabilitadas, em vez de silenciosamente carregar outra
+// versão sob esse rótulo (ver getBibleProvider.jsx).
+const BIBLE_VERSIONS = [
+  { sigla: "ARA", nome: "Almeida Revista e Atualizada" },
+  { sigla: "ARC", nome: "Almeida Revista e Corrigida" },
+  { sigla: "NVI", nome: "Nova Versão Internacional" },
+  { sigla: "NVT", nome: "Nova Versão Transformadora", indisponivel: true },
+  { sigla: "ACF", nome: "Almeida Corrigida Fiel" },
+  { sigla: "KJV", nome: "King James Version" },
+  { sigla: "NAA", nome: "Nova Almeida Atualizada" },
+  { sigla: "NTLH", nome: "Nova Tradução na Linguagem de Hoje", indisponivel: true }
+];
+
 export default function VerseSelector({
   currentBook,
   currentChapter,
@@ -71,10 +86,16 @@ export default function VerseSelector({
           <SelectValue placeholder="Versão" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="ARA">ARA</SelectItem>
-          <SelectItem value="ARC">ARC</SelectItem>
-          <SelectItem value="NVI">NVI</SelectItem>
-          <SelectItem value="NAA">NAA</SelectItem>
+          {BIBLE_VERSIONS.map(version => (
+            <SelectItem
+              key={version.sigla}
+              value={version.sigla}
+              disabled={version.indisponivel}
+              title={version.indisponivel ? 'Indisponível: sem fonte gratuita/legal para esta tradução' : undefined}
+            >
+              {version.sigla}{version.indisponivel ? ' (indisponível)' : ''}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
