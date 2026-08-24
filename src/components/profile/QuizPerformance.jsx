@@ -41,18 +41,18 @@ export default function QuizPerformance({ quizProgress, biblicalStudies }) {
     .sort((a, b) => b.accuracy - a.accuracy);
 
   return (
-    <Card className="border-2" style={{ borderColor: '#722f37' }}>
+    <Card className="border-2 border-primary/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Brain className="w-5 h-5" style={{ color: '#722f37' }} />
+          <Brain className="w-5 h-5 text-primary" />
           Performance nos Quizzes
         </CardTitle>
       </CardHeader>
       <CardContent>
         {totalQuizzes === 0 ? (
           <div className="text-center py-8">
-            <Target className="w-12 h-12 text-stone-300 mx-auto mb-2" />
-            <p className="text-stone-500 text-sm">
+            <Target className="w-12 h-12 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-muted-foreground text-sm">
               Complete quizzes para ver sua performance
             </p>
           </div>
@@ -60,24 +60,24 @@ export default function QuizPerformance({ quizProgress, biblicalStudies }) {
           <div className="space-y-6">
             {/* Resumo Geral */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                <p className="text-2xl font-bold text-blue-900">{totalQuizzes}</p>
-                <p className="text-xs text-blue-700">Quizzes</p>
+              <div className="text-center p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                <p className="text-2xl font-bold text-primary">{totalQuizzes}</p>
+                <p className="text-xs text-muted-foreground">Quizzes</p>
               </div>
-              <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                <p className="text-2xl font-bold text-green-900">{accuracyRate}%</p>
-                <p className="text-xs text-green-700">Acertos</p>
+              <div className="text-center p-3 bg-accent/10 border border-accent/30 rounded-lg">
+                <p className="text-2xl font-bold text-accent">{accuracyRate}%</p>
+                <p className="text-xs text-muted-foreground">Acertos</p>
               </div>
-              <div className="text-center p-3 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
-                <p className="text-2xl font-bold text-amber-900">{avgPontuacao}</p>
-                <p className="text-xs text-amber-700">Média Pts</p>
+              <div className="text-center p-3 bg-brand-clay/10 border border-brand-clay/30 rounded-lg">
+                <p className="text-2xl font-bold text-brand-clay">{avgPontuacao}</p>
+                <p className="text-xs text-muted-foreground">Média Pts</p>
               </div>
             </div>
 
             {/* Performance por Nível */}
             {nivelData.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-stone-700 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
                   Por Nível de Dificuldade
                 </h3>
@@ -85,16 +85,15 @@ export default function QuizPerformance({ quizProgress, biblicalStudies }) {
                   <div key={nivel} className="space-y-1">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
-                        <Badge 
-                          variant="outline" 
-                          className="capitalize text-xs"
-                          style={{ borderColor: '#722f37', color: '#722f37' }}
+                        <Badge
+                          variant="outline"
+                          className="capitalize text-xs border-primary text-primary"
                         >
                           {nivel}
                         </Badge>
-                        <span className="text-xs text-stone-600">{total} quiz(zes)</span>
+                        <span className="text-xs text-muted-foreground">{total} quiz(zes)</span>
                       </div>
-                      <span className="text-sm font-semibold text-stone-800">
+                      <span className="text-sm font-semibold text-card-foreground">
                         {accuracy}%
                       </span>
                     </div>

@@ -64,7 +64,7 @@ export default function APITokenConfig() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Key className="w-5 h-5" style={{ color: '#722f37' }} />
+          <Key className="w-5 h-5 text-primary" />
           Token ABíbliaDigital
         </CardTitle>
         <CardDescription>
@@ -123,15 +123,15 @@ export default function APITokenConfig() {
           </div>
         ) : (
           <div className="space-y-3">
-            <Alert className="border-amber-200 bg-amber-50">
-              <AlertDescription className="text-amber-800 text-sm">
+            <Alert className="border-accent/30 bg-accent/10">
+              <AlertDescription className="text-accent-foreground text-sm">
                 <div className="font-semibold mb-1">Token não configurado</div>
                 <div>Configure seu token para acessar todos os capítulos da Bíblia.</div>
               </AlertDescription>
             </Alert>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-stone-700">
+              <label className="text-sm font-medium text-muted-foreground">
                 Cole seu token aqui:
               </label>
               <Input
@@ -146,8 +146,7 @@ export default function APITokenConfig() {
             <Button
               onClick={handleSave}
               disabled={!token.trim() || isSaving}
-              className="w-full text-white"
-              style={{ backgroundColor: '#722f37' }}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isSaving ? (
                 <>
@@ -159,8 +158,8 @@ export default function APITokenConfig() {
               )}
             </Button>
 
-            <Alert className="border-blue-200 bg-blue-50">
-              <AlertDescription className="text-blue-800 text-xs">
+            <Alert className="border-border bg-secondary/40">
+              <AlertDescription className="text-secondary-foreground text-xs">
                 <div className="font-semibold mb-1">Como obter o token?</div>
                 <ol className="list-decimal list-inside space-y-1">
                   <li>Acesse o site da ABíbliaDigital</li>
@@ -172,7 +171,7 @@ export default function APITokenConfig() {
                   href="https://www.abibliadigital.com.br"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 mt-2 text-blue-600 hover:underline"
+                  className="flex items-center gap-1 mt-2 text-primary hover:underline"
                 >
                   Acessar ABíbliaDigital
                   <ExternalLink className="w-3 h-3" />

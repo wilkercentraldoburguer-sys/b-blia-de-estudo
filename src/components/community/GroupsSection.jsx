@@ -74,7 +74,7 @@ export default function GroupsSection({ user }) {
         <CardContent className="pt-6">
           <Dialog open={newGroupOpen} onOpenChange={setNewGroupOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Plus className="w-4 h-4 mr-2" />
                 Criar Novo Grupo de Estudo
               </Button>
@@ -116,7 +116,7 @@ export default function GroupsSection({ user }) {
                   <Button 
                     onClick={() => createGroupMutation.mutate(groupData)}
                     disabled={!groupData.nome || !groupData.descricao}
-                    className="bg-indigo-600 hover:bg-indigo-700"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     Criar Grupo
                   </Button>
@@ -130,7 +130,7 @@ export default function GroupsSection({ user }) {
       {isLoading ? (
         <Card>
           <CardContent className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </CardContent>
         </Card>
       ) : groups.length === 0 ? (
@@ -177,7 +177,7 @@ export default function GroupsSection({ user }) {
                       </Button>
                     ) : (
                       <Button
-                        className="w-full bg-indigo-600 hover:bg-indigo-700"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                         onClick={() => joinGroupMutation.mutate(group)}
                       >
                         Entrar no Grupo

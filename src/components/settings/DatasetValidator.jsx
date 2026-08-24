@@ -56,8 +56,7 @@ export default function DatasetValidator() {
         <Button
           onClick={handleValidate}
           disabled={isValidating}
-          className="w-full text-white"
-          style={{ backgroundColor: '#722f37' }}
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {isValidating ? (
             <>
@@ -72,15 +71,15 @@ export default function DatasetValidator() {
         {results && !results.error && (
           <div className="space-y-4">
             {/* Resumo */}
-            <Alert className={results.totalFound === results.totalExpected ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"}>
-              <div className={results.totalFound === results.totalExpected ? "text-green-600" : "text-amber-600"}>
+            <Alert className={results.totalFound === results.totalExpected ? "border-green-200 bg-green-50" : "border-accent/30 bg-accent/10"}>
+              <div className={results.totalFound === results.totalExpected ? "text-green-600" : "text-accent"}>
                 {results.totalFound === results.totalExpected ? (
                   <CheckCircle2 className="w-4 h-4" />
                 ) : (
                   <AlertTriangle className="w-4 h-4" />
                 )}
               </div>
-              <AlertDescription className={results.totalFound === results.totalExpected ? "text-green-800" : "text-amber-800"}>
+              <AlertDescription className={results.totalFound === results.totalExpected ? "text-green-800" : "text-foreground"}>
                 <div className="font-semibold mb-2">
                   {results.totalFound === results.totalExpected 
                     ? 'Dataset completo!' 
@@ -98,30 +97,30 @@ export default function DatasetValidator() {
             {/* Barra de Progresso */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-stone-700">Completude</span>
-                <span className="text-sm text-stone-600">{getCompletionPercentage()}%</span>
+                <span className="text-sm font-medium text-muted-foreground">Completude</span>
+                <span className="text-sm text-muted-foreground">{getCompletionPercentage()}%</span>
               </div>
               <Progress value={getCompletionPercentage()} className="h-3" />
             </div>
 
             {/* Detalhes de Faltando */}
             {results.missing.length > 0 && (
-              <div className="border border-amber-200 bg-amber-50 rounded-lg p-4">
+              <div className="border border-accent/30 bg-accent/10 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <XCircle className="w-4 h-4 text-amber-600" />
-                  <h3 className="font-semibold text-amber-900">
+                  <XCircle className="w-4 h-4 text-accent" />
+                  <h3 className="font-semibold text-foreground">
                     Capítulos Faltando ({results.missing.length})
                   </h3>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
-                  <div className="grid grid-cols-4 gap-2 text-xs text-amber-800">
+                  <div className="grid grid-cols-4 gap-2 text-xs text-foreground">
                     {results.missing.slice(0, 50).map((m, idx) => (
-                      <div key={idx} className="bg-white px-2 py-1 rounded">
+                      <div key={idx} className="bg-card px-2 py-1 rounded">
                         {m.book} {m.chapter}
                       </div>
                     ))}
                     {results.missing.length > 50 && (
-                      <div className="col-span-4 text-center text-amber-600 mt-2">
+                      <div className="col-span-4 text-center text-accent mt-2">
                         ... e mais {results.missing.length - 50} capítulos
                       </div>
                     )}
@@ -141,7 +140,7 @@ export default function DatasetValidator() {
                 </div>
                 <div className="max-h-48 overflow-y-auto space-y-1 text-xs text-red-800">
                   {results.invalid.map((i, idx) => (
-                    <div key={idx} className="bg-white px-2 py-1 rounded">
+                    <div key={idx} className="bg-card px-2 py-1 rounded">
                       {i.book} {i.chapter}: {i.reason}
                     </div>
                   ))}
@@ -153,8 +152,7 @@ export default function DatasetValidator() {
             <Button
               onClick={handleExportReport}
               variant="outline"
-              className="w-full"
-              style={{ borderColor: '#722f37', color: '#722f37' }}
+              className="w-full border-primary text-primary"
             >
               <Download className="w-4 h-4 mr-2" />
               Exportar Relatório
@@ -173,8 +171,8 @@ export default function DatasetValidator() {
         )}
 
         {!results && !isValidating && (
-          <Alert className="border-blue-200 bg-blue-50">
-            <AlertDescription className="text-blue-800 text-sm">
+          <Alert className="border-border bg-secondary">
+            <AlertDescription className="text-secondary-foreground text-sm">
               <div className="font-semibold mb-1">Sobre a validação</div>
               <ul className="list-disc list-inside space-y-1 text-xs">
                 <li>Verifica todos os 1189 capítulos esperados</li>

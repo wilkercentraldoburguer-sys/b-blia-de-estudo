@@ -11,44 +11,44 @@ export default function StudyHistory({ studies }) {
   const inProgress = studies.filter(s => !s.concluido && s.progresso > 0).length;
 
   return (
-    <Card className="border-2" style={{ borderColor: '#722f37' }}>
+    <Card className="border-2 border-primary/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5" style={{ color: '#722f37' }} />
+          <BookOpen className="w-5 h-5 text-primary" />
           Histórico de Estudos
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-3 bg-amber-50 rounded-lg">
-            <p className="text-2xl font-bold" style={{ color: '#722f37' }}>{studies.length}</p>
-            <p className="text-xs text-stone-600">Total</p>
+          <div className="text-center p-3 bg-primary/5 border border-primary/20 rounded-lg">
+            <p className="text-2xl font-bold text-primary">{studies.length}</p>
+            <p className="text-xs text-muted-foreground">Total</p>
           </div>
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <p className="text-2xl font-bold text-green-600">{completed}</p>
-            <p className="text-xs text-stone-600">Concluídos</p>
+          <div className="text-center p-3 bg-accent/10 border border-accent/30 rounded-lg">
+            <p className="text-2xl font-bold text-accent">{completed}</p>
+            <p className="text-xs text-muted-foreground">Concluídos</p>
           </div>
-          <div className="text-center p-3 bg-blue-50 rounded-lg">
-            <p className="text-2xl font-bold text-blue-600">{inProgress}</p>
-            <p className="text-xs text-stone-600">Em Andamento</p>
+          <div className="text-center p-3 bg-brand-clay/10 border border-brand-clay/30 rounded-lg">
+            <p className="text-2xl font-bold text-brand-clay">{inProgress}</p>
+            <p className="text-xs text-muted-foreground">Em Andamento</p>
           </div>
         </div>
 
         <div className="space-y-3">
           {studies.slice(0, 5).map((study) => (
-            <Link 
-              key={study.id} 
+            <Link
+              key={study.id}
               to={`${createPageUrl('Study')}?study=${study.id}`}
               className="block"
             >
-              <div className="p-3 bg-stone-50 rounded-lg hover:bg-stone-100 transition-all">
+              <div className="p-3 bg-secondary rounded-lg hover:bg-secondary/70 transition-all">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
-                    <p className="font-semibold text-stone-800 mb-1">
+                    <p className="font-semibold text-card-foreground mb-1">
                       {study.referencia}
                     </p>
                     <div className="flex gap-2 mb-2">
-                      <Badge className="text-xs" style={{ backgroundColor: '#722f37' }}>
+                      <Badge className="text-xs bg-primary text-primary-foreground">
                         {study.versao}
                       </Badge>
                       <Badge variant="outline" className="text-xs capitalize">
@@ -67,8 +67,8 @@ export default function StudyHistory({ studies }) {
 
           {studies.length === 0 && (
             <div className="text-center py-8">
-              <Clock className="w-12 h-12 text-stone-300 mx-auto mb-2" />
-              <p className="text-stone-500 text-sm">Nenhum estudo iniciado ainda</p>
+              <Clock className="w-12 h-12 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-muted-foreground text-sm">Nenhum estudo iniciado ainda</p>
             </div>
           )}
         </div>

@@ -43,12 +43,12 @@ export default function ForumSection({ user }) {
   };
 
   const categoriaColors = {
-    doutrina: "bg-blue-100 text-blue-800",
-    vida_crista: "bg-green-100 text-green-800",
-    duvidas: "bg-yellow-100 text-yellow-800",
-    testemunhos: "bg-purple-100 text-purple-800",
-    oracao: "bg-pink-100 text-pink-800",
-    geral: "bg-slate-100 text-slate-800"
+    doutrina: "bg-primary text-primary-foreground",
+    vida_crista: "bg-accent text-accent-foreground",
+    duvidas: "bg-brand-clay text-brand-bone",
+    testemunhos: "bg-secondary text-secondary-foreground",
+    oracao: "bg-primary text-primary-foreground",
+    geral: "bg-secondary text-secondary-foreground"
   };
 
   return (
@@ -57,7 +57,7 @@ export default function ForumSection({ user }) {
         <CardContent className="pt-6">
           <Dialog open={newTopicOpen} onOpenChange={setNewTopicOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full bg-teal-600 hover:bg-teal-700">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Plus className="w-4 h-4 mr-2" />
                 Criar Novo Tópico
               </Button>
@@ -99,7 +99,7 @@ export default function ForumSection({ user }) {
                   <Button 
                     onClick={() => createTopicMutation.mutate(topicData)}
                     disabled={!topicData.titulo || !topicData.conteudo}
-                    className="bg-teal-600 hover:bg-teal-700"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
                     Criar Tópico
                   </Button>
@@ -113,7 +113,7 @@ export default function ForumSection({ user }) {
       {isLoading ? (
         <Card>
           <CardContent className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-teal-600" />
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </CardContent>
         </Card>
       ) : topics.length === 0 ? (

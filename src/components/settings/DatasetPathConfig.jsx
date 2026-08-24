@@ -52,7 +52,7 @@ export default function DatasetPathConfig() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Search className="w-5 h-5" style={{ color: '#722f37' }} />
+          <Search className="w-5 h-5 text-primary" />
           Rota Pública do Dataset
         </CardTitle>
         <CardDescription>
@@ -61,7 +61,7 @@ export default function DatasetPathConfig() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-stone-700">Base path do dataset</label>
+          <label className="text-sm font-medium text-muted-foreground">Base path do dataset</label>
           <div className="flex gap-2">
             <Input
               value={currentPath}
@@ -69,11 +69,11 @@ export default function DatasetPathConfig() {
               placeholder="/bible"
               className="font-mono text-sm"
             />
-            <Button onClick={handleSave} variant="outline" style={{ borderColor: '#722f37', color: '#722f37' }}>
+            <Button onClick={handleSave} variant="outline" className="border-primary text-primary">
               Salvar
             </Button>
           </div>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-muted-foreground">
             Exemplo: /bible (arquivos em public/bible/)
           </p>
         </div>
@@ -82,8 +82,7 @@ export default function DatasetPathConfig() {
           <Button
             onClick={handleAutoDetect}
             disabled={isDetecting}
-            className="flex-1 text-white"
-            style={{ backgroundColor: '#722f37' }}
+            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isDetecting ? (
               <>
@@ -98,7 +97,7 @@ export default function DatasetPathConfig() {
             onClick={handleTest}
             disabled={isTesting}
             variant="outline"
-            style={{ borderColor: '#722f37', color: '#722f37' }}
+            className="border-primary text-primary"
           >
             {isTesting ? (
               <>
@@ -138,7 +137,7 @@ export default function DatasetPathConfig() {
 
         {detectionResults && (
           <div className="space-y-2">
-            <div className="text-sm font-semibold text-stone-700">
+            <div className="text-sm font-semibold text-foreground">
               {detectionResults.success ? '✅ Base path detectado' : '❌ Nenhuma rota válida encontrada'}
             </div>
             {detectionResults.success && (
@@ -155,12 +154,12 @@ export default function DatasetPathConfig() {
                 <div
                   key={idx}
                   className={`p-2 rounded border text-xs ${
-                    result.success ? 'bg-green-50 border-green-200' : 'bg-stone-50 border-stone-200'
+                    result.success ? 'bg-green-50 border-green-200' : 'bg-secondary border-border'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono">{result.url}</span>
-                    <span className={result.success ? 'text-green-700' : 'text-stone-500'}>
+                    <span className={result.success ? 'text-green-700' : 'text-muted-foreground'}>
                       {result.status} • {result.timeMs}ms
                     </span>
                   </div>
@@ -170,8 +169,8 @@ export default function DatasetPathConfig() {
           </div>
         )}
 
-        <Alert className="border-blue-200 bg-blue-50">
-          <AlertDescription className="text-blue-800 text-xs">
+        <Alert className="border-border bg-secondary">
+          <AlertDescription className="text-secondary-foreground text-xs">
             <div className="font-semibold mb-1">Como funciona:</div>
             <ul className="list-disc list-inside space-y-0.5">
               <li>Auto-detectar testa múltiplos prefixos candidatos</li>

@@ -3,10 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Heart, Lightbulb, MessageCircle } from "lucide-react";
 
 export const POST_TAGS = [
-  { id: "reflexao", label: "Reflexão", icon: Lightbulb, color: "bg-amber-100 text-amber-800" },
-  { id: "versiculo", label: "Versículo", icon: BookOpen, color: "bg-blue-100 text-blue-800" },
-  { id: "estudo", label: "Estudo", icon: Heart, color: "bg-purple-100 text-purple-800" },
-  { id: "testemunho", label: "Testemunho", icon: MessageCircle, color: "bg-green-100 text-green-800" }
+  { id: "reflexao", label: "Reflexão", icon: Lightbulb, color: "bg-accent text-accent-foreground" },
+  { id: "versiculo", label: "Versículo", icon: BookOpen, color: "bg-primary text-primary-foreground" },
+  { id: "estudo", label: "Estudo", icon: Heart, color: "bg-brand-clay text-brand-bone" },
+  { id: "testemunho", label: "Testemunho", icon: MessageCircle, color: "bg-secondary text-secondary-foreground" }
 ];
 
 export function PostTag({ tag }) {
@@ -35,7 +35,7 @@ export function TagSelector({ selectedTag, onSelectTag }) {
             className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
               selectedTag === tag.id
                 ? `${tag.color} border-current`
-                : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300'
+                : 'bg-card text-muted-foreground border-border hover:border-primary/50'
             }`}
           >
             <Icon className="w-4 h-4" />

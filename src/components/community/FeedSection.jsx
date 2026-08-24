@@ -131,10 +131,10 @@ export default function FeedSection({ user }) {
   };
 
   const tipoColors = {
-    anotacao: "bg-blue-100 text-blue-800",
-    destaque: "bg-yellow-100 text-yellow-800",
-    insight: "bg-purple-100 text-purple-800",
-    reflexao: "bg-green-100 text-green-800"
+    anotacao: "bg-secondary text-secondary-foreground",
+    destaque: "bg-accent text-accent-foreground",
+    insight: "bg-primary text-primary-foreground",
+    reflexao: "bg-brand-clay text-brand-bone"
   };
 
   return (
@@ -145,7 +145,7 @@ export default function FeedSection({ user }) {
           <CardContent className="pt-6">
             <Dialog open={newPostOpen} onOpenChange={setNewPostOpen}>
               <DialogTrigger asChild>
-                <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   <Plus className="w-4 h-4 mr-2" />
                   Compartilhar algo com a comunidade
                 </Button>
@@ -191,7 +191,7 @@ export default function FeedSection({ user }) {
                     <Button variant="outline" onClick={() => setNewPostOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button onClick={handleCreatePost} className="bg-purple-600 hover:bg-purple-700">
+                    <Button onClick={handleCreatePost} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                       Publicar
                     </Button>
                   </div>
@@ -205,7 +205,7 @@ export default function FeedSection({ user }) {
         {isLoading ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </CardContent>
           </Card>
         ) : posts.length === 0 ? (
@@ -224,8 +224,8 @@ export default function FeedSection({ user }) {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <span className="text-purple-600 font-bold">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-primary font-bold">
                           {post.created_by?.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -255,10 +255,10 @@ export default function FeedSection({ user }) {
                   <p className="text-slate-700 leading-relaxed">{post.conteudo}</p>
 
                   {post.versiculo_referencia && (
-                    <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                    <div className="p-4 bg-brand-tint rounded-lg border-l-4 border-primary">
                       <div className="flex items-center gap-2 mb-2">
-                        <Book className="w-4 h-4 text-blue-600" />
-                        <p className="font-semibold text-blue-900">{post.versiculo_referencia}</p>
+                        <Book className="w-4 h-4 text-primary" />
+                        <p className="font-semibold text-primary">{post.versiculo_referencia}</p>
                       </div>
                       {post.versiculo_texto && (
                         <p className="text-slate-700 italic">"{post.versiculo_texto}"</p>
@@ -289,7 +289,7 @@ export default function FeedSection({ user }) {
                   {showComments[post.id] && (
                     <div className="space-y-3 pt-3 border-t">
                       {postComments.map((comment) => (
-                        <div key={comment.id} className="bg-slate-50 p-3 rounded-lg">
+                        <div key={comment.id} className="bg-secondary p-3 rounded-lg">
                           <p className="font-semibold text-sm text-slate-800">{comment.author_name}</p>
                           <p className="text-slate-700 text-sm mt-1">{comment.conteudo}</p>
                         </div>
@@ -333,8 +333,8 @@ export default function FeedSection({ user }) {
               <div className="space-y-2">
                 {follows.map((follow) => (
                   <div key={follow.id} className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <span className="text-purple-600 text-xs font-bold">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-primary text-xs font-bold">
                         {follow.following_name?.charAt(0).toUpperCase()}
                       </span>
                     </div>

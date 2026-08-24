@@ -106,7 +106,7 @@ export default function DatasetSection() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Database className="w-5 h-5" style={{ color: '#722f37' }} />
+            <Database className="w-5 h-5 text-primary" />
             Dataset Bíblico
           </CardTitle>
           <CardDescription>
@@ -116,27 +116,27 @@ export default function DatasetSection() {
         <CardContent className="space-y-4">
           {results ? (
             <>
-              <div className="grid grid-cols-2 gap-4 p-4 bg-stone-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-secondary rounded-lg">
                 <div>
-                  <div className="text-sm text-stone-600">Capítulos esperados</div>
-                  <div className="text-2xl font-bold" style={{ color: '#722f37' }}>
+                  <div className="text-sm text-muted-foreground">Capítulos esperados</div>
+                  <div className="text-2xl font-bold text-primary">
                     {results.totalExpected}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-stone-600">Capítulos encontrados</div>
+                  <div className="text-sm text-muted-foreground">Capítulos encontrados</div>
                   <div className="text-2xl font-bold text-green-600">
                     {results.totalFound}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-stone-600">Faltando</div>
-                  <div className="text-2xl font-bold text-amber-600">
+                  <div className="text-sm text-muted-foreground">Faltando</div>
+                  <div className="text-2xl font-bold text-accent">
                     {results.missing.length}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-stone-600">Inválidos</div>
+                  <div className="text-sm text-muted-foreground">Inválidos</div>
                   <div className="text-2xl font-bold text-red-600">
                     {results.invalid.length}
                   </div>
@@ -145,8 +145,8 @@ export default function DatasetSection() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-stone-700">Completude</span>
-                  <span className="text-sm font-semibold" style={{ color: '#722f37' }}>
+                  <span className="text-sm font-medium text-muted-foreground">Completude</span>
+                  <span className="text-sm font-semibold text-primary">
                     {getCompletionPercentage()}%
                   </span>
                 </div>
@@ -154,9 +154,9 @@ export default function DatasetSection() {
               </div>
 
               {results.missing.length > 0 && (
-                <Alert className="border-amber-200 bg-amber-50">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  <AlertDescription className="text-amber-800">
+                <Alert className="border-accent/30 bg-accent/10">
+                  <AlertTriangle className="w-4 h-4 text-accent" />
+                  <AlertDescription className="text-foreground">
                     <div className="font-semibold mb-1">
                       {results.missing.length} capítulos faltando
                     </div>
@@ -178,8 +178,8 @@ export default function DatasetSection() {
               )}
             </>
           ) : (
-            <Alert className="border-blue-200 bg-blue-50">
-              <AlertDescription className="text-blue-800 text-sm">
+            <Alert className="border-border bg-secondary">
+              <AlertDescription className="text-secondary-foreground text-sm">
                 Clique em "Validar dataset" para verificar quais capítulos estão disponíveis
               </AlertDescription>
             </Alert>
@@ -189,8 +189,7 @@ export default function DatasetSection() {
             <Button
               onClick={handleValidate}
               disabled={isValidating}
-              className="flex-1 text-white"
-              style={{ backgroundColor: '#722f37' }}
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isValidating ? (
                 <>
@@ -205,7 +204,7 @@ export default function DatasetSection() {
               <Button
                 onClick={handleExportReport}
                 variant="outline"
-                style={{ borderColor: '#722f37', color: '#722f37' }}
+                className="border-primary text-primary"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Exportar JSON
@@ -219,7 +218,7 @@ export default function DatasetSection() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5" style={{ color: '#722f37' }} />
+            <CheckCircle2 className="w-5 h-5 text-primary" />
             Teste de Rotas
           </CardTitle>
           <CardDescription>
@@ -230,8 +229,7 @@ export default function DatasetSection() {
           <Button
             onClick={handleSmokeTest}
             disabled={isTesting}
-            className="w-full text-white"
-            style={{ backgroundColor: '#722f37' }}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isTesting ? (
               <>
@@ -262,7 +260,7 @@ export default function DatasetSection() {
                         )}
                         <span className="font-semibold text-sm">{test.name}</span>
                       </div>
-                      <div className="text-xs text-stone-600 mt-1 font-mono">{test.url}</div>
+                      <div className="text-xs text-muted-foreground mt-1 font-mono">{test.url}</div>
                       {test.success ? (
                         <div className="text-xs text-green-700 mt-1">
                           HTTP {test.status} • {test.sizeKB} KB • {test.timeMs}ms
@@ -279,9 +277,9 @@ export default function DatasetSection() {
             </div>
           )}
 
-          <Alert className="border-blue-200 bg-blue-50">
-            <AlertDescription className="text-blue-800 text-xs">
-              <strong>Importante:</strong> Os arquivos devem estar em <code className="bg-blue-100 px-1 rounded">public/bible/</code> mas o fetch deve ser <code className="bg-blue-100 px-1 rounded">/bible/</code> (sem /public)
+          <Alert className="border-border bg-secondary">
+            <AlertDescription className="text-secondary-foreground text-xs">
+              <strong>Importante:</strong> Os arquivos devem estar em <code className="bg-muted px-1 rounded">public/bible/</code> mas o fetch deve ser <code className="bg-muted px-1 rounded">/bible/</code> (sem /public)
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -291,7 +289,7 @@ export default function DatasetSection() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="w-5 h-5" style={{ color: '#722f37' }} />
+            <Upload className="w-5 h-5 text-primary" />
             Importar Dataset
           </CardTitle>
           <CardDescription>
@@ -301,8 +299,7 @@ export default function DatasetSection() {
         <CardContent>
           <Button
             onClick={() => setImportDialogOpen(true)}
-            className="w-full text-white"
-            style={{ backgroundColor: '#722f37' }}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Upload className="w-4 h-4 mr-2" />
             Importar Dataset
@@ -321,9 +318,9 @@ export default function DatasetSection() {
           </DialogHeader>
 
           <div className="space-y-4">
-            <Alert className="border-amber-200 bg-amber-50">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <AlertDescription className="text-amber-800">
+            <Alert className="border-accent/30 bg-accent/10">
+              <AlertTriangle className="w-4 h-4 text-accent" />
+              <AlertDescription className="text-foreground">
                 <div className="font-semibold mb-2">Dataset ainda não fornecido</div>
                 <div className="text-sm space-y-1">
                   <p>Este módulo está preparado para importar datasets em formato:</p>
@@ -333,15 +330,15 @@ export default function DatasetSection() {
                   </ul>
                   <p className="mt-2">
                     Quando você tiver o dataset licenciado, basta fornecê-lo e
-                    o sistema irá importar e preencher <code className="bg-amber-100 px-1 rounded">/bible/</code>
+                    o sistema irá importar e preencher <code className="bg-accent/20 px-1 rounded">/bible/</code>
                   </p>
                 </div>
               </AlertDescription>
             </Alert>
 
-            <div className="bg-stone-50 p-4 rounded-lg border border-stone-200">
-              <div className="font-semibold text-stone-800 mb-2">Formato esperado dos arquivos:</div>
-              <pre className="text-xs bg-white p-3 rounded border overflow-x-auto">
+            <div className="bg-secondary p-4 rounded-lg border border-border">
+              <div className="font-semibold text-foreground mb-2">Formato esperado dos arquivos:</div>
+              <pre className="text-xs bg-card p-3 rounded border border-border overflow-x-auto">
 {`{
   "version": "ra",
   "bookKey": "jo",
@@ -355,10 +352,10 @@ export default function DatasetSection() {
               </pre>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <div className="text-sm text-blue-900">
+            <div className="bg-secondary p-4 rounded-lg border border-border">
+              <div className="text-sm text-secondary-foreground">
                 <strong>Estrutura de pastas:</strong>
-                <pre className="mt-2 text-xs bg-white p-2 rounded">
+                <pre className="mt-2 text-xs bg-card p-2 rounded border border-border">
 {`/public/bible/
   meta.json
   ra/

@@ -10,7 +10,7 @@ const BADGES = [
     title: "Primeiro Passo",
     description: "Complete seu primeiro estudo bíblico",
     icon: BookOpen,
-    color: "#3b82f6",
+    color: "primary",
     checkUnlock: (data) => data.completedStudies >= 1
   },
   {
@@ -18,7 +18,7 @@ const BADGES = [
     title: "Estudioso",
     description: "Complete 10 estudos bíblicos",
     icon: Brain,
-    color: "#8b5cf6",
+    color: "accent",
     checkUnlock: (data) => data.completedStudies >= 10
   },
   {
@@ -26,7 +26,7 @@ const BADGES = [
     title: "Mestre dos Estudos",
     description: "Complete 50 estudos bíblicos",
     icon: Crown,
-    color: "#f59e0b",
+    color: "clay",
     checkUnlock: (data) => data.completedStudies >= 50
   },
   {
@@ -34,7 +34,7 @@ const BADGES = [
     title: "Leitor Devoto",
     description: "Leia a Bíblia por 7 dias consecutivos",
     icon: Flame,
-    color: "#ef4444",
+    color: "primary",
     checkUnlock: (data) => data.readingStreak >= 7
   },
   {
@@ -42,7 +42,7 @@ const BADGES = [
     title: "Chama Ardente",
     description: "Leia a Bíblia por 30 dias consecutivos",
     icon: Flame,
-    color: "#dc2626",
+    color: "accent",
     checkUnlock: (data) => data.readingStreak >= 30
   },
   {
@@ -50,7 +50,7 @@ const BADGES = [
     title: "Mente Afiada",
     description: "Acerte 100% em qualquer quiz",
     icon: Target,
-    color: "#10b981",
+    color: "clay",
     checkUnlock: (data) => data.perfectQuizzes >= 1
   },
   {
@@ -58,7 +58,7 @@ const BADGES = [
     title: "Expert Bíblico",
     description: "Complete 20 quizzes",
     icon: Brain,
-    color: "#6366f1",
+    color: "primary",
     checkUnlock: (data) => data.totalQuizzes >= 20
   },
   {
@@ -66,7 +66,7 @@ const BADGES = [
     title: "Semeador",
     description: "Compartilhe 10 versículos",
     icon: Star,
-    color: "#f59e0b",
+    color: "accent",
     checkUnlock: (data) => data.shares >= 10
   },
   {
@@ -74,7 +74,7 @@ const BADGES = [
     title: "Escriba",
     description: "Faça 50 anotações",
     icon: BookOpen,
-    color: "#8b5cf6",
+    color: "clay",
     checkUnlock: (data) => data.notes >= 50
   },
   {
@@ -82,10 +82,25 @@ const BADGES = [
     title: "Colecionador",
     description: "Salve 100 versículos favoritos",
     icon: Award,
-    color: "#ec4899",
+    color: "primary",
     checkUnlock: (data) => data.favorites >= 100
   }
 ];
+
+const BADGE_COLOR_CLASSES = {
+  primary: {
+    tile: "bg-primary/5 border-primary/30",
+    icon: "text-primary"
+  },
+  accent: {
+    tile: "bg-accent/10 border-accent/30",
+    icon: "text-accent"
+  },
+  clay: {
+    tile: "bg-brand-clay/10 border-brand-clay/30",
+    icon: "text-brand-clay"
+  }
+};
 
 export default function BadgesSystem({ studies, quizProgress, notes, favorites, highlights }) {
   const [unlockedBadges, setUnlockedBadges] = useState([]);
@@ -128,14 +143,14 @@ export default function BadgesSystem({ studies, quizProgress, notes, favorites, 
   );
 
   return (
-    <Card className="border-2" style={{ borderColor: '#722f37' }}>
+    <Card className="border-2 border-primary/20">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Trophy className="w-5 h-5" style={{ color: '#722f37' }} />
+            <Trophy className="w-5 h-5 text-primary" />
             Conquistas
           </div>
-          <Badge style={{ backgroundColor: '#722f37' }}>
+          <Badge className="bg-primary text-primary-foreground">
             {unlockedBadges.length}/{BADGES.length}
           </Badge>
         </CardTitle>
@@ -146,24 +161,24 @@ export default function BadgesSystem({ studies, quizProgress, notes, favorites, 
             {/* Badges Desbloqueados */}
             {unlockedBadges.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-stone-700 mb-3 flex items-center gap-2">
-                  <Star className="w-4 h-4 text-amber-500" />
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+                  <Star className="w-4 h-4 text-accent" />
                   Desbloqueados
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {unlockedBadges.map((badge) => {
                     const Icon = badge.icon;
+                    const colorClasses = BADGE_COLOR_CLASSES[badge.color] || BADGE_COLOR_CLASSES.primary;
                     return (
                       <div
                         key={badge.id}
-                        className="p-4 rounded-lg border-2 bg-gradient-to-br from-amber-50 to-stone-50"
-                        style={{ borderColor: badge.color }}
+                        className={`p-4 rounded-lg border-2 ${colorClasses.tile}`}
                       >
-                        <Icon className="w-8 h-8 mb-2 mx-auto" style={{ color: badge.color }} />
-                        <h4 className="text-sm font-bold text-center text-stone-800 mb-1">
+                        <Icon className={`w-8 h-8 mb-2 mx-auto ${colorClasses.icon}`} />
+                        <h4 className="text-sm font-bold text-center text-card-foreground mb-1">
                           {badge.title}
                         </h4>
-                        <p className="text-xs text-stone-600 text-center">
+                        <p className="text-xs text-muted-foreground text-center">
                           {badge.description}
                         </p>
                       </div>
@@ -176,7 +191,7 @@ export default function BadgesSystem({ studies, quizProgress, notes, favorites, 
             {/* Badges Bloqueados */}
             {lockedBadges.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-stone-700 mb-3">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
                   Bloqueados
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
@@ -185,13 +200,13 @@ export default function BadgesSystem({ studies, quizProgress, notes, favorites, 
                     return (
                       <div
                         key={badge.id}
-                        className="p-4 rounded-lg border-2 border-stone-200 bg-stone-50 opacity-60"
+                        className="p-4 rounded-lg border-2 border-border bg-muted opacity-60"
                       >
-                        <Icon className="w-8 h-8 mb-2 mx-auto text-stone-400" />
-                        <h4 className="text-sm font-bold text-center text-stone-600 mb-1">
+                        <Icon className="w-8 h-8 mb-2 mx-auto text-muted-foreground" />
+                        <h4 className="text-sm font-bold text-center text-muted-foreground mb-1">
                           ???
                         </h4>
-                        <p className="text-xs text-stone-500 text-center">
+                        <p className="text-xs text-muted-foreground text-center">
                           {badge.description}
                         </p>
                       </div>

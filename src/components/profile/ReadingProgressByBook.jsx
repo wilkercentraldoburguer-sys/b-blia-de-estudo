@@ -57,26 +57,26 @@ export default function ReadingProgressByBook({ highlights, notes }) {
     : 0;
 
   return (
-    <Card className="border-2" style={{ borderColor: '#722f37' }}>
+    <Card className="border-2 border-primary/20">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5" style={{ color: '#722f37' }} />
+            <BookOpen className="w-5 h-5 text-primary" />
             Progresso por Livro
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold" style={{ color: '#722f37' }}>
+            <p className="text-2xl font-bold text-primary">
               {totalProgress}%
             </p>
-            <p className="text-xs text-stone-600">Bíblia Total</p>
+            <p className="text-xs text-muted-foreground">Bíblia Total</p>
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {booksWithProgress.length === 0 ? (
           <div className="text-center py-8">
-            <TrendingUp className="w-12 h-12 text-stone-300 mx-auto mb-2" />
-            <p className="text-stone-500 text-sm">
+            <TrendingUp className="w-12 h-12 text-muted-foreground/40 mx-auto mb-2" />
+            <p className="text-muted-foreground text-sm">
               Comece a ler para ver seu progresso
             </p>
           </div>
@@ -87,17 +87,18 @@ export default function ReadingProgressByBook({ highlights, notes }) {
                 <div key={book.name} className="space-y-2">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-stone-800">{book.name}</span>
-                      <span className="text-xs px-2 py-0.5 rounded" 
-                        style={{ 
-                          backgroundColor: book.testament === 'AT' ? '#f59e0b' : '#3b82f6',
-                          color: 'white'
-                        }}
+                      <span className="font-medium text-card-foreground">{book.name}</span>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded ${
+                          book.testament === 'AT'
+                            ? 'bg-accent text-accent-foreground'
+                            : 'bg-primary text-primary-foreground'
+                        }`}
                       >
                         {book.testament}
                       </span>
                     </div>
-                    <span className="text-sm font-semibold text-stone-600">
+                    <span className="text-sm font-semibold text-muted-foreground">
                       {book.progress}%
                     </span>
                   </div>
