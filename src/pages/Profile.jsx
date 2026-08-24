@@ -14,6 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const BIBLE_VERSIONS = ["ARA", "ARC", "NVI", "NVT", "ACF", "KJV", "NAA"];
+// NVT (Nova Versão Transformadora) é uma tradução comercial sem fonte
+// gratuita/legal conhecida - fica na lista (o usuário pediu por ela), mas
+// marcada como indisponível em vez de silenciosamente carregar outra
+// versão sob esse rótulo (ver getBibleProvider.jsx).
+const UNAVAILABLE_VERSIONS = ["NVT"];
 // IMPORTANTE: por padrão, o comentário exibido pra cada nome abaixo é uma
 // reflexão gerada por IA "inspirada no estilo" da pessoa - nunca uma
 // citação literal do que ela realmente escreveu (ver
@@ -239,11 +244,11 @@ export default function Profile() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Versão usada por padrão na leitura e estudo:
             </p>
-            <Select 
-              value={preferences?.versao_padrao || "ARA"} 
+            <Select
+              value={preferences?.versao_padrao || "ARA"}
               onValueChange={setDefaultVersion}
             >
               <SelectTrigger className="w-full">
@@ -251,8 +256,13 @@ export default function Profile() {
               </SelectTrigger>
               <SelectContent>
                 {BIBLE_VERSIONS.map(version => (
-                  <SelectItem key={version} value={version}>
-                    {version}
+                  <SelectItem
+                    key={version}
+                    value={version}
+                    disabled={UNAVAILABLE_VERSIONS.includes(version)}
+                    title={UNAVAILABLE_VERSIONS.includes(version) ? 'Indisponível: sem fonte gratuita/legal para esta tradução' : undefined}
+                  >
+                    {version}{UNAVAILABLE_VERSIONS.includes(version) ? ' (indisponível)' : ''}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -269,19 +279,28 @@ export default function Profile() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Versões disponíveis para leitura e comparação:
             </p>
             <div className="space-y-3">
-              {BIBLE_VERSIONS.map(version => (
-                <div key={version} className="flex items-center justify-between">
-                  <span className="text-slate-700">{version}</span>
-                  <Switch
-                    checked={preferences?.versoes_ativas?.includes(version) || false}
-                    onCheckedChange={() => toggleVersion(version)}
-                  />
-                </div>
-              ))}
+              {BIBLE_VERSIONS.map(version => {
+                const isUnavailable = UNAVAILABLE_VERSIONS.includes(version);
+                return (
+                  <div key={version} className="flex items-center justify-between">
+                    <span className={isUnavailable ? 'text-muted-foreground/60' : 'text-foreground'}>
+                      {version}
+                      {isUnavailable && (
+                        <span className="text-xs text-muted-foreground ml-2">(sem fonte gratuita/legal)</span>
+                      )}
+                    </span>
+                    <Switch
+                      checked={!isUnavailable && (preferences?.versoes_ativas?.includes(version) || false)}
+                      onCheckedChange={() => toggleVersion(version)}
+                      disabled={isUnavailable}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

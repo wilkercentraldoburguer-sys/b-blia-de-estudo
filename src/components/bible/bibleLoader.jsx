@@ -206,7 +206,11 @@ export function getCacheStats() {
  *
  * Ordem: memória -> localStorage -> dataset estático (/bible/...)
  *        -> ABíbliaDigital (se houver token configurado, melhor qualidade/versão)
- *        -> getbible.net (fallback público, sem token, sempre disponível)
+ *        -> getbible.net (fallback público, sem token, sempre disponível;
+ *           serve KJV real em inglês e Almeida 1911 real em português)
+ * Exceção: a versão "NVT" não tem nenhuma fonte gratuita/legal conhecida,
+ * então getbible.net recusa o pedido com um erro claro (VERSION_UNAVAILABLE)
+ * em vez de servir outra tradução silenciosamente com a etiqueta "NVT".
  * O resultado das APIs é salvo no cache local para as próximas leituras.
  */
 export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
@@ -232,7 +236,7 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
     }
 
     try {
-      const data = await fetchChapterFromGetBible(bookKey, chapter, signal);
+      const data = await fetchChapterFromGetBible(bookKey, chapter, signal, undefined, version);
       saveChapterToCache(version, bookName, chapter, data);
       return data;
     } catch (apiError) {

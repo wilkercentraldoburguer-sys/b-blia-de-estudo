@@ -42,7 +42,10 @@ export default function Study() {
     { sigla: "ARA", nome: "Almeida Revista e Atualizada" },
     { sigla: "ARC", nome: "Almeida Revista e Corrigida" },
     { sigla: "NVI", nome: "Nova Versão Internacional" },
-    { sigla: "NVT", nome: "Nova Versão Transformadora" },
+    // NVT é uma tradução comercial sem fonte gratuita/legal conhecida -
+    // fica na lista (foi pedida), mas marcada como indisponível em vez de
+    // silenciosamente comparar outra versão sob esse rótulo.
+    { sigla: "NVT", nome: "Nova Versão Transformadora", indisponivel: true },
     { sigla: "ACF", nome: "Almeida Corrigida Fiel" },
     { sigla: "KJV", nome: "King James Version" },
     { sigla: "NAA", nome: "Nova Almeida Atualizada" }
@@ -842,7 +845,9 @@ Retorne apenas um JSON:
                     variant={selectedVersions.includes(version.sigla) ? "default" : "outline"}
                     size="sm"
                     onClick={() => toggleVersion(version.sigla)}
-                    className="text-xs"
+                    disabled={version.indisponivel}
+                    title={version.indisponivel ? 'Indisponível: sem fonte gratuita/legal para esta tradução' : undefined}
+                    className="text-xs disabled:opacity-40"
                   >
                     {version.sigla}
                   </Button>
