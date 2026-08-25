@@ -398,7 +398,7 @@ export default function Reader() {
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
             <Button
               variant="outline"
-              className="gap-2"
+              className="gap-2 text-foreground hover:text-foreground"
               onClick={() => setSearchDialogOpen(true)}
             >
               <BookOpenCheck className="w-4 h-4" />
@@ -406,7 +406,7 @@ export default function Reader() {
             </Button>
             <Button
               variant="outline"
-              className="gap-2"
+              className="gap-2 text-foreground hover:text-foreground"
               onClick={() => setShowCommentaries(!showCommentaries)}
             >
               <StickyNote className="w-4 h-4" />
@@ -415,7 +415,7 @@ export default function Reader() {
             {getManualContexto(currentBook, currentChapter) && (
               <Button
                 variant="outline"
-                className="gap-2 border-primary/40 text-primary hover:bg-primary/10"
+                className="gap-2 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
                 onClick={() => setEntendaCapituloOpen(true)}
               >
                 <Lightbulb className="w-4 h-4" />
@@ -424,7 +424,7 @@ export default function Reader() {
             )}
             <Button
               variant="outline"
-              className="gap-2"
+              className="gap-2 text-foreground hover:text-foreground"
               onClick={() => setOfflineDialogOpen(true)}
             >
               <Download className="w-4 h-4" />
@@ -432,7 +432,7 @@ export default function Reader() {
             </Button>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" className="gap-2 flex-1 sm:flex-none">
+                <Button variant="outline" className="gap-2 flex-1 sm:flex-none text-foreground hover:text-foreground">
                   <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="text-sm sm:text-base">Livros</span>
                 </Button>
