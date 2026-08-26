@@ -62,11 +62,18 @@ const memoryCache = new LRUCache(3);
 const BOOK_KEY_MAP = BOOK_ABBREV_MAP;
 
 const VERSION_MAP = {
-  'AA': 'aa', 'KJV': 'kjv',
-  // As versões abaixo não têm dataset local real (ver bibleVersions.jsx) -
-  // mantidas só para não quebrar a normalização de uma sigla antiga que
-  // ainda apareça em algum cache velho no localStorage do usuário.
-  'ARA': 'ra', 'ARC': 'arc', 'NVI': 'nvi', 'ACF': 'acf'
+  // Versões com dataset local real e completo (66 livros cada - ver
+  // bibleVersions.jsx). 'KJA' é a sigla atual do King James em inglês
+  // (renomeada de 'KJV' a pedido do usuário em 26/08/2026 - o texto
+  // continua sendo o mesmo arquivo /bible/kjv/*.json real em inglês,
+  // buscado via getBibleProvider.jsx, não um dataset local próprio).
+  // NVI e ACF voltaram a ter dataset local em 26/08/2026 (ver aviso de
+  // direitos autorais em bibleVersions.jsx).
+  'AA': 'aa', 'KJA': 'kjv', 'NVI': 'nvi', 'ACF': 'acf',
+  // Siglas antigas: mantidas só para não quebrar a normalização de cache
+  // velho no localStorage do usuário. 'KJV' era a sigla antiga do King
+  // James; 'ARA'/'ARC' nunca tiveram dataset local real.
+  'KJV': 'kjv', 'ARA': 'ra', 'ARC': 'arc'
 };
 
 function normalizeBookName(name) {

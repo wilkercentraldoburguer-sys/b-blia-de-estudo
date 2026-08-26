@@ -339,7 +339,7 @@ export default function Reader() {
 
   const loadVerseComparison = async (verseNumber) => {
     setIsLoadingComparison(true);
-    const versions = [DEFAULT_BIBLE_VERSION, "KJV"];
+    const versions = [DEFAULT_BIBLE_VERSION, "KJA"];
     const comparisons = [];
 
     for (const version of versions) {

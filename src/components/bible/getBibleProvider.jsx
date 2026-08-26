@@ -17,11 +17,21 @@
  * texto de 1911 ("phariseos", sem título de seção etc.), o que é enganoso
  * e foi reportado como bug. Agora o app tem um dataset local real e
  * completo pra Almeida Revisada (AA, ver /public/bible/aa e
- * bibleVersions.jsx) e esse fallback só serve pra KJV (inglês, real) e
- * pra AA quando por algum motivo faltar um capítulo no dataset local. As
- * demais versões em português (ARA, ARC, NVI, ACF, NAA) ficam bloqueadas
- * aqui explicitamente: o app avisa que não há fonte gratuita/legal em vez
- * de inventar/misturar texto silenciosamente.
+ * bibleVersions.jsx) e esse fallback só serve pra KJA (inglês, real) e
+ * pra AA/NVI/ACF quando por algum motivo faltar um capítulo no dataset
+ * local. As demais versões em português (ARA, ARC, NAA) e as comerciais
+ * sem nenhuma fonte encontrada (NVT, NTLH) ficam bloqueadas aqui
+ * explicitamente: o app avisa que não há fonte gratuita/legal em vez de
+ * inventar/misturar texto silenciosamente.
+ *
+ * ATUALIZAÇÃO (26/08/2026): "KJV" virou "KJA" (troca de sigla pedida pelo
+ * usuário - texto continua o King James real em inglês, ver
+ * bibleVersions.jsx). NVI e ACF passaram a ter dataset local real também
+ * (com ressalva de direitos autorais, ver bibleVersions.jsx) - por isso
+ * saíram da lista de bloqueadas abaixo. getbible.net continua sem NVI/ACF
+ * como tradução própria, então se algum dia o dataset local falhar pra
+ * essas duas, o fallback aqui simplesmente não encontra tradução
+ * (TRANSLATION_MAP) e erra com uma mensagem clara, em vez de inventar.
  */
 
 import { BIBLE_META } from './bibleMeta';
@@ -32,35 +42,25 @@ const API_BASE = 'https://api.getbible.net/v2';
  * Traduções reais confirmadas na getbible.net, por versão do app.
  */
 const TRANSLATION_MAP = {
-  'KJV': 'kjv',
+  'KJA': 'kjv',
   'AA': 'almeida',
 };
 
 /**
  * Versões que o app oferece na interface mas para as quais NÃO existe
- * (até onde pesquisamos) nenhuma fonte gratuita e legal de texto completo.
- * NVT (Nova Versão Transformadora) é uma tradução comercial licenciada
- * (Mundo Cristão / Tyndale House) - não está na ABíbliaDigital nem em
- * nenhuma API pública de domínio público que encontramos.
- * NTLH (Nova Tradução na Linguagem de Hoje) é publicada e licenciada pela
- * Sociedade Bíblica do Brasil - mesma situação: não está na getbible.net
- * (que só tem "almeida" em português) nem na ABíbliaDigital.
- * ARA, ARC, NVI, ACF e NAA são traduções comerciais protegidas por
- * direitos autorais das respectivas sociedades bíblicas - não achamos uma
- * licença aberta pro texto COMPLETO delas (ver bibleVersions.jsx). Antes
- * este provider "aproximava" essas versões com o texto de Almeida 1911
- * sob a etiqueta escolhida, o que é exatamente o problema relatado.
- * Em vez de substituir silenciosamente por outra versão, bloqueamos aqui
- * com um erro claro.
+ * (até onde pesquisamos) nenhuma fonte gratuita de texto completo -
+ * gratuita e legal (NVT, NTLH) ou pelo menos gratuita (ARA, ARC, NAA: nem
+ * o texto em si, com risco de direitos autorais, foi encontrado em
+ * nenhum lugar). Diferente de NVI/ACF (ver bibleVersions.jsx), aqui o
+ * problema não é licença - é que o texto simplesmente não existe em
+ * nenhuma fonte que encontramos.
  */
 const KNOWN_UNAVAILABLE_VERSIONS = {
   'NVT': 'A NVT (Nova Versão Transformadora) é uma tradução comercial protegida por direitos autorais. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - para não arriscar mostrar outra versão com a etiqueta "NVT" sem avisar você.',
   'NTLH': 'A NTLH (Nova Tradução na Linguagem de Hoje) é publicada pela Sociedade Bíblica do Brasil e protegida por direitos autorais. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - para não arriscar mostrar outra versão com a etiqueta "NTLH" sem avisar você.',
-  'ARA': 'A ARA (Almeida Revista e Atualizada) é uma tradução protegida por direitos autorais da Sociedade Bíblica do Brasil. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
-  'ARC': 'A ARC (Almeida Revista e Corrigida) é uma tradução protegida por direitos autorais. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
-  'NVI': 'A NVI (Nova Versão Internacional) é uma tradução comercial protegida por direitos autorais da Bíblica/Sociedade Bíblica Internacional. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
-  'ACF': 'A ACF (Almeida Corrigida Fiel) é uma tradução protegida por direitos autorais da Sociedade Bíblica Trinitariana do Brasil. Não encontramos uma fonte gratuita e legal para o texto completo dela nesta API, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
-  'NAA': 'A NAA (Nova Almeida Atualizada) é uma tradução protegida por direitos autorais da Sociedade Bíblica do Brasil. Não encontramos uma fonte gratuita e legal para o texto completo dela, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
+  'ARA': 'A ARA (Almeida Revista e Atualizada) é uma tradução protegida por direitos autorais da Sociedade Bíblica do Brasil. Não encontramos o texto completo dela em nenhuma fonte, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
+  'ARC': 'A ARC (Almeida Revista e Corrigida) é uma tradução protegida por direitos autorais. Não encontramos o texto completo dela em nenhuma fonte, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
+  'NAA': 'A NAA (Nova Almeida Atualizada) é uma tradução protegida por direitos autorais da Sociedade Bíblica do Brasil. Não encontramos o texto completo dela em nenhuma fonte, então o app não a exibe - use a AA (Almeida Revisada), que tem texto real e completo.',
 };
 
 /**
@@ -82,7 +82,7 @@ export function getUnavailableVersionReason(versionCode) {
 
 /**
  * Busca capítulo via getbible.net (sem token, texto de domínio público).
- * @param {string} versionCode - versão pedida pelo app (ex: 'ARA', 'KJV', 'NVT')
+ * @param {string} versionCode - versão pedida pelo app (ex: 'ARA', 'KJA', 'NVT')
  */
 export async function fetchChapterFromGetBible(bookKey, chapter, signal, logData, versionCode = 'ARA') {
   const unavailableReason = getUnavailableVersionReason(versionCode);

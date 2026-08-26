@@ -15,7 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BIBLE_VERSIONS as BIBLE_VERSIONS_META, UNAVAILABLE_VERSION_CODES, DEFAULT_BIBLE_VERSION } from "../components/bible/bibleVersions";
 
 const BIBLE_VERSIONS = BIBLE_VERSIONS_META.map(v => v.sigla);
-// Ver bibleVersions.jsx: só AA e KJV têm texto real e completo. As demais
+// Ver bibleVersions.jsx: AA, KJA, NVI e ACF têm texto real e completo (NVI
+// e ACF com ressalva de direitos autorais, ver comentário lá). As demais
 // ficam na lista (o usuário pediu por elas), mas marcadas como
 // indisponíveis em vez de silenciosamente carregar outra versão sob esse
 // rótulo (ver getBibleProvider.jsx).
@@ -154,7 +155,7 @@ export default function Profile() {
   });
 
   const toggleVersion = (version) => {
-    const current = preferences?.versoes_ativas || [DEFAULT_BIBLE_VERSION, "KJV"];
+    const current = preferences?.versoes_ativas || [DEFAULT_BIBLE_VERSION, "KJA"];
     const updated = current.includes(version)
       ? current.filter(v => v !== version)
       : [...current, version];

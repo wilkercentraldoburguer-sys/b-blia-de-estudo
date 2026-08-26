@@ -31,7 +31,7 @@ export default function Study() {
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [compareDialogOpen, setCompareDialogOpen] = useState(false);
-  const [selectedVersions, setSelectedVersions] = useState([DEFAULT_BIBLE_VERSION, "KJV"]);
+  const [selectedVersions, setSelectedVersions] = useState([DEFAULT_BIBLE_VERSION, "KJA"]);
   const [comparisonData, setComparisonData] = useState([]);
   const [isLoadingComparison, setIsLoadingComparison] = useState(false);
   const [activeTab, setActiveTab] = useState("estudo");

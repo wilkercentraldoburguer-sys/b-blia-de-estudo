@@ -12,10 +12,11 @@ const API_BASE = 'https://www.abibliadigital.com.br/api';
  */
 const VERSION_MAP = {
   'ARA': 'ra',      // Almeida Revista e Atualizada
-  'ARC': 'arc',     // Almeida Revista e Corrigida  
+  'ARC': 'arc',     // Almeida Revista e Corrigida
   'NVI': 'nvi',     // Nova Versão Internacional
   'ACF': 'acf',     // Almeida Corrigida Fiel
-  'KJV': 'kjv'      // King James Version
+  'KJA': 'kjv',     // King James (texto real em inglês - sigla renomeada em 26/08/2026)
+  'KJV': 'kjv'      // sigla antiga, mantida por compatibilidade
 };
 
 /**

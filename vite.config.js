@@ -64,18 +64,19 @@ export default defineConfig({
         runtimeCaching: [
           {
             // Dataset local da Bíblia (texto real, nunca muda) - 1 arquivo
-            // por livro (66 arquivos); guarda pra sempre assim que o livro
-            // é aberto uma vez.
+            // por livro, 3 versões com dataset local (AA, NVI, ACF - 66
+            // arquivos cada, 198 no total desde 26/08/2026); guarda pra
+            // sempre assim que o livro é aberto uma vez.
             urlPattern: ({ url }) => url.pathname.startsWith('/bible/'),
             handler: 'CacheFirst',
             options: {
               cacheName: 'bible-text-v1',
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              expiration: { maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] }
             }
           },
           {
-            // Fallback público (getbible.net) usado só pra KJV e AA
+            // Fallback público (getbible.net) usado só pra KJA e AA
             // quando falta algum capítulo no dataset local.
             urlPattern: ({ url }) => url.hostname === 'api.getbible.net',
             handler: 'NetworkFirst',

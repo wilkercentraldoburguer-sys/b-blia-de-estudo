@@ -207,7 +207,8 @@ export function getCacheStats() {
  * Ordem: memória -> localStorage -> dataset estático (/bible/...)
  *        -> ABíbliaDigital (se houver token configurado, melhor qualidade/versão)
  *        -> getbible.net (fallback público, sem token, sempre disponível;
- *           serve KJV real em inglês e Almeida 1911 real em português)
+ *           serve KJA (King James real em inglês) e Almeida 1911 real em
+ *           português)
  * Exceção: a versão "NVT" não tem nenhuma fonte gratuita/legal conhecida,
  * então getbible.net recusa o pedido com um erro claro (VERSION_UNAVAILABLE)
  * em vez de servir outra tradução silenciosamente com a etiqueta "NVT".
