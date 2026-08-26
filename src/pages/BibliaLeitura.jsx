@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { fetchChapterFromJSON, prefetchChapters } from "@/components/bible/bibleLoader";
 import { Link } from "react-router-dom";
+import { DEFAULT_BIBLE_VERSION } from "@/components/bible/bibleVersions";
 
 export default function BibliaLeitura() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -28,7 +29,7 @@ export default function BibliaLeitura() {
   const [immersiveMode, setImmersiveMode] = useState(false);
   const [shareCardOpen, setShareCardOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [selectedVersion, setSelectedVersion] = useState("ARA");
+  const [selectedVersion, setSelectedVersion] = useState(DEFAULT_BIBLE_VERSION);
   const [touchTimer, setTouchTimer] = useState(null);
   const [studyGeneratorOpen, setStudyGeneratorOpen] = useState(false);
   

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Heart, BookOpen, Loader2, Plus, Edit2, CheckCircle2 } from "lucide-react";
 import { fetchChapterFromJSON } from "@/components/bible/bibleLoader";
+import { DEFAULT_BIBLE_VERSION } from "@/components/bible/bibleVersions";
 
 const BIBLE_BOOKS = [
   "Gênesis", "Êxodo", "Levítico", "Números", "Deuteronômio", "Josué", "Juízes", "Rute",
@@ -117,7 +118,7 @@ IMPORTANTE:
       if (match) {
         const [, refBook, refChapterStr, refVerseStr] = match;
         try {
-          const data = await fetchChapterFromJSON("ARA", refBook.trim(), parseInt(refChapterStr, 10));
+          const data = await fetchChapterFromJSON(DEFAULT_BIBLE_VERSION, refBook.trim(), parseInt(refChapterStr, 10));
           textoVersiculo = data?.verses?.[parseInt(refVerseStr, 10) - 1]?.text || "";
         } catch (fetchError) {
           console.error("Erro ao buscar texto real do versículo do devocional:", fetchError);

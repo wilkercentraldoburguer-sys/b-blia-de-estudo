@@ -21,6 +21,7 @@ import { useTheme } from "../components/personalization/ThemeProvider";
 import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
 import EntendaCapituloDrawer from "../components/reader/EntendaCapituloDrawer";
 import { getManualContexto } from "../components/reader/manualContextoData";
+import { DEFAULT_BIBLE_VERSION } from "../components/bible/bibleVersions";
 
 const ALL_BOOKS = [...OLD_TESTAMENT, ...NEW_TESTAMENT];
 
@@ -137,7 +138,7 @@ export default function Reader() {
     if (!offline) return null;
     
     const books = JSON.parse(offline);
-    const bookData = books.find(b => b.book === book && b.version === "ARA");
+    const bookData = books.find(b => b.book === book && b.version === DEFAULT_BIBLE_VERSION);
     if (!bookData) return null;
     
     const chapterData = bookData.chapters.find(c => c.chapter === chapter);
@@ -170,7 +171,7 @@ export default function Reader() {
       // Busca o texto real do capítulo (dataset -> ABíbliaDigital com token,
       // se houver -> getbible.net) em vez de pedir para uma IA "gerar" o
       // texto bíblico.
-      const data = await fetchChapterFromJSON("ARA", book, chapter);
+      const data = await fetchChapterFromJSON(DEFAULT_BIBLE_VERSION, book, chapter);
 
       if (data && Array.isArray(data.verses) && data.verses.length > 0) {
         const formattedVerses = data.verses.map(v => ({ text: v.text }));
@@ -338,7 +339,7 @@ export default function Reader() {
 
   const loadVerseComparison = async (verseNumber) => {
     setIsLoadingComparison(true);
-    const versions = ["ARA", "NVI", "ARC"];
+    const versions = [DEFAULT_BIBLE_VERSION, "KJV"];
     const comparisons = [];
 
     for (const version of versions) {
@@ -675,8 +676,8 @@ export default function Reader() {
           <DialogHeader>
             <DialogTitle>Gerenciar Downloads Offline</DialogTitle>
           </DialogHeader>
-          <OfflineManager 
-            selectedVersion="ARA" 
+          <OfflineManager
+            selectedVersion={DEFAULT_BIBLE_VERSION}
             onClose={() => setOfflineDialogOpen(false)} 
           />
         </DialogContent>

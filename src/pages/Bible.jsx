@@ -14,28 +14,13 @@ import BookSelector, { OLD_TESTAMENT, NEW_TESTAMENT } from "../components/bible/
 import ChapterNavigation from "../components/bible/ChapterNavigation";
 import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
 import { searchVerses } from "../components/bible/abibliaBibleProvider";
-
-const BIBLE_VERSIONS = [
-  { sigla: "ARA", nome: "Almeida Revista e Atualizada" },
-  { sigla: "ARC", nome: "Almeida Revista e Corrigida" },
-  { sigla: "NVI", nome: "Nova Versão Internacional" },
-  // NVT (Nova Versão Transformadora) é uma tradução comercial, sem fonte
-  // gratuita/legal conhecida. Fica listada (o usuário pediu por ela), mas
-  // desabilitada, em vez de silenciosamente mostrar outra versão no lugar.
-  { sigla: "NVT", nome: "Nova Versão Transformadora", indisponivel: true },
-  { sigla: "ACF", nome: "Almeida Corrigida Fiel" },
-  { sigla: "KJV", nome: "King James Version" },
-  { sigla: "NAA", nome: "Nova Almeida Atualizada" },
-  // NTLH também é uma tradução comercial (Sociedade Bíblica do Brasil),
-  // sem fonte gratuita/legal conhecida - mesmo tratamento da NVT.
-  { sigla: "NTLH", nome: "Nova Tradução na Linguagem de Hoje", indisponivel: true }
-];
+import { BIBLE_VERSIONS, DEFAULT_BIBLE_VERSION } from "../components/bible/bibleVersions";
 
 export default function Bible() {
   const [currentBook, setCurrentBook] = useState("João");
   const [currentChapter, setCurrentChapter] = useState(1);
   const [totalChapters, setTotalChapters] = useState(21);
-  const [selectedVersion, setSelectedVersion] = useState("ARA");
+  const [selectedVersion, setSelectedVersion] = useState(DEFAULT_BIBLE_VERSION);
   const [verses, setVerses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);

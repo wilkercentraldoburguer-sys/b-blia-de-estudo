@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles, RefreshCw } from "lucide-react";
 import { fetchChapterFromJSON } from "@/components/bible/bibleLoader";
 import { fetchRandomVerse } from "@/components/bible/abibliaBibleProvider";
+import { DEFAULT_BIBLE_VERSION } from "@/components/bible/bibleVersions";
 
 export default function DailyVerseRecommendation({ user }) {
   const [verse, setVerse] = useState(null);
@@ -77,7 +78,7 @@ JSON:
       if (match) {
         const [, book, chapterStr, verseStr] = match;
         try {
-          const data = await fetchChapterFromJSON("ARA", book.trim(), parseInt(chapterStr, 10));
+          const data = await fetchChapterFromJSON(DEFAULT_BIBLE_VERSION, book.trim(), parseInt(chapterStr, 10));
           const verseData = data?.verses?.[parseInt(verseStr, 10) - 1];
           texto = verseData?.text || null;
         } catch (fetchError) {

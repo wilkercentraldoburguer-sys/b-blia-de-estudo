@@ -63,13 +63,14 @@ export default defineConfig({
         navigateFallback: '/index.html',
         runtimeCaching: [
           {
-            // Dataset local da Bíblia (texto real, nunca muda) - guarda
-            // pra sempre no cache assim que o capítulo é aberto uma vez.
+            // Dataset local da Bíblia (texto real, nunca muda) - 1 arquivo
+            // por livro (66 arquivos); guarda pra sempre assim que o livro
+            // é aberto uma vez.
             urlPattern: ({ url }) => url.pathname.startsWith('/bible/'),
             handler: 'CacheFirst',
             options: {
               cacheName: 'bible-text-v1',
-              expiration: { maxEntries: 1300, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 365 },
               cacheableResponse: { statuses: [0, 200] }
             }
           },

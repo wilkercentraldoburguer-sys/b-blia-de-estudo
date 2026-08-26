@@ -12,14 +12,14 @@ import { createPageUrl } from "../utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BIBLE_VERSIONS as BIBLE_VERSIONS_META, UNAVAILABLE_VERSION_CODES, DEFAULT_BIBLE_VERSION } from "../components/bible/bibleVersions";
 
-const BIBLE_VERSIONS = ["ARA", "ARC", "NVI", "NVT", "ACF", "KJV", "NAA", "NTLH"];
-// NVT (Nova Versão Transformadora) e NTLH (Nova Tradução na Linguagem de
-// Hoje) são traduções comerciais sem fonte gratuita/legal conhecida -
+const BIBLE_VERSIONS = BIBLE_VERSIONS_META.map(v => v.sigla);
+// Ver bibleVersions.jsx: só AA e KJV têm texto real e completo. As demais
 // ficam na lista (o usuário pediu por elas), mas marcadas como
 // indisponíveis em vez de silenciosamente carregar outra versão sob esse
 // rótulo (ver getBibleProvider.jsx).
-const UNAVAILABLE_VERSIONS = ["NVT", "NTLH"];
+const UNAVAILABLE_VERSIONS = UNAVAILABLE_VERSION_CODES;
 // IMPORTANTE: por padrão, o comentário exibido pra cada nome abaixo é uma
 // reflexão gerada por IA "inspirada no estilo" da pessoa - nunca uma
 // citação literal do que ela realmente escreveu (ver
@@ -154,7 +154,7 @@ export default function Profile() {
   });
 
   const toggleVersion = (version) => {
-    const current = preferences?.versoes_ativas || ["ARA", "ARC", "NVI"];
+    const current = preferences?.versoes_ativas || [DEFAULT_BIBLE_VERSION, "KJV"];
     const updated = current.includes(version)
       ? current.filter(v => v !== version)
       : [...current, version];
@@ -249,7 +249,7 @@ export default function Profile() {
               Versão usada por padrão na leitura e estudo:
             </p>
             <Select
-              value={preferences?.versao_padrao || "ARA"}
+              value={preferences?.versao_padrao || DEFAULT_BIBLE_VERSION}
               onValueChange={setDefaultVersion}
             >
               <SelectTrigger className="w-full">

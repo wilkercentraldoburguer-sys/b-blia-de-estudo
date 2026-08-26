@@ -7,9 +7,18 @@ import { BOOK_ABBREV_MAP } from './bookCodes';
  * Prioridades:
  * 1. Memória (LRU últimos 3 capítulos)
  * 2. IndexedDB persistente
- * 3. Fetch de /bible/{version}/{book}/{chapter}.json
+ * 3. Fetch de /bible/{version}/{book}.json (1 arquivo por LIVRO, com todos
+ *    os capítulos dentro - não 1 arquivo por capítulo)
  *
  * NUNCA chama API externa ou LLM.
+ *
+ * NOTA (25/08/2026): o dataset já foi 1 arquivo por capítulo (~1190
+ * arquivos), mas o GitHub recusa upload pelo site em lotes de mais de 100
+ * arquivos de uma vez, o que travava a publicação. Agora é 1 arquivo por
+ * livro (66 arquivos no total) - cabe num upload só, e o navegador ainda
+ * baixa cada livro inteiro de uma vez só na primeira leitura dele (os
+ * outros capítulos do mesmo livro saem do cache HTTP/Service Worker sem
+ * nova ida à rede).
  */
 
 // Cache LRU em memória
@@ -53,7 +62,11 @@ const memoryCache = new LRUCache(3);
 const BOOK_KEY_MAP = BOOK_ABBREV_MAP;
 
 const VERSION_MAP = {
-  'ARA': 'ra', 'ARC': 'arc', 'NVI': 'nvi', 'ACF': 'acf', 'KJV': 'kjv'
+  'AA': 'aa', 'KJV': 'kjv',
+  // As versões abaixo não têm dataset local real (ver bibleVersions.jsx) -
+  // mantidas só para não quebrar a normalização de uma sigla antiga que
+  // ainda apareça em algum cache velho no localStorage do usuário.
+  'ARA': 'ra', 'ARC': 'arc', 'NVI': 'nvi', 'ACF': 'acf'
 };
 
 function normalizeBookName(name) {
@@ -106,38 +119,59 @@ export async function getChapter(versionCode, bookName, chapter) {
     // Ignorar erros de localStorage
   }
   
-  // 3. Arquivo local
+  // 3. Arquivo local (1 arquivo por livro, com todos os capítulos dentro)
   const basePath = getBasePath();
-  const url = `${basePath}/${version}/${bookKey}/${chapter}.json`;
-  
+  const url = `${basePath}/${version}/${bookKey}.json`;
+
   try {
     const response = await fetch(url);
     const timeMs = Math.round(performance.now() - t0);
     const bytes = response.ok ? (await response.clone().text()).length : 0;
-    
+
     if (!response.ok) {
       console.log(`BIBLELOG source=dataset url=${url} status=${response.status} error=DATASET_MISSING timeMs=${timeMs} bytes=${bytes} cacheHit=none`);
-      
-      const error = new Error(`Capitulo nao disponivel no dataset: ${bookName} ${chapter}`);
+
+      const error = new Error(`Livro nao disponivel no dataset: ${bookName}`);
       error.code = 'DATASET_MISSING';
       error.status = response.status;
       error.bookKey = bookKey;
       error.chapter = chapter;
       throw error;
     }
-    
-    const data = await response.json();
-    
-    // Validar schema
-    if (!data.verses || !Array.isArray(data.verses) || data.verses.length === 0) {
+
+    const bookData = await response.json();
+
+    // Validar schema (arquivo do livro inteiro: { version, book, chapters: [{chapter, verses}, ...] })
+    if (!bookData.chapters || !Array.isArray(bookData.chapters) || bookData.chapters.length === 0) {
       console.log(`BIBLELOG source=dataset url=${url} status=500 error=SCHEMA_INVALID timeMs=${timeMs} bytes=${bytes} cacheHit=none`);
-      
-      const error = new Error('Formato de capitulo invalido');
+
+      const error = new Error('Formato de livro invalido');
       error.code = 'INVALID_FORMAT';
       throw error;
     }
-    
-    // Salvar nos caches
+
+    const chapterEntry = bookData.chapters.find(c => c.chapter === chapter);
+
+    if (!chapterEntry || !Array.isArray(chapterEntry.verses) || chapterEntry.verses.length === 0) {
+      console.log(`BIBLELOG source=dataset url=${url} status=404 error=CHAPTER_MISSING timeMs=${timeMs} bytes=${bytes} cacheHit=none`);
+
+      const error = new Error(`Capitulo nao disponivel no dataset: ${bookName} ${chapter}`);
+      error.code = 'DATASET_MISSING';
+      error.bookKey = bookKey;
+      error.chapter = chapter;
+      throw error;
+    }
+
+    const data = {
+      version: bookData.version || versionCode,
+      book: bookData.book || bookKey,
+      chapter,
+      verses: chapterEntry.verses
+    };
+
+    // Salvar nos caches (só o capítulo pedido - os outros capítulos do
+    // mesmo livro continuam disponíveis via cache HTTP/Service Worker do
+    // arquivo do livro inteiro, sem precisar duplicar tudo aqui).
     memoryCache.set(cacheKey, data);
     try {
       const storageKey = `bible_${version}_${bookKey}_${chapter}`;
@@ -145,21 +179,21 @@ export async function getChapter(versionCode, bookName, chapter) {
     } catch (e) {
       // Ignorar se localStorage cheio
     }
-    
+
     const totalTime = Math.round(performance.now() - t0);
     const dataBytes = JSON.stringify(data).length;
     console.log(`BIBLELOG source=dataset url=${url} status=200 error=NONE timeMs=${totalTime} bytes=${dataBytes} cacheHit=file`);
-    
+
     return data;
   } catch (error) {
     if (error.code === 'DATASET_MISSING' || error.code === 'INVALID_FORMAT') {
       throw error;
     }
-    
+
     // Erro de rede/fetch (rota não servida)
     const timeMs = Math.round(performance.now() - t0);
     console.log(`BIBLELOG source=dataset url=${url} status=ERROR error=DATASET_ROUTE_NOT_SERVED timeMs=${timeMs} bytes=0 cacheHit=none`);
-    
+
     const err = new Error('Rota de dataset nao esta sendo servida. Use a funcao de auto-deteccao em Configuracoes.');
     err.code = 'DATASET_ROUTE_NOT_SERVED';
     throw err;

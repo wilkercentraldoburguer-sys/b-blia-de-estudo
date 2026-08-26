@@ -16,6 +16,7 @@ import StudyGenerator from "../components/study/StudyGenerator";
 import StudyViewer from "../components/study/StudyViewer";
 import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
 import { fetchMatthewHenryCommentary } from "../components/bible/matthewHenryProvider";
+import { BIBLE_VERSIONS, DEFAULT_BIBLE_VERSION } from "../components/bible/bibleVersions";
 
 export default function Study() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -30,29 +31,13 @@ export default function Study() {
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [compareDialogOpen, setCompareDialogOpen] = useState(false);
-  const [selectedVersions, setSelectedVersions] = useState(["ARA", "NVI", "ARC"]);
+  const [selectedVersions, setSelectedVersions] = useState([DEFAULT_BIBLE_VERSION, "KJV"]);
   const [comparisonData, setComparisonData] = useState([]);
   const [isLoadingComparison, setIsLoadingComparison] = useState(false);
   const [activeTab, setActiveTab] = useState("estudo");
   const [studyGeneratorOpen, setStudyGeneratorOpen] = useState(false);
   const [currentStudy, setCurrentStudy] = useState(null);
   const [myStudies, setMyStudies] = useState([]);
-
-  const BIBLE_VERSIONS = [
-    { sigla: "ARA", nome: "Almeida Revista e Atualizada" },
-    { sigla: "ARC", nome: "Almeida Revista e Corrigida" },
-    { sigla: "NVI", nome: "Nova Versão Internacional" },
-    // NVT é uma tradução comercial sem fonte gratuita/legal conhecida -
-    // fica na lista (foi pedida), mas marcada como indisponível em vez de
-    // silenciosamente comparar outra versão sob esse rótulo.
-    { sigla: "NVT", nome: "Nova Versão Transformadora", indisponivel: true },
-    { sigla: "ACF", nome: "Almeida Corrigida Fiel" },
-    { sigla: "KJV", nome: "King James Version" },
-    { sigla: "NAA", nome: "Nova Almeida Atualizada" },
-    // NTLH também é uma tradução comercial (Sociedade Bíblica do Brasil),
-    // sem fonte gratuita/legal conhecida - mesmo tratamento da NVT.
-    { sigla: "NTLH", nome: "Nova Tradução na Linguagem de Hoje", indisponivel: true }
-  ];
 
   const queryClient = useQueryClient();
 
@@ -198,14 +183,14 @@ export default function Study() {
     setIsLoading(true);
     try {
       // 1) Busca o texto REAL do versículo primeiro - nunca é gerado por IA.
-      const chapterData = await fetchChapterFromJSON("ARA", currentBook, currentChapter);
+      const chapterData = await fetchChapterFromJSON(DEFAULT_BIBLE_VERSION, currentBook, currentChapter);
       const versiculoTexto = chapterData?.verses?.[selectedVerse - 1]?.text || "";
 
       // 2) A IA só é usada para o material interpretativo (contexto,
       // palavras-chave, comentário e sugestão de referências cruzadas) -
       // nunca para "gerar" o texto bíblico em si.
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Considere ${currentBook} ${currentChapter}:${selectedVerse}, cujo texto bíblico real (ARA) é:
+        prompt: `Considere ${currentBook} ${currentChapter}:${selectedVerse}, cujo texto bíblico real (${DEFAULT_BIBLE_VERSION}) é:
 "${versiculoTexto}"
 
 Crie o material de apoio para o estudo deste versículo.
@@ -285,7 +270,7 @@ Referências cruzadas devem incluir 3-5 versículos relevantes e relacionados`,
           if (!match) return null;
           const [, refBook, refChapterStr, refVerseStr] = match;
           try {
-            const refData = await fetchChapterFromJSON("ARA", refBook.trim(), parseInt(refChapterStr, 10));
+            const refData = await fetchChapterFromJSON(DEFAULT_BIBLE_VERSION, refBook.trim(), parseInt(refChapterStr, 10));
             const refVerseData = refData?.verses?.[parseInt(refVerseStr, 10) - 1];
             if (!refVerseData) return null;
             return { ...ref, texto: refVerseData.text };
