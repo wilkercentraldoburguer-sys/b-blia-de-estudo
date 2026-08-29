@@ -17,6 +17,29 @@
  *  - NBV  (Nova Bíblia Viva)                -> Bible ID 1966
  *  - OL   (O Livro, uma paráfrase)          -> Bible ID 1967
  *
+ * ATUALIZAÇÃO (29/08/2026): depois de publicar as 3 acima, o usuário pediu
+ * pra tentar liberar também as versões que continuavam bloqueadas (ACF,
+ * ARA, ARC, NVT, NAA, NTLH). Buscamos o CATÁLOGO INTEIRO da YouVersion
+ * Platform (as 1.479 Bíblias de toda a plataforma, todos os idiomas,
+ * ignorando licenciamento - parâmetro `all_available=true`) e confirmamos
+ * que NENHUMA dessas 6 versões existe lá, sob nenhuma etiqueta ou idioma -
+ * são propriedade da Sociedade Bíblica do Brasil (ACF/ARA/ARC/NAA/NTLH) e
+ * da Mundo Cristão (NVT), que não participam do programa de licenciamento
+ * gratuito da YouVersion. Não há nada a fazer aqui além do que já foi
+ * feito antes (dataset local pronto, mas não publicado a pedido do
+ * usuário, pra ACF - ver bibleVersions.jsx).
+ *
+ * Nessa mesma busca, encontramos uma versão em português REAL que não
+ * tínhamos visto antes, sem relação com o contrato da Biblica - é de outro
+ * publisher, com licença Creative Commons própria (não precisa do
+ * consentimento adicional da Biblica):
+ *  - BLT  (Bíblia Livre Para Todos, por Dr. Jonathan Gallagher)  -> Bible ID 3254
+ *    Licença: Creative Commons Atribuição-CompartilhaIgual 4.0. Criada
+ *    explicitamente pra ser uma tradução em português do Brasil "não
+ *    limitada por questões usuais de direitos autorais" (texto do próprio
+ *    copyright da versão). Sem a restrição de IA da Biblica - ver
+ *    `aiEnabled: true` em bibleVersions.jsx.
+ *
  * RESTRIÇÃO CONTRATUAL IMPORTANTE (Seção III.B do contrato): o texto dessas
  * versões NÃO PODE ser usado como entrada para produzir conteúdo
  * personalizado via inteligência artificial / machine learning. Por isso,
@@ -68,6 +91,7 @@ const BIBLE_ID_MAP = {
   'NVI': 129,
   'NBV': 1966,
   'OL': 1967,
+  'BLT': 3254,
 };
 
 /** Indica se uma versão do app é servida por este provider. */

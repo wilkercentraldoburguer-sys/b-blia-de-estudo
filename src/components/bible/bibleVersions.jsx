@@ -60,6 +60,25 @@
  * quase iguais chamadas "NVI". Pode ser adicionada depois se o usuário
  * quiser.
  *
+ * ATUALIZAÇÃO (29/08/2026) - tentativa de liberar ACF, ARA, ARC, NVT, NAA
+ * e NTLH: buscamos o catálogo INTEIRO da YouVersion Platform (1.479
+ * Bíblias, todos os idiomas, todos os publishers, ignorando licenciamento
+ * já aceito) e confirmamos que nenhuma dessas 6 versões existe lá, sob
+ * nenhuma etiqueta - são propriedade da Sociedade Bíblica do Brasil
+ * (ACF/ARA/ARC/NAA/NTLH) e da Mundo Cristão (NVT), que não participam
+ * desse programa de licenciamento gratuito. Continuam com `indisponivel:
+ * true` porque, depois dessa busca exaustiva, seguimos sem NENHUMA fonte
+ * real, gratuita e legal para o texto completo delas - em nenhum lugar
+ * pesquisado até agora (api.bible, ABíbliaDigital, getbible.net, YouVersion
+ * Platform, busca geral na web).
+ *
+ * Nessa mesma busca apareceu uma versão em português nova, sem relação com
+ * a Biblica - a BLT (Bíblia Livre Para Todos, tradução independente do Dr.
+ * Jonathan Gallagher, licença Creative Commons Atribuição-CompartilhaIgual
+ * 4.0). Real, testada, Bíblia completa (66 livros), sem a restrição de IA
+ * do contrato Biblica. Adicionada como mais uma opção - ver
+ * youVersionProvider.jsx.
+ *
  * POLÍTICA DE IA POR VERSÃO (campo `aiEnabled`, 29/08/2026): o contrato da
  * Biblica (Seção III.B) proíbe usar o texto licenciado (NVI, NBV, OL) como
  * entrada para produzir conteúdo personalizado via IA/machine learning.
@@ -84,6 +103,7 @@ export const BIBLE_VERSIONS = [
   { sigla: "NVI", nome: "Nova Versão Internacional", aiEnabled: false, fonte: "YouVersion Platform (licença Biblica Fast-track)" },
   { sigla: "NBV", nome: "Nova Bíblia Viva", aiEnabled: false, fonte: "YouVersion Platform (licença Biblica Fast-track)" },
   { sigla: "OL", nome: "O Livro", aiEnabled: false, fonte: "YouVersion Platform (licença Biblica Fast-track)" },
+  { sigla: "BLT", nome: "Bíblia Livre Para Todos", aiEnabled: true, fonte: "YouVersion Platform (Creative Commons BY-SA 4.0)" },
   { sigla: "ACF", nome: "Almeida Corrigida Fiel", indisponivel: true },
   { sigla: "ARA", nome: "Almeida Revista e Atualizada", indisponivel: true },
   { sigla: "ARC", nome: "Almeida Revista e Corrigida", indisponivel: true },
