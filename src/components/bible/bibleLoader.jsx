@@ -1,6 +1,7 @@
 import { getBookKey } from './bibleUtils';
 import { fetchChapterFromAPI } from './abibliaBibleProvider';
 import { fetchChapterFromGetBible } from './getBibleProvider';
+import { fetchChapterFromYouVersion, isYouVersionVersion } from './youVersionProvider';
 import { getChapter, saveChapterToCache } from './BibleRepository';
 import { getAbibliaBookCode } from './bookCodes';
 import { hasAPIToken } from './apiTokenManager';
@@ -200,11 +201,15 @@ export function getCacheStats() {
 /**
  * Carrega capítulo com estratégia cache-first
  * REGRA: NUNCA usa LLM para o texto biblico - apenas cache local, dataset
- * estático, a API real da ABíbliaDigital (quando há token) ou a API pública
- * getbible.net. O texto sagrado nunca é "gerado"; é sempre buscado de uma
- * fonte real.
+ * estático, a API oficial da YouVersion Platform (para as versões
+ * licenciadas via contrato Biblica), a API real da ABíbliaDigital (quando
+ * há token) ou a API pública getbible.net. O texto sagrado nunca é
+ * "gerado"; é sempre buscado de uma fonte real.
  *
  * Ordem: memória -> localStorage -> dataset estático (/bible/...)
+ *        -> YouVersion Platform (só para NVI/NBV/OL - ver
+ *           youVersionProvider.jsx; fonte real e licenciada específica
+ *           dessas versões, tentada antes de qualquer fallback genérico)
  *        -> ABíbliaDigital (se houver token configurado, melhor qualidade/versão)
  *        -> getbible.net (fallback público, sem token, sempre disponível;
  *           serve KJA (King James real em inglês) e Almeida 1911 real em
@@ -220,6 +225,21 @@ export async function fetchChapterFromJSON(version, bookName, chapter, signal) {
   } catch (repositoryError) {
     // Dataset estático não tem esse capítulo (ou rota não servida) - buscar numa API real
     const bookKey = getBookKey(bookName);
+
+    // Versões liberadas via YouVersion Platform (NVI, NBV, OL) têm uma
+    // fonte real e licenciada específica pra elas - tentamos essa fonte
+    // primeiro, antes de qualquer fallback genérico, pra sempre pegar o
+    // texto certo dessas traduções (nunca cair no Almeida 1911 do
+    // getbible.net sob a etiqueta "NVI", por exemplo).
+    if (isYouVersionVersion(version)) {
+      try {
+        const data = await fetchChapterFromYouVersion(version, bookKey, chapter, signal);
+        saveChapterToCache(version, bookName, chapter, data);
+        return data;
+      } catch (youVersionError) {
+        console.warn('YouVersion Platform indisponível, tentando fallback:', youVersionError.message);
+      }
+    }
 
     // Se houver token da ABíbliaDigital configurado, tenta primeiro (texto
     // mais fiel à versão escolhida e ortografia atual).

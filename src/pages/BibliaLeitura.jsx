@@ -15,7 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { fetchChapterFromJSON, prefetchChapters } from "@/components/bible/bibleLoader";
 import { Link } from "react-router-dom";
-import { DEFAULT_BIBLE_VERSION } from "@/components/bible/bibleVersions";
+import { DEFAULT_BIBLE_VERSION, getAiAvailabilityNotice } from "@/components/bible/bibleVersions";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function BibliaLeitura() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -34,7 +35,18 @@ export default function BibliaLeitura() {
   const [studyGeneratorOpen, setStudyGeneratorOpen] = useState(false);
   
   const navigate = useNavigate();
-  
+  const { toast } = useToast();
+
+  // Avisa o usuário se a IA está disponível ou não na versão escolhida
+  // (pedido explícito do usuário - ver bibleVersions.jsx).
+  const handleVersionChange = (newVersion) => {
+    setSelectedVersion(newVersion);
+    const notice = getAiAvailabilityNotice(newVersion);
+    if (notice) {
+      toast(notice);
+    }
+  };
+
   // Configurações de leitura
   const [fontSize, setFontSize] = useState("medium");
   const [lineSpacing, setLineSpacing] = useState("normal");
@@ -464,7 +476,7 @@ export default function BibliaLeitura() {
               setCurrentChapter(1);
             }}
             onChapterChange={setCurrentChapter}
-            onVersionChange={setSelectedVersion}
+            onVersionChange={handleVersionChange}
           />
         </div>
 

@@ -8,20 +8,29 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BookOpen, Sparkles } from "lucide-react";
 import LoadingState from "../common/LoadingState";
+import { BIBLE_VERSIONS, DEFAULT_BIBLE_VERSION } from "@/components/bible/bibleVersions";
 
-export default function StudyGenerator({ 
-  open, 
-  onClose, 
-  initialBook, 
-  initialChapter, 
+// Versões que podem ser usadas nesta tela (Estudo Bíblico gerado por IA):
+// só versões DISPONÍVEIS e cuja licença permite IA sobre o texto (ver
+// aiEnabled em bibleVersions.jsx). NVI/NBV/OL (licença Biblica) ficam de
+// fora daqui de propósito - não é um esquecimento, é a política de IA
+// pedida explicitamente pelo usuário em 29/08/2026, pra nunca arriscar
+// violar o contrato de licenciamento dessas versões.
+const AI_STUDY_VERSIONS = BIBLE_VERSIONS.filter(v => !v.indisponivel && v.aiEnabled);
+
+export default function StudyGenerator({
+  open,
+  onClose,
+  initialBook,
+  initialChapter,
   initialVerse,
-  onStudyGenerated 
+  onStudyGenerated
 }) {
   const [livro, setLivro] = useState(initialBook || "");
   const [capitulo, setCapitulo] = useState(initialChapter || 1);
   const [versiculoInicio, setVersiculoInicio] = useState(initialVerse || 1);
   const [versiculoFim, setVersiculoFim] = useState(initialVerse || 1);
-  const [versao, setVersao] = useState("ARA");
+  const [versao, setVersao] = useState(AI_STUDY_VERSIONS[0]?.sigla || DEFAULT_BIBLE_VERSION);
   const [profundidade, setProfundidade] = useState("medio");
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -58,6 +67,30 @@ export default function StudyGenerator({
 
       const prompt = `Gere um estudo bíblico completo para ${referencia} na versão ${versao}.
 Nível de profundidade: ${profundidade} (${nivelDescricao[profundidade]})
+
+═══════════════════════════════════════════
+POLÍTICA DE FUNDAMENTAÇÃO (OBRIGATÓRIA, PRIORIDADE MÁXIMA)
+═══════════════════════════════════════════
+
+Tudo que você escrever precisa se ater EXCLUSIVAMENTE ao que está escrito
+na Bíblia. Regras não-negociáveis:
+
+- A Bíblia é a base de tudo. Todo o conteúdo gerado (contexto, explicação,
+  aplicação, comparações, referências, quiz, reflexão, oração) precisa vir
+  diretamente das Escrituras - não de conhecimento externo, teorias,
+  estatísticas, notícias, cultura pop ou qualquer fonte fora do texto
+  bíblico.
+- NÃO extraia nem introduza nenhuma informação de fora do livro. Se algo
+  não está na Bíblia (nomes de autores incertos, datas exatas não
+  reveladas no texto, especulações históricas não bíblicas), não afirme
+  como fato - fale apenas do que o texto realmente diz.
+- NÃO dê opinião pessoal seu, nem "achismo", nem conclusão baseada em
+  conhecimento geral que não esteja ancorada no texto bíblico em questão
+  ou em outras passagens das Escrituras.
+- Os exemplos de aplicação prática devem nascer do princípio bíblico do
+  texto, não de opiniões genéricas sobre a vida moderna desconectadas dele.
+- Na dúvida entre "parece verdade" e "está escrito", sempre prevaleça o
+  que está escrito.
 
 ═══════════════════════════════════════════
 DIRETRIZES EDITORIAIS OBRIGATÓRIAS
@@ -124,12 +157,14 @@ REGRAS FINAIS:
 ✓ Sempre apontar para Cristo
 ✓ Incentivar leitura bíblica e comunhão na igreja local
 ✓ Linguagem clara, sem triunfalismo vazio
+✓ Base exclusivamente na Bíblia - nada de fora do texto bíblico
 
 NUNCA FAÇA:
 ✗ Profecias pessoais
 ✗ "Deus está mandando você..."
 ✗ Aconselhamento direto para decisões críticas
-✗ Substituir o papel do Espírito Santo ou pastor`;
+✗ Substituir o papel do Espírito Santo ou pastor
+✗ Usar informação, opinião ou "achismo" que não venha do texto bíblico`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -268,12 +303,14 @@ NUNCA FAÇA:
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ARA">ARA</SelectItem>
-                  <SelectItem value="ARC">ARC</SelectItem>
-                  <SelectItem value="NVI">NVI</SelectItem>
-                  <SelectItem value="NAA">NAA</SelectItem>
+                  {AI_STUDY_VERSIONS.map(v => (
+                    <SelectItem key={v.sigla} value={v.sigla}>{v.sigla}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Só versões com IA liberada pela licença aparecem aqui.
+              </p>
             </div>
 
             <div>

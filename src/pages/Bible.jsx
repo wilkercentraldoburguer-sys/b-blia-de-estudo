@@ -14,7 +14,8 @@ import BookSelector, { OLD_TESTAMENT, NEW_TESTAMENT } from "../components/bible/
 import ChapterNavigation from "../components/bible/ChapterNavigation";
 import { fetchChapterFromJSON } from "../components/bible/bibleLoader";
 import { searchVerses } from "../components/bible/abibliaBibleProvider";
-import { BIBLE_VERSIONS, DEFAULT_BIBLE_VERSION } from "../components/bible/bibleVersions";
+import { BIBLE_VERSIONS, DEFAULT_BIBLE_VERSION, getAiAvailabilityNotice } from "../components/bible/bibleVersions";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Bible() {
   const [currentBook, setCurrentBook] = useState("João");
@@ -51,10 +52,23 @@ export default function Bible() {
   const isLoadingRef = useRef(false);
 
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     loadUser();
   }, []);
+
+  // Avisa o usuário se a IA está disponível ou não na versão escolhida
+  // (pedido explícito do usuário: "gostaria também de fazer alguma
+  // citação para que quando eu mudar a versão, o próprio aplicativo
+  // informasse. Essa versão pode ser usada em IA, ou não.")
+  const handleVersionChange = (newVersion) => {
+    setSelectedVersion(newVersion);
+    const notice = getAiAvailabilityNotice(newVersion);
+    if (notice) {
+      toast(notice);
+    }
+  };
 
   useEffect(() => {
     // Cancelar requisição anterior
@@ -454,7 +468,7 @@ export default function Bible() {
               </SheetContent>
             </Sheet>
 
-            <Select value={selectedVersion} onValueChange={setSelectedVersion}>
+            <Select value={selectedVersion} onValueChange={handleVersionChange}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -464,9 +478,14 @@ export default function Bible() {
                     key={version.sigla}
                     value={version.sigla}
                     disabled={version.indisponivel}
-                    title={version.indisponivel ? 'Indisponível: sem fonte gratuita/legal para esta tradução' : undefined}
+                    title={
+                      version.indisponivel
+                        ? 'Indisponível: sem fonte gratuita/legal para esta tradução'
+                        : (version.aiEnabled ? 'IA disponível nesta versão' : 'IA desativada nesta versão (licença não permite)')
+                    }
                   >
-                    {version.sigla}{version.indisponivel ? ' (indisponível)' : ''}
+                    {version.sigla}
+                    {version.indisponivel ? ' (indisponível)' : (version.aiEnabled ? ' ✦ IA' : '')}
                   </SelectItem>
                 ))}
               </SelectContent>

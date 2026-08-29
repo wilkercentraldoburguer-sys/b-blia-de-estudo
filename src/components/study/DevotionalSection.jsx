@@ -92,6 +92,7 @@ Retorne um JSON com:
 
 IMPORTANTE:
 - NÃO escreva o texto do versículo - apenas a referência (ele será buscado de uma fonte bíblica real)
+- Baseie-se EXCLUSIVAMENTE no que está escrito na Bíblia - não use conhecimento externo, opinião pessoal ou "achismo" desconectado do texto bíblico
 - Seja prático e aplicável à vida diária
 - Use linguagem acessível e inspiradora
 - Mantenha fidelidade bíblica

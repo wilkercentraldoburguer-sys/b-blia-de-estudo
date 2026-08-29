@@ -77,9 +77,14 @@ export default function VerseSelector({
               key={version.sigla}
               value={version.sigla}
               disabled={version.indisponivel}
-              title={version.indisponivel ? 'Indisponível: sem fonte gratuita/legal para esta tradução' : undefined}
+              title={
+                version.indisponivel
+                  ? 'Indisponível: sem fonte gratuita/legal para esta tradução'
+                  : (version.aiEnabled ? 'IA disponível nesta versão' : 'IA desativada nesta versão (licença não permite)')
+              }
             >
-              {version.sigla}{version.indisponivel ? ' (indisponível)' : ''}
+              {version.sigla}
+              {version.indisponivel ? ' (indisponível)' : (version.aiEnabled ? ' ✦ IA' : '')}
             </SelectItem>
           ))}
         </SelectContent>

@@ -834,10 +834,14 @@ Retorne apenas um JSON:
                     size="sm"
                     onClick={() => toggleVersion(version.sigla)}
                     disabled={version.indisponivel}
-                    title={version.indisponivel ? 'Indisponível: sem fonte gratuita/legal para esta tradução' : undefined}
+                    title={
+                      version.indisponivel
+                        ? 'Indisponível: sem fonte gratuita/legal para esta tradução'
+                        : (version.aiEnabled ? 'IA disponível nesta versão' : 'IA desativada nesta versão (licença não permite)')
+                    }
                     className="text-xs disabled:opacity-40"
                   >
-                    {version.sigla}
+                    {version.sigla}{!version.indisponivel && version.aiEnabled ? ' ✦' : ''}
                   </Button>
                 ))}
               </div>
