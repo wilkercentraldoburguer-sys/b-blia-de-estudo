@@ -80,7 +80,7 @@ export default function Home() {
           </Card>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <Link to={createPageUrl("Reader")}>
             <Card className="hover:border-accent hover:shadow-lg transition-all cursor-pointer h-full">
               <CardContent className="flex flex-col items-center justify-center p-6 gap-3">
