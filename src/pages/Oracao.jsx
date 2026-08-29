@@ -5,10 +5,30 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { HandHeart, BookOpen, MessageCircleHeart, Trash2, Pencil, Save, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { HandHeart, BookOpen, MessageCircleHeart, Trash2, Pencil, Save, X, Music, Plus, AlertCircle } from "lucide-react";
 import { IDENTITY_SECTIONS } from "../components/prayer/identityDeclarations";
+import { parseMusicUrl } from "../components/prayer/musicEmbed";
 
 const STORAGE_KEY = "oracoes_livres";
+const PLAYERS_STORAGE_KEY = "louvor_players";
+
+function loadPlayersFromStorage() {
+  try {
+    const saved = localStorage.getItem(PLAYERS_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
+
+function savePlayersToStorage(players) {
+  try {
+    localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(players));
+  } catch (e) {
+    console.error("Erro ao salvar player de louvor:", e);
+  }
+}
 
 function loadPrayersFromStorage() {
   try {
@@ -205,6 +225,114 @@ function OracaoLivre() {
   );
 }
 
+function LouvorAdoracao() {
+  const [players, setPlayers] = useState([]);
+  const [linkInput, setLinkInput] = useState("");
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    setPlayers(loadPlayersFromStorage());
+  }, []);
+
+  const handleAdd = () => {
+    setErro("");
+    const parsed = parseMusicUrl(linkInput);
+    if (!parsed) {
+      setErro(
+        "Não reconheci esse link. Cole um link público de playlist, álbum ou música do Spotify, YouTube, Apple Music ou Deezer."
+      );
+      return;
+    }
+    const novo = { id: Date.now().toString(), url: linkInput.trim(), ...parsed };
+    const atualizados = [novo, ...players];
+    setPlayers(atualizados);
+    savePlayersToStorage(atualizados);
+    setLinkInput("");
+  };
+
+  const handleRemove = (id) => {
+    const atualizados = players.filter((p) => p.id !== id);
+    setPlayers(atualizados);
+    savePlayersToStorage(atualizados);
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card className="bg-primary/5 border-primary/20">
+        <CardContent className="p-5 space-y-3">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Cole aqui o link de uma playlist, álbum ou música de louvor do <strong>Spotify</strong>,{" "}
+            <strong>YouTube</strong> (ou YouTube Music), <strong>Apple Music</strong> ou <strong>Deezer</strong> — o
+            player toca direto aqui dentro, sem precisar sair do app.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Input
+              value={linkInput}
+              onChange={(e) => setLinkInput(e.target.value)}
+              placeholder="Cole o link aqui (ex: https://open.spotify.com/playlist/...)"
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+            />
+            <Button onClick={handleAdd} className="bg-primary hover:bg-primary/90 shrink-0">
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar
+            </Button>
+          </div>
+          {erro && (
+            <p className="text-sm text-destructive flex items-start gap-1.5">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              {erro}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="bg-muted/40">
+        <CardContent className="p-4">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            <strong>Amazon Music</strong> não oferece nenhum player público pra incorporar em outros sites, então
+            não é possível conectá-lo aqui. Um app instalado só no seu celular (como o Video Lite) também não dá
+            pra "conectar" numa página web — ele não é um serviço de internet com link próprio.
+          </p>
+        </CardContent>
+      </Card>
+
+      {players.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Music className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-muted-foreground">Nenhum player adicionado ainda.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {players.map((player) => (
+            <Card key={player.id} className="overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
+                <Badge variant="outline" className="font-normal">
+                  <Music className="w-3 h-3 mr-1.5" />
+                  {player.label}
+                </Badge>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemove(player.id)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              <iframe
+                src={player.embedUrl}
+                width="100%"
+                height={player.height}
+                frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+                title={`Player ${player.label}`}
+              />
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Oracao() {
   return (
     <div className="min-h-screen bg-background">
@@ -215,9 +343,10 @@ export default function Oracao() {
         </div>
 
         <Tabs defaultValue="palavra" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="palavra">Orando a Palavra</TabsTrigger>
             <TabsTrigger value="livre">Oração Livre</TabsTrigger>
+            <TabsTrigger value="louvor">Louvor</TabsTrigger>
           </TabsList>
 
           <TabsContent value="palavra">
@@ -226,6 +355,10 @@ export default function Oracao() {
 
           <TabsContent value="livre">
             <OracaoLivre />
+          </TabsContent>
+
+          <TabsContent value="louvor">
+            <LouvorAdoracao />
           </TabsContent>
         </Tabs>
       </div>
