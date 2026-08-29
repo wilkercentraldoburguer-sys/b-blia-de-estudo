@@ -55,6 +55,7 @@ import Community from './pages/Community';
 import Favorites from './pages/Favorites';
 import Home from './pages/Home';
 import Notes from './pages/Notes';
+import Oracao from './pages/Oracao';
 import PlanoLeitura from './pages/PlanoLeitura';
 import Profile from './pages/Profile';
 import Quiz from './pages/Quiz';
@@ -75,6 +76,7 @@ export const PAGES = {
     "Favorites": Favorites,
     "Home": Home,
     "Notes": Notes,
+    "Oracao": Oracao,
     "PlanoLeitura": PlanoLeitura,
     "Profile": Profile,
     "Quiz": Quiz,
